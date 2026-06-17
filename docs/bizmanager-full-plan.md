@@ -47,9 +47,9 @@
 - Full double-entry accounting, tax filing, EPF/ETF online submission
 - Inventory, multi-branch, POS, bank feeds, payment gateway, e-commerce
 - Biometric/GPS attendance, staff self-service login (optional defer)
-- PDF/Excel export (placeholder UI only)
-- WhatsApp share (placeholder hooks)
 - Subscription billing (placeholder structure only)
+
+> **Note:** PDF/Excel export and WhatsApp share were originally out of MVP scope; delivered in Sprint 10.
 
 ---
 
@@ -57,9 +57,11 @@
 
 | Phase | Features |
 |-------|----------|
-| **v1.1** | PDF payslips, PDF/Excel report export, WhatsApp share links |
-| **v1.2** | Staff login, expense claims, push notifications |
-| **v1.3** | Phone OTP auth, LankaQR payment references, cheque lifecycle |
+| **v1.1** | PDF payslips, PDF/Excel report export, WhatsApp share links | ✅ Done (Sprint 10) |
+| **v1.2** | Staff login, expense claims, push notifications | Partial — mobile session, push scaffold (Sprint 11–13) |
+| **v1.3** | Phone OTP auth, LankaQR payment references, cheque lifecycle | Deferred — replaced by batch payslips, EAS, email invites (Sprint 12) |
+| **v1.4** | Premium polish: welcome hero, notifications, login, offline, app icon | ✅ Done (Sprint 13) |
+| **v1.5** | Global search, notification prefs, dark mode, accountant role | ✅ Done (Sprint 14) |
 | **v2.0** | Real LLM integration, voice input, smart categorization |
 | **v2.1** | Multi-branch, inventory-lite, POS integration |
 | **v3.0** | Subscription plans, payment gateway, accountant portal |
@@ -337,17 +339,36 @@ OPENAI_API_KEY               # optional
 - Auth loading screen fix
 - Docs: `docs/sprint-12.md`
 
-### Original v1.1 roadmap — now done
-- ✅ PDF payslips
-- ✅ PDF/Excel export
-- ✅ WhatsApp share
+### Sprint 13 — v1.4 Premium Polish
+- Welcome hero + quick actions (web dashboard)
+- Notifications panel (bell icon, mark read)
+- Premium login split layout
+- Mobile offline banner + push scaffold
+- App icon assets (`apps/mobile/assets/icon.png`)
+- Docs: `docs/sprint-13.md`, `docs/app-store-listing.md`
 
-### Next — v1.4
-- App icon + splash assets
-- App Store / Play Store submit (`eas init` → `pnpm mobile:build`)
-- Push notifications
-- Mobile offline mode
+### Sprint 14 — v1.5 Search & Roles
+- Global search (customers, suppliers, transactions, staff)
+- Notification preferences in Settings
+- Dark mode toggle
+- Accountant read-only role + `usePermissions` hook
+- Docs: `docs/sprint-14.md`
+
+### Post-MVP roadmap — status
+| Version | Status |
+|---------|--------|
+| v1.1 PDF/WhatsApp/export | ✅ Done |
+| v1.2 Mobile forms, settings save | ✅ Mostly done |
+| v1.3 OTP/LankaQR/cheque | ⏸ Deferred |
+| v1.4 Premium polish | ✅ Done |
+| v1.5 Search, prefs, dark mode, accountant | ✅ Done |
+
+### Next — v1.6
+- Mobile global search
+- Notification filtering by user prefs
+- Full dark mode (sidebar, charts)
 - GitHub ↔ Vercel auto-deploy (manual connect in dashboard)
+- App Store submit (`eas init` → `pnpm mobile:build`)
 
 ### Manual checklist (still open)
 - [ ] Connect GitHub to Vercel for auto-deploy
@@ -364,4 +385,5 @@ OPENAI_API_KEY               # optional
 - [Architecture](./architecture.md)
 - [RLS Policies](./rls-policies.md)
 - [Vercel Deploy](./vercel-deploy.md)
-- [Sprint 9](./sprint-9.md) · [Sprint 10](./sprint-10.md) · [Sprint 11](./sprint-11.md) · [Sprint 12](./sprint-12.md)
+- [Sprint 9](./sprint-9.md) · [Sprint 10](./sprint-10.md) · [Sprint 11](./sprint-11.md) · [Sprint 12](./sprint-12.md) · [Sprint 13](./sprint-13.md) · [Sprint 14](./sprint-14.md)
+- [App Store Listing](./app-store-listing.md)

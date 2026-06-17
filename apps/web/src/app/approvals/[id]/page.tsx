@@ -13,6 +13,7 @@ import { formatCurrency } from '@bizmanager/utils';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/components/toast';
+import { usePermissions } from '@/hooks/use-permissions';
 
 export default function ApprovalDetailPage() {
   const params = useParams();
@@ -23,6 +24,7 @@ export default function ApprovalDetailPage() {
   const toast = useToast((s) => s.show);
   const [confirmAction, setConfirmAction] = useState<'approve' | 'reject' | null>(null);
   const [processing, setProcessing] = useState(false);
+  const { canApprove } = usePermissions();
 
   const { data: requests } = useQuery({
     queryKey: queryKeys.paymentRequests(companyId),
@@ -74,7 +76,7 @@ export default function ApprovalDetailPage() {
           </p>
         </div>
 
-        {request.status === 'pending' && (
+        {request.status === 'pending' && canApprove && (
           <div className="flex gap-3">
             <PremiumButton className="flex-1" onClick={() => setConfirmAction('approve')}>{t('approve')}</PremiumButton>
             <PremiumButton variant="danger" className="flex-1" onClick={() => setConfirmAction('reject')}>{t('reject')}</PremiumButton>

@@ -1,12 +1,14 @@
 'use client';
 
-import { Menu, Search, Plus } from 'lucide-react';
+import { Menu, Plus } from 'lucide-react';
 import { useAppStore } from '@/stores/app-store';
 import { LanguageSwitcher, useTranslation } from './language-switcher';
 import { PeriodToggle } from './period-toggle';
 import { NotificationsPanel } from './notifications-panel';
+import { GlobalSearch } from './global-search';
 import Link from 'next/link';
 import { useAuth } from './auth-provider';
+import { usePermissions } from '@/hooks/use-permissions';
 import { getCompany, queryKeys, SAMPLE_COMPANY_ID } from '@bizmanager/supabase-client';
 import { useQuery } from '@tanstack/react-query';
 
@@ -19,6 +21,7 @@ export function TopBar({
 }) {
   const { toggleSidebar, period, setPeriod, companyId } = useAppStore();
   const { profile, signOut } = useAuth();
+  const { canWrite } = usePermissions();
   const { t } = useTranslation();
 
   const { data: company } = useQuery({
@@ -32,7 +35,7 @@ export function TopBar({
     : 'BM';
 
   return (
-    <header className="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-border">
+    <header className="sticky top-0 z-30 bg-white/80 dark:bg-gray-950/80 backdrop-blur border-b border-border dark:border-gray-800">
       <div className="flex items-center gap-3 px-4 py-3 lg:px-6">
         <button
           onClick={toggleSidebar}
@@ -43,20 +46,13 @@ export function TopBar({
         </button>
 
         {title && (
-          <h1 className="text-lg font-semibold text-gray-900 truncate flex-1 lg:flex-none">
+          <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate flex-1 lg:flex-none">
             {title}
           </h1>
         )}
 
         <div className="hidden md:flex flex-1 max-w-md mx-4">
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input
-              type="search"
-              placeholder="Search..."
-              className="input-field pl-10 py-2"
-            />
-          </div>
+          <GlobalSearch />
         </div>
 
         <div className="flex items-center gap-2 ml-auto">
@@ -76,17 +72,19 @@ export function TopBar({
             >
               {initials}
             </button>
-            <span className="text-sm font-medium text-gray-700 hidden lg:block max-w-[120px] truncate">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300 hidden lg:block max-w-[120px] truncate">
               {profile?.full_name ?? company?.name ?? 'BizManager'}
             </span>
           </div>
-          <Link
-            href="/expenses/add"
-            className="btn-primary hidden sm:inline-flex"
-          >
-            <Plus className="h-4 w-4" />
-            Add
-          </Link>
+          {canWrite && (
+            <Link
+              href="/expenses/add"
+              className="btn-primary hidden sm:inline-flex"
+            >
+              <Plus className="h-4 w-4" />
+              Add
+            </Link>
+          )}
         </div>
       </div>
     </header>

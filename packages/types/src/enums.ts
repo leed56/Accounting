@@ -1,4 +1,4 @@
-export const USER_ROLES = ['owner', 'manager', 'staff'] as const;
+export const USER_ROLES = ['owner', 'manager', 'accountant', 'staff'] as const;
 export type UserRole = typeof USER_ROLES[number];
 
 export const TRANSACTION_TYPES = [

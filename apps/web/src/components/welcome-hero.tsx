@@ -9,9 +9,10 @@ interface WelcomeHeroProps {
   companyName: string;
   ownerName?: string | null;
   pendingApprovals?: number;
+  readOnly?: boolean;
 }
 
-export function WelcomeHero({ companyName, ownerName, pendingApprovals = 0 }: WelcomeHeroProps) {
+export function WelcomeHero({ companyName, ownerName, pendingApprovals = 0, readOnly = false }: WelcomeHeroProps) {
   const { t } = useTranslation();
   const greetingKey = getTimeGreeting();
   const greeting =
@@ -39,26 +40,28 @@ export function WelcomeHero({ companyName, ownerName, pendingApprovals = 0 }: We
           </p>
         )}
 
-        <div className="flex flex-wrap gap-2 mt-6">
-          <Link href="/income/add" className="inline-flex items-center gap-2 bg-white text-primary font-semibold text-sm px-4 py-2.5 rounded-lg hover:bg-white/90 transition-colors min-h-[44px]">
-            <TrendingUp className="h-4 w-4" />
-            {t('addIncome')}
-          </Link>
-          <Link href="/expenses/add" className="inline-flex items-center gap-2 bg-white/15 text-white font-semibold text-sm px-4 py-2.5 rounded-lg hover:bg-white/25 transition-colors border border-white/20 min-h-[44px]">
-            <TrendingDown className="h-4 w-4" />
-            {t('addExpense')}
-          </Link>
-          {pendingApprovals > 0 && (
-            <Link href="/approvals" className="inline-flex items-center gap-2 bg-white/15 text-white font-semibold text-sm px-4 py-2.5 rounded-lg hover:bg-white/25 transition-colors border border-white/20 min-h-[44px]">
-              <CheckSquare className="h-4 w-4" />
-              {t('approvals')}
+        {!readOnly && (
+          <div className="flex flex-wrap gap-2 mt-6">
+            <Link href="/income/add" className="inline-flex items-center gap-2 bg-white text-primary font-semibold text-sm px-4 py-2.5 rounded-lg hover:bg-white/90 transition-colors min-h-[44px]">
+              <TrendingUp className="h-4 w-4" />
+              {t('addIncome')}
             </Link>
-          )}
-          <Link href="/expenses/add" className="inline-flex items-center gap-2 bg-white/10 text-white/90 font-medium text-sm px-4 py-2.5 rounded-lg hover:bg-white/20 transition-colors min-h-[44px] sm:hidden">
-            <Plus className="h-4 w-4" />
-            {t('add')}
-          </Link>
-        </div>
+            <Link href="/expenses/add" className="inline-flex items-center gap-2 bg-white/15 text-white font-semibold text-sm px-4 py-2.5 rounded-lg hover:bg-white/25 transition-colors border border-white/20 min-h-[44px]">
+              <TrendingDown className="h-4 w-4" />
+              {t('addExpense')}
+            </Link>
+            {pendingApprovals > 0 && (
+              <Link href="/approvals" className="inline-flex items-center gap-2 bg-white/15 text-white font-semibold text-sm px-4 py-2.5 rounded-lg hover:bg-white/25 transition-colors border border-white/20 min-h-[44px]">
+                <CheckSquare className="h-4 w-4" />
+                {t('approvals')}
+              </Link>
+            )}
+            <Link href="/expenses/add" className="inline-flex items-center gap-2 bg-white/10 text-white/90 font-medium text-sm px-4 py-2.5 rounded-lg hover:bg-white/20 transition-colors min-h-[44px] sm:hidden">
+              <Plus className="h-4 w-4" />
+              {t('add')}
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );

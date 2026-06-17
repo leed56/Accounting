@@ -205,8 +205,20 @@ const en = {
   inviteSent: 'Invitation sent',
   role: 'Role',
   roleManager: 'Manager',
+  roleAccountant: 'Accountant (read-only)',
   roleStaff: 'Staff',
   fullName: 'Full Name',
+
+  searchPlaceholder: 'Search customers, suppliers, transactions…',
+  searching: 'Searching…',
+  noSearchResults: 'No results found',
+  notificationPreferences: 'Notification Preferences',
+  notifyApprovals: 'Payment approval alerts',
+  notifyPayroll: 'Payroll reminders',
+  notifyLeave: 'Leave request updates',
+  darkMode: 'Dark mode',
+  appearance: 'Appearance',
+  readOnlyBanner: 'You have read-only access. Contact the owner to make changes.',
 
   // Approval detail
   requestedBy: 'Requested By',

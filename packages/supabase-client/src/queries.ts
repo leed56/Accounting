@@ -545,3 +545,160 @@ export async function getSession() {
   const supabase = getSupabase();
   return supabase.auth.getSession();
 }
+
+export interface GlobalSearchResult {
+  id: string;
+  type: 'customer' | 'supplier' | 'transaction' | 'staff';
+  title: string;
+  subtitle?: string;
+  href: string;
+}
+
+function escapeIlike(term: string) {
+  return term.replace(/[%_\\]/g, '\\$&');
+}
+
+function matchesTerm(value: string | null | undefined, term: string) {
+  return (value ?? '').toLowerCase().includes(term);
+}
+
+export async function globalSearch(
+  companyId: string,
+  query: string
+): Promise<GlobalSearchResult[]> {
+  const term = query.trim().toLowerCase();
+  if (term.length < 2) return [];
+
+  if (isDemoMode()) {
+    const results: GlobalSearchResult[] = [];
+    for (const c of sampleCustomers) {
+      if (matchesTerm(c.name, term) || matchesTerm(c.phone, term)) {
+        results.push({
+          id: c.id,
+          type: 'customer',
+          title: c.name,
+          subtitle: c.phone ?? undefined,
+          href: `/customers/${c.id}/edit`,
+        });
+      }
+    }
+    for (const s of sampleSuppliers) {
+      if (matchesTerm(s.name, term) || matchesTerm(s.phone, term)) {
+        results.push({
+          id: s.id,
+          type: 'supplier',
+          title: s.name,
+          subtitle: s.phone ?? undefined,
+          href: `/suppliers/${s.id}/edit`,
+        });
+      }
+    }
+    for (const tx of sampleTransactions) {
+      if (
+        matchesTerm(tx.description, term) ||
+        matchesTerm(tx.category, term) ||
+        matchesTerm(tx.type, term)
+      ) {
+        const path = tx.type === 'income' ? '/income' : '/expenses';
+        results.push({
+          id: tx.id,
+          type: 'transaction',
+          title: tx.description ?? tx.category ?? tx.type,
+          subtitle: `${tx.type} · Rs. ${tx.amount.toLocaleString()}`,
+          href: path,
+        });
+      }
+    }
+    for (const st of sampleStaff) {
+      if (matchesTerm(st.full_name, term) || matchesTerm(st.role_title, term)) {
+        results.push({
+          id: st.id,
+          type: 'staff',
+          title: st.full_name,
+          subtitle: st.role_title,
+          href: `/staff`,
+        });
+      }
+    }
+    return results.slice(0, 12);
+  }
+
+  const pattern = `%${escapeIlike(term)}%`;
+  const supabase = getSupabase();
+
+  const [customersRes, suppliersRes, txDescRes, txCatRes, staffRes] = await Promise.all([
+    supabase
+      .from('customers')
+      .select('id, name, phone')
+      .eq('company_id', companyId)
+      .ilike('name', pattern)
+      .limit(5),
+    supabase
+      .from('suppliers')
+      .select('id, name, phone')
+      .eq('company_id', companyId)
+      .ilike('name', pattern)
+      .limit(5),
+    supabase
+      .from('transactions')
+      .select('id, type, description, category, amount')
+      .eq('company_id', companyId)
+      .ilike('description', pattern)
+      .limit(5),
+    supabase
+      .from('transactions')
+      .select('id, type, description, category, amount')
+      .eq('company_id', companyId)
+      .ilike('category', pattern)
+      .limit(5),
+    supabase
+      .from('staff')
+      .select('id, full_name, role_title')
+      .eq('company_id', companyId)
+      .ilike('full_name', pattern)
+      .limit(5),
+  ]);
+
+  const results: GlobalSearchResult[] = [];
+
+  for (const c of customersRes.data ?? []) {
+    results.push({
+      id: c.id,
+      type: 'customer',
+      title: c.name,
+      subtitle: c.phone ?? undefined,
+      href: `/customers/${c.id}/edit`,
+    });
+  }
+  for (const s of suppliersRes.data ?? []) {
+    results.push({
+      id: s.id,
+      type: 'supplier',
+      title: s.name,
+      subtitle: s.phone ?? undefined,
+      href: `/suppliers/${s.id}/edit`,
+    });
+  }
+  for (const tx of [...(txDescRes.data ?? []), ...(txCatRes.data ?? [])]) {
+    if (results.some((r) => r.type === 'transaction' && r.id === tx.id)) continue;
+    const path = tx.type === 'income' ? '/income' : '/expenses';
+    results.push({
+      id: tx.id,
+      type: 'transaction',
+      title: tx.description ?? tx.category ?? tx.type,
+      subtitle: `${tx.type} · Rs. ${Number(tx.amount).toLocaleString()}`,
+      href: path,
+    });
+  }
+  for (const st of staffRes.data ?? []) {
+    results.push({
+      id: st.id,
+      type: 'staff',
+      title: st.full_name,
+      subtitle: st.role_title,
+      href: `/staff`,
+    });
+  }
+
+  return results.slice(0, 12);
+}

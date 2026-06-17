@@ -29,9 +29,9 @@ pnpm mobile:build
 
 See `docs/app-store-listing.md` for copy + screenshot checklist.
 
-## Next (v1.5)
+## Next (v1.6)
 
-- Global search (transactions, customers)
-- Notification preferences in Settings
-- Dark mode
-- Accountant read-only role
+- Mobile global search
+- Filter notifications by user preferences
+- Full dark mode polish (sidebar, charts)
+- Phone OTP auth (original v1.3 backlog)

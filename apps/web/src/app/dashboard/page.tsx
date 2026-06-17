@@ -11,6 +11,7 @@ import { DashboardSkeleton } from '@/components/empty-state';
 import { IncomeExpenseChart, ChartCard } from '@/components/charts';
 import { useTranslation } from '@/components/language-switcher';
 import { useAppStore } from '@/stores/app-store';
+import { usePermissions } from '@/hooks/use-permissions';
 import { WelcomeHero } from '@/components/welcome-hero';
 import {
   getDashboardSummary,
@@ -35,6 +36,7 @@ import {
 export default function DashboardPage() {
   const { t, language } = useTranslation();
   const companyId = useAppStore((s) => s.companyId) ?? SAMPLE_COMPANY_ID;
+  const { isReadOnly } = usePermissions();
 
   const { data: summary, isLoading } = useQuery({
     queryKey: queryKeys.dashboard(companyId, 'daily'),
@@ -72,10 +74,16 @@ export default function DashboardPage() {
   return (
     <AppShell title={t('dashboard')} showPeriod>
       <div className="space-y-6">
+        {isReadOnly && (
+          <p className="text-sm text-amber-800 dark:text-amber-200 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 rounded-lg px-4 py-3">
+            {t('readOnlyBanner')}
+          </p>
+        )}
         <WelcomeHero
           companyName={company?.name ?? 'BizManager'}
           ownerName={company?.owner_name}
           pendingApprovals={summary.pendingApprovals}
+          readOnly={isReadOnly}
         />
 
         {aiInsight && (

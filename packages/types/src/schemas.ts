@@ -98,7 +98,7 @@ export const approvalActionSchema = z.object({
 export const inviteSchema = z.object({
   email: z.string().email('Invalid email'),
   fullName: z.string().min(2, 'Name is required'),
-  role: z.enum(['manager', 'staff']),
+  role: z.enum(['manager', 'accountant', 'staff']),
 });
 
 export const settingsSchema = z.object({

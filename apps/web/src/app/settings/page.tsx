@@ -11,7 +11,7 @@ import { PremiumButton } from '@/components/premium-button';
 import { LanguageSwitcher, useTranslation } from '@/components/language-switcher';
 import { SummaryCard } from '@/components/metric-card';
 import { useToast } from '@/components/toast';
-import { useAuth } from '@/components/auth-provider';
+import { usePermissions } from '@/hooks/use-permissions';
 import { useAppStore } from '@/stores/app-store';
 import {
   getTeamMembers,
@@ -26,9 +26,13 @@ export default function SettingsPage() {
   const { t } = useTranslation();
   const toast = useToast((s) => s.show);
   const queryClient = useQueryClient();
-  const { profile } = useAuth();
   const companyId = useAppStore((s) => s.companyId) ?? SAMPLE_COMPANY_ID;
-  const isOwner = profile?.role === 'owner';
+  const darkMode = useAppStore((s) => s.darkMode);
+  const setDarkMode = useAppStore((s) => s.setDarkMode);
+  const notificationPrefs = useAppStore((s) => s.notificationPrefs);
+  const setNotificationPrefs = useAppStore((s) => s.setNotificationPrefs);
+  const { canManageSettings, canInvite } = usePermissions();
+  const isOwner = canManageSettings;
   const [inviteLoading, setInviteLoading] = useState(false);
   const [lastTempPassword, setLastTempPassword] = useState<string | null>(null);
 
@@ -148,8 +152,8 @@ export default function SettingsPage() {
             ))}
           </div>
 
-          {isOwner ? (
-            <div className="space-y-4 pt-2 border-t border-gray-100">
+          {canInvite ? (
+            <div className="space-y-4 pt-2 border-t border-gray-100 dark:border-gray-800">
               <p className="text-sm text-gray-500">{t('inviteUserDesc')}</p>
               <FormInput label={t('email')} required {...inviteForm.register('email')} />
               <FormInput label={t('fullName')} required {...inviteForm.register('fullName')} />
@@ -157,6 +161,7 @@ export default function SettingsPage() {
                 label={t('role')}
                 options={[
                   { value: 'manager', label: t('roleManager') },
+                  { value: 'accountant', label: t('roleAccountant') },
                   { value: 'staff', label: t('roleStaff') },
                 ]}
                 {...inviteForm.register('role')}
@@ -173,6 +178,50 @@ export default function SettingsPage() {
           ) : (
             <p className="text-sm text-gray-500">Only the owner can invite team members.</p>
           )}
+        </SummaryCard>
+
+        <SummaryCard title={t('notificationPreferences')}>
+          <div className="space-y-3">
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={notificationPrefs.notifyApprovals}
+                onChange={(e) => setNotificationPrefs({ notifyApprovals: e.target.checked })}
+                className="rounded"
+              />
+              {t('notifyApprovals')}
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={notificationPrefs.notifyPayroll}
+                onChange={(e) => setNotificationPrefs({ notifyPayroll: e.target.checked })}
+                className="rounded"
+              />
+              {t('notifyPayroll')}
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={notificationPrefs.notifyLeave}
+                onChange={(e) => setNotificationPrefs({ notifyLeave: e.target.checked })}
+                className="rounded"
+              />
+              {t('notifyLeave')}
+            </label>
+          </div>
+        </SummaryCard>
+
+        <SummaryCard title={t('appearance')}>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={darkMode}
+              onChange={(e) => setDarkMode(e.target.checked)}
+              className="rounded"
+            />
+            {t('darkMode')}
+          </label>
         </SummaryCard>
 
         <SummaryCard title={t('taxSettings')}>
