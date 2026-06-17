@@ -1,4 +1,12 @@
-import type { CustomerInput, ExpenseInput, IncomeInput, SupplierInput } from '@bizmanager/types';
+import type {
+  CustomerInput,
+  CustomerUpdateInput,
+  ExpenseInput,
+  IncomeInput,
+  SettingsInput,
+  SupplierInput,
+  SupplierUpdateInput,
+} from '@bizmanager/types';
 import { calculateRiskLevel, requiresOwnerApproval } from '@bizmanager/utils';
 import { getSupabase } from './client';
 import { getCurrentProfile } from './auth';
@@ -308,6 +316,33 @@ export async function createCustomer(input: CustomerInput) {
   return data;
 }
 
+export async function updateCustomer(id: string, input: CustomerUpdateInput) {
+  const { profile } = await getContext();
+  const supabase = getSupabase();
+  const { data: existing } = await supabase
+    .from('customers')
+    .select('*')
+    .eq('id', id)
+    .eq('company_id', profile.company_id)
+    .single();
+  if (!existing) throw new Error('Customer not found');
+
+  const { data, error } = await supabase
+    .from('customers')
+    .update({
+      name: input.name,
+      phone: input.phone || null,
+      email: input.email || null,
+      address: input.address || null,
+    })
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  await createAuditLog(profile.company_id, profile.id, 'update', 'customer', id, existing, data);
+  return data;
+}
+
 export async function createSupplier(input: SupplierInput) {
   const { profile } = await getContext();
   const supabase = getSupabase();
@@ -326,6 +361,68 @@ export async function createSupplier(input: SupplierInput) {
     .single();
   if (error) throw error;
   await createAuditLog(profile.company_id, profile.id, 'create', 'supplier', data.id);
+  return data;
+}
+
+export async function updateSupplier(id: string, input: SupplierUpdateInput) {
+  const { profile } = await getContext();
+  const supabase = getSupabase();
+  const { data: existing } = await supabase
+    .from('suppliers')
+    .select('*')
+    .eq('id', id)
+    .eq('company_id', profile.company_id)
+    .single();
+  if (!existing) throw new Error('Supplier not found');
+
+  const { data, error } = await supabase
+    .from('suppliers')
+    .update({
+      name: input.name,
+      phone: input.phone || null,
+      email: input.email || null,
+      address: input.address || null,
+    })
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  await createAuditLog(profile.company_id, profile.id, 'update', 'supplier', id, existing, data);
+  return data;
+}
+
+export async function updateCompany(input: SettingsInput) {
+  const { profile } = await getContext();
+  if (profile.role !== 'owner') throw new Error('Only owner can update company settings');
+  const supabase = getSupabase();
+
+  const { data: existing } = await supabase
+    .from('companies')
+    .select('*')
+    .eq('id', profile.company_id)
+    .single();
+  if (!existing) throw new Error('Company not found');
+
+  const { data, error } = await supabase
+    .from('companies')
+    .update({
+      name: input.name,
+      owner_name: input.ownerName || null,
+      currency: input.currency,
+      default_language: input.defaultLanguage,
+      tax_enabled: input.taxEnabled,
+      vat_rate: input.vatRate,
+      sscl_enabled: input.ssclEnabled,
+      sscl_rate: input.ssclRate,
+      service_charge_rate: input.serviceChargeRate,
+      approval_auto_limit: input.approvalAutoLimit,
+      staff_module_enabled: input.staffModuleEnabled,
+    })
+    .eq('id', profile.company_id)
+    .select()
+    .single();
+  if (error) throw error;
+  await createAuditLog(profile.company_id, profile.id, 'update', 'company', profile.company_id, existing, data);
   return data;
 }
 

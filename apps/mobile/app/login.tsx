@@ -3,12 +3,14 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator 
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from '@/hooks/useTranslation';
-import { signIn } from '@bizmanager/supabase-client';
+import { signIn, bootstrapSession } from '@bizmanager/supabase-client';
+import { useMobileStore } from '@/stores/app-store';
 import { colors, spacing, radius } from '@bizmanager/design-tokens';
 
 export default function LoginScreen() {
   const router = useRouter();
   const { t } = useTranslation();
+  const setCompanyId = useMobileStore((s) => s.setCompanyId);
   const [email, setEmail] = useState('appleview778@gmail.com');
   const [password, setPassword] = useState('BizManager2026!');
   const [loading, setLoading] = useState(false);
@@ -18,11 +20,14 @@ export default function LoginScreen() {
     setLoading(true);
     setError('');
     const { error: authError } = await signIn(email, password);
-    setLoading(false);
     if (authError) {
       setError(authError.message);
+      setLoading(false);
       return;
     }
+    const { profile } = await bootstrapSession();
+    setCompanyId(profile?.company_id ?? null);
+    setLoading(false);
     router.replace('/(tabs)/home');
   };
 

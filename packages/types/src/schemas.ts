@@ -57,6 +57,15 @@ export const customerSchema = z.object({
 
 export const supplierSchema = customerSchema;
 
+export const customerUpdateSchema = z.object({
+  name: z.string().min(2, 'Name is required'),
+  phone: z.string().optional().nullable(),
+  email: z.string().email().optional().nullable().or(z.literal('')),
+  address: z.string().optional().nullable(),
+});
+
+export const supplierUpdateSchema = customerUpdateSchema;
+
 export const staffSchema = z.object({
   fullName: z.string().min(2, 'Name is required'),
   roleTitle: z.string().min(1, 'Role is required'),
@@ -112,7 +121,9 @@ export type CompanySetupInput = z.infer<typeof companySetupSchema>;
 export type IncomeInput = z.infer<typeof incomeSchema>;
 export type ExpenseInput = z.infer<typeof expenseSchema>;
 export type CustomerInput = z.infer<typeof customerSchema>;
+export type CustomerUpdateInput = z.infer<typeof customerUpdateSchema>;
 export type SupplierInput = z.infer<typeof supplierSchema>;
+export type SupplierUpdateInput = z.infer<typeof supplierUpdateSchema>;
 export type StaffInput = z.infer<typeof staffSchema>;
 export type LeaveRequestInput = z.infer<typeof leaveRequestSchema>;
 export type SettingsInput = z.infer<typeof settingsSchema>;

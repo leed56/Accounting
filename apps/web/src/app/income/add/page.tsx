@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,6 +14,7 @@ import { useTranslation } from '@/components/language-switcher';
 import { useToast } from '@/components/toast';
 import {
   createIncome,
+  uploadReceipt,
   getCustomers,
   getAccounts,
   queryKeys,
@@ -27,6 +29,7 @@ export default function AddIncomePage() {
   const toast = useToast((s) => s.show);
   const queryClient = useQueryClient();
   const companyId = useAppStore((s) => s.companyId) ?? SAMPLE_COMPANY_ID;
+  const [receipt, setReceipt] = useState<File | null>(null);
 
   const { data: customers } = useQuery({
     queryKey: queryKeys.customers(companyId),
@@ -48,12 +51,21 @@ export default function AddIncomePage() {
   });
 
   const mutation = useMutation({
-    mutationFn: (data: IncomeInput) =>
-      createIncome({
+    mutationFn: async (data: IncomeInput) => {
+      const result = await createIncome({
         ...data,
         customerId: data.customerId || null,
         accountId: data.accountId || accounts?.find((a) => a.type === 'cash')?.id || null,
-      }),
+      });
+      if (receipt && result?.id) {
+        try {
+          await uploadReceipt(receipt, 'transaction', result.id);
+        } catch {
+          /* receipt optional */
+        }
+      }
+      return result;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.transactions(companyId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.dashboard(companyId, 'daily') });
@@ -94,6 +106,15 @@ export default function AddIncomePage() {
             <input type="checkbox" {...register('markAsPaid')} className="rounded" />
             {t('markAsPaid')}
           </label>
+          <div>
+            <label className="label">{t('attachReceipt')}</label>
+            <input
+              type="file"
+              accept="image/*,.pdf"
+              className="input-field py-2"
+              onChange={(e) => setReceipt(e.target.files?.[0] ?? null)}
+            />
+          </div>
           <PremiumButton type="submit" loading={mutation.isPending} className="w-full">
             {t('save')}
           </PremiumButton>

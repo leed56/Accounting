@@ -260,12 +260,32 @@ export async function getCustomers(companyId: string): Promise<Customer[]> {
   return (data ?? []) as Customer[];
 }
 
+export async function getCustomer(id: string): Promise<Customer | null> {
+  if (isDemoMode()) {
+    return sampleCustomers.find((c) => c.id === id) ?? sampleCustomers[0] ?? null;
+  }
+  const supabase = getSupabase();
+  const { data, error } = await supabase.from('customers').select('*').eq('id', id).maybeSingle();
+  if (error) throw error;
+  return (data as Customer) ?? null;
+}
+
 export async function getSuppliers(companyId: string): Promise<Supplier[]> {
   if (isDemoMode()) return sampleSuppliers;
   const supabase = getSupabase();
   const { data, error } = await supabase.from('suppliers').select('*').eq('company_id', companyId).order('name');
   if (error) throw error;
   return (data ?? []) as Supplier[];
+}
+
+export async function getSupplier(id: string): Promise<Supplier | null> {
+  if (isDemoMode()) {
+    return sampleSuppliers.find((s) => s.id === id) ?? sampleSuppliers[0] ?? null;
+  }
+  const supabase = getSupabase();
+  const { data, error } = await supabase.from('suppliers').select('*').eq('id', id).maybeSingle();
+  if (error) throw error;
+  return (data as Supplier) ?? null;
 }
 
 export async function getStaff(companyId: string): Promise<Staff[]> {

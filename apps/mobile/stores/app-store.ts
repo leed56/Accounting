@@ -2,15 +2,18 @@
 
 import { create } from 'zustand';
 import type { Language } from '@bizmanager/i18n';
+import { SAMPLE_COMPANY_ID } from '@bizmanager/supabase-client';
 
 interface MobileState {
   language: Language;
-  companyId: string;
+  companyId: string | null;
   setLanguage: (l: Language) => void;
+  setCompanyId: (id: string | null) => void;
 }
 
 export const useMobileStore = create<MobileState>((set) => ({
   language: 'en',
-  companyId: '00000000-0000-4000-8000-000000000001',
+  companyId: SAMPLE_COMPANY_ID,
   setLanguage: (language) => set({ language }),
+  setCompanyId: (companyId) => set({ companyId }),
 }));

@@ -6,7 +6,9 @@ export const queryKeys = {
   transactions: (companyId: string, filters?: Record<string, string>) =>
     ['transactions', companyId, filters] as const,
   customers: (companyId: string) => ['customers', companyId] as const,
+  customer: (id: string) => ['customer', id] as const,
   suppliers: (companyId: string) => ['suppliers', companyId] as const,
+  supplier: (id: string) => ['supplier', id] as const,
   staff: (companyId: string) => ['staff', companyId] as const,
   attendance: (companyId: string, date: string) =>
     ['attendance', companyId, date] as const,

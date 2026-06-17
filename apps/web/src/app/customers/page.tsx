@@ -9,7 +9,7 @@ import { useTranslation } from '@/components/language-switcher';
 import { useAppStore } from '@/stores/app-store';
 import { getCustomers, queryKeys, SAMPLE_COMPANY_ID } from '@bizmanager/supabase-client';
 import { formatCurrency } from '@bizmanager/utils';
-import { Users, Plus } from 'lucide-react';
+import { Users, Plus, Pencil } from 'lucide-react';
 import Link from 'next/link';
 
 export default function CustomersPage() {
@@ -35,7 +35,12 @@ export default function CustomersPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {customers?.map((c) => (
             <div key={c.id} className="card">
-              <h3 className="font-semibold text-gray-900">{c.name}</h3>
+              <div className="flex justify-between items-start gap-2">
+                <h3 className="font-semibold text-gray-900">{c.name}</h3>
+                <Link href={`/customers/${c.id}/edit`} className="text-primary hover:text-primary-dark">
+                  <Pencil className="h-4 w-4" />
+                </Link>
+              </div>
               <p className="text-2xl font-bold text-income mt-2">{formatCurrency(c.current_balance)}</p>
               {c.phone && <p className="text-sm text-gray-500 mt-2">{c.phone}</p>}
               {c.current_balance > 50000 && (
