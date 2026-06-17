@@ -175,6 +175,9 @@ const ta = {
   submitForApproval: 'Submit for Approval',
   markAsPaidSalary: 'Mark as Paid',
 
+  downloadAllPayslips: 'அனைத்து சம்பள சீட்டுகளையும் பதிவிறக்கு',
+  inviteEmailSent: 'அழைப்பு மின்னஞ்சல் அனுப்பப்பட்டது',
+
   inviteUser: 'Invite Team Member',
   inviteUserDesc: 'Add a manager or staff user to your company (max 3 users).',
   inviteSent: 'Invitation sent',

@@ -9,17 +9,24 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.bizmanager.app"
+      "bundleIdentifier": "com.bizmanager.app",
+      "buildNumber": "1"
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#16A34A"
       },
-      "package": "com.bizmanager.app"
+      "package": "com.bizmanager.app",
+      "versionCode": 1
     },
     "plugins": ["expo-router"],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "REPLACE_WITH_EAS_PROJECT_ID"
+      }
     }
   }
 }

@@ -20,7 +20,7 @@ import {
   SAMPLE_COMPANY_ID,
 } from '@bizmanager/supabase-client';
 import { formatCurrency, getMonthName } from '@bizmanager/utils';
-import { downloadPayslipPdf, buildPayslipWhatsAppMessage } from '@/lib/export/payslip-pdf';
+import { downloadPayslipPdf, downloadAllPayslipsPdf, buildPayslipWhatsAppMessage } from '@/lib/export/payslip-pdf';
 import { openWhatsAppShare } from '@/lib/export/download';
 
 export default function PayrollPage() {
@@ -118,6 +118,22 @@ export default function PayrollPage() {
     openWhatsAppShare(message, item.staff.phone);
   };
 
+  const handleDownloadAll = () => {
+    if (!run || !payrollItems?.length) {
+      toast('Generate payroll first', 'error');
+      return;
+    }
+    downloadAllPayslipsPdf(
+      payrollItems.map((item) => ({
+        companyName,
+        month: run.month,
+        year: run.year,
+        staff: item.staff,
+        item,
+      }))
+    );
+  };
+
   return (
     <AppShell title={t('payroll')}>
       <div className="space-y-6">
@@ -153,6 +169,14 @@ export default function PayrollPage() {
         )}
 
         <div className="card overflow-x-auto">
+          <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
+            <h3 className="font-semibold text-gray-900">Staff Payslips</h3>
+            {payrollItems?.length ? (
+              <PremiumButton size="sm" variant="secondary" onClick={handleDownloadAll}>
+                {t('downloadAllPayslips')}
+              </PremiumButton>
+            ) : null}
+          </div>
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200 text-left text-gray-500">

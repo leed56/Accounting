@@ -110,7 +110,7 @@ export default function SettingsPage() {
       if (!res.ok) throw new Error(json.error ?? 'Invite failed');
 
       if (json.tempPassword) setLastTempPassword(json.tempPassword);
-      toast(json.message ?? t('inviteSent'), 'success');
+      toast(json.message ?? (json.emailSent ? t('inviteEmailSent') : t('inviteSent')), 'success');
       inviteForm.reset({ email: '', fullName: '', role: 'manager' });
       refetchTeam();
     } catch (e) {

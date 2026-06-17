@@ -175,6 +175,9 @@ const si = {
   submitForApproval: 'Submit for Approval',
   markAsPaidSalary: 'Mark as Paid',
 
+  downloadAllPayslips: 'සියලු වැටුප් පත්‍ර බාගත කරන්න',
+  inviteEmailSent: 'ආරාධනා ඊමේල් යවන ලදී',
+
   inviteUser: 'Invite Team Member',
   inviteUserDesc: 'Add a manager or staff user to your company (max 3 users).',
   inviteSent: 'Invitation sent',

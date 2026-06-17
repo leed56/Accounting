@@ -188,6 +188,9 @@ const en = {
   submitForApproval: 'Submit for Approval',
   markAsPaidSalary: 'Mark as Paid',
 
+  downloadAllPayslips: 'Download All Payslips',
+  inviteEmailSent: 'Invite email sent',
+
   // Team
   inviteUser: 'Invite Team Member',
   inviteUserDesc: 'Add a manager or staff user to your company (max 3 users).',
