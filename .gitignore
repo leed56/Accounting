@@ -1,0 +1,14 @@
+node_modules
+.turbo
+dist
+.next
+.expo
+*.log
+.env
+.env.local
+.env*.local
+apps/mobile/.env
+supabase/.env.local
+.DS_Store
+coverage
+*.tsbuildinfo

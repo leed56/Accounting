@@ -1,0 +1,22 @@
+{
+  "name": "@bizmanager/ai",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@bizmanager/types": "workspace:*",
+    "@bizmanager/utils": "workspace:*",
+    "@bizmanager/supabase-client": "workspace:*",
+    "@bizmanager/i18n": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  }
+}

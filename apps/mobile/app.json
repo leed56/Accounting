@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "BizManager",
+    "slug": "bizmanager",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "bizmanager",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.bizmanager.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#16A34A"
+      },
+      "package": "com.bizmanager.app"
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
