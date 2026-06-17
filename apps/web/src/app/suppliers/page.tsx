@@ -10,6 +10,7 @@ import { useAppStore } from '@/stores/app-store';
 import { getSuppliers, queryKeys, SAMPLE_COMPANY_ID } from '@bizmanager/supabase-client';
 import { formatCurrency } from '@bizmanager/utils';
 import { Truck, Plus } from 'lucide-react';
+import Link from 'next/link';
 
 export default function SuppliersPage() {
   const { t } = useTranslation();
@@ -27,7 +28,9 @@ export default function SuppliersPage() {
       <div className="space-y-6">
         <div className="flex justify-between items-center flex-wrap gap-4">
           <MetricCard label={t('moneyToPay')} value={formatCurrency(totalPayable)} variant="expense" className="max-w-xs" />
-          <PremiumButton><Plus className="h-4 w-4" />{t('addSupplier')}</PremiumButton>
+          <Link href="/suppliers/add">
+            <PremiumButton><Plus className="h-4 w-4" />{t('addSupplier')}</PremiumButton>
+          </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {suppliers?.map((s) => (

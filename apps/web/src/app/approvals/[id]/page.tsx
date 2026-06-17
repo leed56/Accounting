@@ -8,16 +8,21 @@ import { PremiumButton, ConfirmModal } from '@/components/premium-button';
 import { StatusBadge, RiskBadge } from '@/components/status-badge';
 import { useTranslation } from '@/components/language-switcher';
 import { useAppStore } from '@/stores/app-store';
-import { getPaymentRequests, getDashboardSummary, queryKeys, SAMPLE_COMPANY_ID } from '@bizmanager/supabase-client';
+import { getPaymentRequests, getDashboardSummary, processApproval, queryKeys, SAMPLE_COMPANY_ID } from '@bizmanager/supabase-client';
 import { formatCurrency } from '@bizmanager/utils';
 import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useToast } from '@/components/toast';
 
 export default function ApprovalDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { t } = useTranslation();
   const companyId = useAppStore((s) => s.companyId) ?? SAMPLE_COMPANY_ID;
+  const queryClient = useQueryClient();
+  const toast = useToast((s) => s.show);
   const [confirmAction, setConfirmAction] = useState<'approve' | 'reject' | null>(null);
+  const [processing, setProcessing] = useState(false);
 
   const { data: requests } = useQuery({
     queryKey: queryKeys.paymentRequests(companyId),
@@ -83,7 +88,22 @@ export default function ApprovalDetailPage() {
         message={`${confirmAction === 'approve' ? 'Approve' : 'Reject'} payment of ${formatCurrency(request.amount)}?`}
         confirmLabel={t('confirm')}
         cancelLabel={t('cancel')}
-        onConfirm={() => { setConfirmAction(null); router.push('/approvals'); }}
+        onConfirm={async () => {
+          if (!confirmAction || !request) return;
+          setProcessing(true);
+          try {
+            await processApproval(request.id, confirmAction);
+            await queryClient.invalidateQueries({ queryKey: queryKeys.paymentRequests(companyId) });
+            await queryClient.invalidateQueries({ queryKey: queryKeys.dashboard(companyId, 'daily') });
+            toast(confirmAction === 'approve' ? t('approved') : t('rejected'), 'success');
+            setConfirmAction(null);
+            router.push('/approvals');
+          } catch (e) {
+            toast(e instanceof Error ? e.message : t('error'), 'error');
+          } finally {
+            setProcessing(false);
+          }
+        }}
         onCancel={() => setConfirmAction(null)}
         variant={confirmAction === 'reject' ? 'danger' : 'primary'}
       />

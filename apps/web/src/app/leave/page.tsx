@@ -6,12 +6,16 @@ import { PremiumButton, ConfirmModal } from '@/components/premium-button';
 import { StatusBadge } from '@/components/status-badge';
 import { useTranslation } from '@/components/language-switcher';
 import { useAppStore } from '@/stores/app-store';
-import { getLeaveRequests, getStaff, queryKeys, SAMPLE_COMPANY_ID } from '@bizmanager/supabase-client';
+import { getLeaveRequests, getStaff, updateLeaveStatus, queryKeys, SAMPLE_COMPANY_ID } from '@bizmanager/supabase-client';
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { useToast } from '@/components/toast';
 
 export default function LeavePage() {
   const { t } = useTranslation();
   const companyId = useAppStore((s) => s.companyId) ?? SAMPLE_COMPANY_ID;
+  const queryClient = useQueryClient();
+  const toast = useToast((s) => s.show);
   const [tab, setTab] = useState<'pending' | 'approved' | 'rejected'>('pending');
   const [confirm, setConfirm] = useState<{ action: 'approve' | 'reject'; id: string } | null>(null);
 
@@ -71,7 +75,17 @@ export default function LeavePage() {
         message="Are you sure?"
         confirmLabel={t('confirm')}
         cancelLabel={t('cancel')}
-        onConfirm={() => setConfirm(null)}
+        onConfirm={async () => {
+          if (!confirm) return;
+          try {
+            await updateLeaveStatus(confirm.id, confirm.action);
+            await queryClient.invalidateQueries({ queryKey: queryKeys.leaveRequests(companyId) });
+            toast(confirm.action === 'approve' ? t('approved') : t('rejected'), 'success');
+          } catch (e) {
+            toast(e instanceof Error ? e.message : t('error'), 'error');
+          }
+          setConfirm(null);
+        }}
         onCancel={() => setConfirm(null)}
         variant={confirm?.action === 'reject' ? 'danger' : 'primary'}
       />

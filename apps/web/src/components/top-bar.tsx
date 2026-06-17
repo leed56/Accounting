@@ -2,9 +2,12 @@
 
 import { Menu, Search, Bell, Plus } from 'lucide-react';
 import { useAppStore } from '@/stores/app-store';
-import { LanguageSwitcher } from './language-switcher';
+import { LanguageSwitcher, useTranslation } from './language-switcher';
 import { PeriodToggle } from './period-toggle';
 import Link from 'next/link';
+import { useAuth } from './auth-provider';
+import { getCompany, queryKeys, SAMPLE_COMPANY_ID } from '@bizmanager/supabase-client';
+import { useQuery } from '@tanstack/react-query';
 
 export function TopBar({
   title,
@@ -13,7 +16,19 @@ export function TopBar({
   title?: string;
   showPeriod?: boolean;
 }) {
-  const { toggleSidebar, period, setPeriod } = useAppStore();
+  const { toggleSidebar, period, setPeriod, companyId } = useAppStore();
+  const { profile, signOut } = useAuth();
+  const { t } = useTranslation();
+
+  const { data: company } = useQuery({
+    queryKey: queryKeys.company(companyId ?? SAMPLE_COMPANY_ID),
+    queryFn: () => getCompany(companyId ?? SAMPLE_COMPANY_ID),
+    enabled: !!companyId,
+  });
+
+  const initials = profile?.full_name
+    ? profile.full_name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
+    : 'BM';
 
   return (
     <header className="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-border">
@@ -55,11 +70,16 @@ export function TopBar({
             <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-danger" />
           </button>
           <div className="hidden sm:flex items-center gap-2 pl-2 border-l border-border">
-            <div className="h-8 w-8 rounded-full bg-primary-light flex items-center justify-center text-primary font-semibold text-sm">
-              KP
-            </div>
-            <span className="text-sm font-medium text-gray-700 hidden lg:block">
-              Kasun Perera
+            <button
+              type="button"
+              onClick={() => signOut()}
+              className="h-8 w-8 rounded-full bg-primary-light flex items-center justify-center text-primary font-semibold text-sm"
+              title={t('logout')}
+            >
+              {initials}
+            </button>
+            <span className="text-sm font-medium text-gray-700 hidden lg:block max-w-[120px] truncate">
+              {profile?.full_name ?? company?.name ?? 'BizManager'}
             </span>
           </div>
           <Link

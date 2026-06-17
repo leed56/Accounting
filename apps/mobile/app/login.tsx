@@ -1,12 +1,30 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from '@/hooks/useTranslation';
+import { signIn } from '@bizmanager/supabase-client';
 import { colors, spacing, radius } from '@bizmanager/design-tokens';
 
 export default function LoginScreen() {
   const router = useRouter();
   const { t } = useTranslation();
+  const [email, setEmail] = useState('appleview778@gmail.com');
+  const [password, setPassword] = useState('BizManager2026!');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleLogin = async () => {
+    setLoading(true);
+    setError('');
+    const { error: authError } = await signIn(email, password);
+    setLoading(false);
+    if (authError) {
+      setError(authError.message);
+      return;
+    }
+    router.replace('/(tabs)/home');
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -15,13 +33,28 @@ export default function LoginScreen() {
         <Text style={styles.subtitle}>Royal Travels Office</Text>
         <View style={styles.card}>
           <Text style={styles.label}>{t('email')}</Text>
-          <TextInput style={styles.input} value="appleview778@gmail.com" />
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
+          />
           <Text style={styles.label}>{t('password')}</Text>
-          <TextInput style={styles.input} secureTextEntry value="BizManager2026!" />
-          <TouchableOpacity style={styles.btn} onPress={() => router.replace('/(tabs)/home')}>
-            <Text style={styles.btnText}>{t('signIn')}</Text>
+          <TextInput
+            style={styles.input}
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+          />
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+          <TouchableOpacity style={styles.btn} onPress={handleLogin} disabled={loading}>
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.btnText}>{t('signIn')}</Text>
+            )}
           </TouchableOpacity>
-          <Text style={styles.hint}>Demo mode — tap Sign In</Text>
         </View>
       </View>
     </SafeAreaView>
@@ -36,7 +69,7 @@ const styles = StyleSheet.create({
   card: { backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing[6] },
   label: { fontSize: 14, fontWeight: '500', color: colors.text.secondary, marginBottom: spacing[1], marginTop: spacing[3] },
   input: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: spacing[3], fontSize: 16, minHeight: 44 },
-  btn: { backgroundColor: colors.primary.DEFAULT, borderRadius: radius.md, padding: spacing[4], marginTop: spacing[6], alignItems: 'center' },
+  btn: { backgroundColor: colors.primary.DEFAULT, borderRadius: radius.md, padding: spacing[4], marginTop: spacing[6], alignItems: 'center', minHeight: 52, justifyContent: 'center' },
   btnText: { color: '#fff', fontWeight: '600', fontSize: 16 },
-  hint: { textAlign: 'center', color: colors.text.muted, marginTop: spacing[4], fontSize: 13 },
+  error: { color: colors.danger.DEFAULT, marginTop: spacing[3], fontSize: 13 },
 });

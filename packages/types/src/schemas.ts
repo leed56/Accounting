@@ -106,6 +106,7 @@ export type CompanySetupInput = z.infer<typeof companySetupSchema>;
 export type IncomeInput = z.infer<typeof incomeSchema>;
 export type ExpenseInput = z.infer<typeof expenseSchema>;
 export type CustomerInput = z.infer<typeof customerSchema>;
+export type SupplierInput = z.infer<typeof supplierSchema>;
 export type StaffInput = z.infer<typeof staffSchema>;
 export type LeaveRequestInput = z.infer<typeof leaveRequestSchema>;
 export type SettingsInput = z.infer<typeof settingsSchema>;

@@ -9,11 +9,15 @@ import { FormInput } from '@/components/form-fields';
 import { PremiumButton } from '@/components/premium-button';
 import { LanguageSwitcher, useTranslation } from '@/components/language-switcher';
 import { signIn } from '@bizmanager/supabase-client';
+import { useAuth } from '@/components/auth-provider';
+import { useToast } from '@/components/toast';
 import Link from 'next/link';
 
 export default function LoginPage() {
   const { t } = useTranslation();
   const router = useRouter();
+  const { refresh } = useAuth();
+  const toast = useToast((s) => s.show);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -29,17 +33,16 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginInput) => {
     setLoading(true);
     setError('');
-    try {
-      const { error: authError } = await signIn(data.email, data.password);
-      if (authError && !authError.message.includes('Invalid')) {
-        // Demo mode - proceed anyway
-      }
-      router.push('/dashboard');
-    } catch {
-      router.push('/dashboard');
-    } finally {
+    const { error: authError } = await signIn(data.email, data.password);
+    if (authError) {
+      setError(authError.message);
       setLoading(false);
+      return;
     }
+    await refresh();
+    toast(t('success'), 'success');
+    router.push('/dashboard');
+    setLoading(false);
   };
 
   return (
@@ -72,7 +75,7 @@ export default function LoginPage() {
             </PremiumButton>
           </form>
           <p className="mt-4 text-center text-sm text-gray-500">
-            Demo mode — click Sign In to continue
+            Sign in with your BizManager account
           </p>
           <Link
             href="/setup"

@@ -28,7 +28,9 @@ export default function CustomersPage() {
       <div className="space-y-6">
         <div className="flex justify-between items-center flex-wrap gap-4">
           <MetricCard label={t('moneyToReceive')} value={formatCurrency(totalReceivable)} variant="income" className="max-w-xs" />
-          <PremiumButton><Plus className="h-4 w-4" />{t('addCustomer')}</PremiumButton>
+          <Link href="/customers/add">
+            <PremiumButton><Plus className="h-4 w-4" />{t('addCustomer')}</PremiumButton>
+          </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {customers?.map((c) => (
@@ -43,7 +45,7 @@ export default function CustomersPage() {
           ))}
         </div>
         {!customers?.length && (
-          <EmptyState icon={<Users className="h-8 w-8" />} title={t('noCustomers')} description={t('noCustomersDesc')} action={<PremiumButton>{t('addCustomer')}</PremiumButton>} />
+          <EmptyState icon={<Users className="h-8 w-8" />} title={t('noCustomers')} description={t('noCustomersDesc')} action={<Link href="/customers/add"><PremiumButton>{t('addCustomer')}</PremiumButton></Link>} />
         )}
       </div>
     </AppShell>

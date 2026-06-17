@@ -1,29 +1,41 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { incomeSchema, type IncomeInput } from '@bizmanager/types';
 import { PAYMENT_METHODS } from '@bizmanager/types';
 import { AppShell } from '@/components/app-shell';
 import { FormInput, SelectField, TextAreaField } from '@/components/form-fields';
 import { PremiumButton } from '@/components/premium-button';
 import { useTranslation } from '@/components/language-switcher';
-import { useQuery } from '@tanstack/react-query';
-import { getCustomers, queryKeys, SAMPLE_COMPANY_ID } from '@bizmanager/supabase-client';
+import { useToast } from '@/components/toast';
+import {
+  createIncome,
+  getCustomers,
+  getAccounts,
+  queryKeys,
+  SAMPLE_COMPANY_ID,
+} from '@bizmanager/supabase-client';
 import { useAppStore } from '@/stores/app-store';
 import { toISODate } from '@bizmanager/utils';
 
 export default function AddIncomePage() {
   const { t } = useTranslation();
   const router = useRouter();
+  const toast = useToast((s) => s.show);
+  const queryClient = useQueryClient();
   const companyId = useAppStore((s) => s.companyId) ?? SAMPLE_COMPANY_ID;
-  const [loading, setLoading] = useState(false);
 
   const { data: customers } = useQuery({
     queryKey: queryKeys.customers(companyId),
     queryFn: () => getCustomers(companyId),
+  });
+
+  const { data: accounts } = useQuery({
+    queryKey: queryKeys.accounts(companyId),
+    queryFn: () => getAccounts(companyId),
   });
 
   const { register, handleSubmit, formState: { errors } } = useForm<IncomeInput>({
@@ -35,18 +47,26 @@ export default function AddIncomePage() {
     },
   });
 
-  const onSubmit = async () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+  const mutation = useMutation({
+    mutationFn: (data: IncomeInput) =>
+      createIncome({
+        ...data,
+        customerId: data.customerId || null,
+        accountId: data.accountId || accounts?.find((a) => a.type === 'cash')?.id || null,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.transactions(companyId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard(companyId, 'daily') });
+      toast(t('success'), 'success');
       router.push('/income');
-    }, 500);
-  };
+    },
+    onError: (e: Error) => toast(e.message, 'error'),
+  });
 
   return (
     <AppShell title={t('addIncome')}>
       <div className="max-w-xl">
-        <form onSubmit={handleSubmit(onSubmit)} className="card space-y-4">
+        <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="card space-y-4">
           <SelectField
             label={t('customer')}
             options={[
@@ -63,13 +83,20 @@ export default function AddIncomePage() {
             error={errors.paymentMethod?.message}
             {...register('paymentMethod')}
           />
+          <SelectField
+            label="Account"
+            options={accounts?.map((a) => ({ value: a.id, label: `${a.name} (${a.type})` })) ?? []}
+            {...register('accountId')}
+          />
           <FormInput label={t('date')} type="date" required {...register('transactionDate')} />
           <TextAreaField label={t('notes')} {...register('notes')} />
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" {...register('markAsPaid')} className="rounded" />
             {t('markAsPaid')}
           </label>
-          <PremiumButton type="submit" loading={loading} className="w-full">{t('save')}</PremiumButton>
+          <PremiumButton type="submit" loading={mutation.isPending} className="w-full">
+            {t('save')}
+          </PremiumButton>
         </form>
       </div>
     </AppShell>

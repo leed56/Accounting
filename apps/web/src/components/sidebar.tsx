@@ -5,6 +5,8 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAppStore } from '@/stores/app-store';
 import { useTranslation } from './language-switcher';
+import { getCompany, queryKeys, SAMPLE_COMPANY_ID } from '@bizmanager/supabase-client';
+import { useQuery } from '@tanstack/react-query';
 import {
   LayoutDashboard,
   TrendingUp,
@@ -88,8 +90,14 @@ function NavSection({
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { sidebarOpen, setSidebarOpen } = useAppStore();
+  const { sidebarOpen, setSidebarOpen, companyId } = useAppStore();
   const { t } = useTranslation();
+
+  const { data: company } = useQuery({
+    queryKey: queryKeys.company(companyId ?? SAMPLE_COMPANY_ID),
+    queryFn: () => getCompany(companyId ?? SAMPLE_COMPANY_ID),
+    enabled: !!companyId,
+  });
 
   return (
     <>
@@ -108,7 +116,7 @@ export function Sidebar() {
         <div className="flex items-center justify-between p-4 border-b border-border">
           <div>
             <h1 className="text-lg font-bold text-primary">BizManager</h1>
-            <p className="text-xs text-gray-500">Royal Travels Office</p>
+            <p className="text-xs text-gray-500">{company?.name ?? 'BizManager'}</p>
           </div>
           <button
             className="lg:hidden p-2 rounded-md hover:bg-gray-100"
