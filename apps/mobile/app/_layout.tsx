@@ -11,6 +11,8 @@ export default function RootLayout() {
         <Stack.Screen name="index" />
         <Stack.Screen name="onboarding" />
         <Stack.Screen name="login" />
+        <Stack.Screen name="add-income" />
+        <Stack.Screen name="add-expense" />
         <Stack.Screen name="(tabs)" />
       </Stack>
     </QueryClientProvider>

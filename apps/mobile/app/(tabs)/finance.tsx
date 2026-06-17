@@ -1,5 +1,6 @@
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useMobileStore } from '@/stores/app-store';
@@ -8,6 +9,7 @@ import { formatCurrency } from '@bizmanager/utils';
 import { colors, spacing, radius } from '@bizmanager/design-tokens';
 
 export default function FinanceScreen() {
+  const router = useRouter();
   const { t } = useTranslation();
   const companyId = useMobileStore((s) => s.companyId) ?? SAMPLE_COMPANY_ID;
 
@@ -26,8 +28,12 @@ export default function FinanceScreen() {
       <ScrollView contentContainerStyle={styles.scroll}>
         <Text style={styles.title}>{t('finance')}</Text>
         <View style={styles.actions}>
-          <TouchableOpacity style={styles.btnPrimary}><Text style={styles.btnText}>{t('addIncome')}</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.btnSecondary}><Text style={styles.btnSecondaryText}>{t('addExpense')}</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.btnPrimary} onPress={() => router.push('/add-income')}>
+            <Text style={styles.btnText}>{t('addIncome')}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.btnSecondary} onPress={() => router.push('/add-expense')}>
+            <Text style={styles.btnSecondaryText}>{t('addExpense')}</Text>
+          </TouchableOpacity>
         </View>
         <View style={styles.card}>
           <Text style={styles.label}>{t('monthlyIncome')}</Text>

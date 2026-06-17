@@ -188,6 +188,10 @@ export interface PayrollItem {
   created_at: string;
 }
 
+export interface PayrollItemWithStaff extends PayrollItem {
+  staff: Pick<Staff, 'full_name' | 'role_title' | 'phone' | 'email'>;
+}
+
 export interface PaymentRequest {
   id: string;
   company_id: string;

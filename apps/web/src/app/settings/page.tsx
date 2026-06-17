@@ -1,16 +1,38 @@
 'use client';
 
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { settingsSchema, type SettingsInput } from '@bizmanager/types';
+import { useQuery } from '@tanstack/react-query';
+import { settingsSchema, inviteSchema, type SettingsInput, type InviteInput } from '@bizmanager/types';
 import { AppShell } from '@/components/app-shell';
 import { FormInput, SelectField } from '@/components/form-fields';
 import { PremiumButton } from '@/components/premium-button';
 import { LanguageSwitcher, useTranslation } from '@/components/language-switcher';
 import { SummaryCard } from '@/components/metric-card';
+import { useToast } from '@/components/toast';
+import { useAuth } from '@/components/auth-provider';
+import { useAppStore } from '@/stores/app-store';
+import {
+  getTeamMembers,
+  getSession,
+  queryKeys,
+  SAMPLE_COMPANY_ID,
+} from '@bizmanager/supabase-client';
 
 export default function SettingsPage() {
   const { t } = useTranslation();
+  const toast = useToast((s) => s.show);
+  const { profile } = useAuth();
+  const companyId = useAppStore((s) => s.companyId) ?? SAMPLE_COMPANY_ID;
+  const isOwner = profile?.role === 'owner';
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const [lastTempPassword, setLastTempPassword] = useState<string | null>(null);
+
+  const { data: teamMembers, refetch: refetchTeam } = useQuery({
+    queryKey: queryKeys.teamMembers(companyId),
+    queryFn: () => getTeamMembers(companyId),
+  });
 
   const { register, handleSubmit } = useForm<SettingsInput>({
     resolver: zodResolver(settingsSchema),
@@ -29,6 +51,40 @@ export default function SettingsPage() {
     },
   });
 
+  const inviteForm = useForm<InviteInput>({
+    resolver: zodResolver(inviteSchema),
+    defaultValues: { role: 'manager' },
+  });
+
+  const onInvite = inviteForm.handleSubmit(async (data) => {
+    setInviteLoading(true);
+    setLastTempPassword(null);
+    try {
+      const { data: { session } } = await getSession();
+      if (!session?.access_token) throw new Error('Not signed in');
+
+      const res = await fetch('/api/invite', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? 'Invite failed');
+
+      if (json.tempPassword) setLastTempPassword(json.tempPassword);
+      toast(json.message ?? t('inviteSent'), 'success');
+      inviteForm.reset({ email: '', fullName: '', role: 'manager' });
+      refetchTeam();
+    } catch (e) {
+      toast(e instanceof Error ? e.message : t('error'), 'error');
+    } finally {
+      setInviteLoading(false);
+    }
+  });
+
   return (
     <AppShell title={t('settings')}>
       <div className="max-w-2xl space-y-6">
@@ -42,6 +98,46 @@ export default function SettingsPage() {
               <LanguageSwitcher />
             </div>
           </form>
+        </SummaryCard>
+
+        <SummaryCard title={t('userRoles')}>
+          <div className="space-y-3 mb-4">
+            {teamMembers?.map((member) => (
+              <div key={member.id} className="flex justify-between items-center py-2 border-b border-gray-100">
+                <div>
+                  <p className="font-medium">{member.full_name}</p>
+                  <p className="text-sm text-gray-500">{member.email}</p>
+                </div>
+                <span className="text-xs uppercase tracking-wide text-primary font-semibold">{member.role}</span>
+              </div>
+            ))}
+          </div>
+
+          {isOwner ? (
+            <form onSubmit={onInvite} className="space-y-4 pt-2 border-t border-gray-100">
+              <p className="text-sm text-gray-500">{t('inviteUserDesc')}</p>
+              <FormInput label={t('email')} required {...inviteForm.register('email')} />
+              <FormInput label={t('fullName')} required {...inviteForm.register('fullName')} />
+              <SelectField
+                label={t('role')}
+                options={[
+                  { value: 'manager', label: t('roleManager') },
+                  { value: 'staff', label: t('roleStaff') },
+                ]}
+                {...inviteForm.register('role')}
+              />
+              <PremiumButton type="submit" loading={inviteLoading} variant="secondary">
+                {t('inviteUser')}
+              </PremiumButton>
+              {lastTempPassword && (
+                <p className="text-sm text-amber-700 bg-amber-50 rounded-lg p-3">
+                  Temporary password: <strong>{lastTempPassword}</strong> — share securely with the new user.
+                </p>
+              )}
+            </form>
+          ) : (
+            <p className="text-sm text-gray-500">Only the owner can invite team members.</p>
+          )}
         </SummaryCard>
 
         <SummaryCard title={t('taxSettings')}>
@@ -66,11 +162,6 @@ export default function SettingsPage() {
 
         <SummaryCard title={t('subscription')}>
           <p className="text-sm text-gray-600">Free trial · Small Office plan (up to 3 users)</p>
-          <PremiumButton variant="secondary" className="mt-4">{t('comingSoon')}</PremiumButton>
-        </SummaryCard>
-
-        <SummaryCard title={t('dataExport')}>
-          <PremiumButton variant="secondary">{t('exportPdf')} ({t('comingSoon')})</PremiumButton>
         </SummaryCard>
 
         <PremiumButton type="submit">{t('save')}</PremiumButton>

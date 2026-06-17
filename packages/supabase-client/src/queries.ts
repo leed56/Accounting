@@ -7,6 +7,7 @@ import type {
   LeaveRequest,
   PaymentRequest,
   PayrollRun,
+  PayrollItemWithStaff,
   Profile,
   Staff,
   Supplier,
@@ -342,6 +343,73 @@ export async function getPayrollRuns(companyId: string): Promise<PayrollRun[]> {
   const { data, error } = await supabase.from('payroll_runs').select('*').eq('company_id', companyId).order('year', { ascending: false }).order('month', { ascending: false });
   if (error) throw error;
   return (data ?? []) as PayrollRun[];
+}
+
+export async function getPayrollItems(runId: string): Promise<PayrollItemWithStaff[]> {
+  if (isDemoMode()) {
+    return sampleStaff.map((s, i) => {
+      const epf = s.basic_salary * 0.08;
+      return {
+        id: String(i),
+        payroll_run_id: runId,
+        staff_id: s.id,
+        basic_salary: s.basic_salary,
+        allowance: 0,
+        overtime: 0,
+        advance: 0,
+        deductions: 0,
+        no_pay_deduction: 0,
+        epf_employee: epf,
+        epf_employer: s.basic_salary * 0.12,
+        etf_employer: s.basic_salary * 0.03,
+        apit: 0,
+        net_payable: s.basic_salary - epf,
+        status: 'pending',
+        created_at: new Date().toISOString(),
+        staff: {
+          full_name: s.full_name,
+          role_title: s.role_title,
+          phone: s.phone,
+          email: s.email,
+        },
+      };
+    });
+  }
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from('payroll_items')
+    .select('*, staff:staff_id(full_name, role_title, phone, email)')
+    .eq('payroll_run_id', runId)
+    .order('created_at');
+  if (error) throw error;
+  return (data ?? []) as PayrollItemWithStaff[];
+}
+
+export async function getTeamMembers(companyId: string): Promise<Profile[]> {
+  if (isDemoMode()) {
+    return [{
+      id: '1',
+      auth_user_id: 'demo',
+      company_id: companyId,
+      full_name: 'Kasun Perera',
+      email: 'owner@demo.com',
+      phone: null,
+      role: 'owner',
+      language: 'en',
+      avatar_url: null,
+      is_active: true,
+      created_at: new Date().toISOString(),
+    }];
+  }
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('company_id', companyId)
+    .eq('is_active', true)
+    .order('full_name');
+  if (error) throw error;
+  return (data ?? []) as Profile[];
 }
 
 export async function getAttendance(companyId: string, date: string): Promise<Attendance[]> {

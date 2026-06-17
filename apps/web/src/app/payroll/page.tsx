@@ -14,11 +14,14 @@ import {
   approvePayrollRun,
   markPayrollPaid,
   getPayrollRuns,
-  getStaff,
+  getPayrollItems,
+  getCompany,
   queryKeys,
   SAMPLE_COMPANY_ID,
 } from '@bizmanager/supabase-client';
 import { formatCurrency, getMonthName } from '@bizmanager/utils';
+import { downloadPayslipPdf, buildPayslipWhatsAppMessage } from '@/lib/export/payslip-pdf';
+import { openWhatsAppShare } from '@/lib/export/download';
 
 export default function PayrollPage() {
   const { t } = useTranslation();
@@ -28,21 +31,30 @@ export default function PayrollPage() {
   const companyId = useAppStore((s) => s.companyId) ?? SAMPLE_COMPANY_ID;
   const isOwner = profile?.role === 'owner';
 
-  const { data: payrollRuns, refetch } = useQuery({
+  const { data: company } = useQuery({
+    queryKey: queryKeys.company(companyId),
+    queryFn: () => getCompany(companyId),
+  });
+
+  const { data: payrollRuns } = useQuery({
     queryKey: queryKeys.payrollRuns(companyId),
     queryFn: () => getPayrollRuns(companyId),
   });
 
-  const { data: staff } = useQuery({
-    queryKey: queryKeys.staff(companyId),
-    queryFn: () => getStaff(companyId),
-  });
-
   const run = payrollRuns?.[0];
+
+  const { data: payrollItems } = useQuery({
+    queryKey: queryKeys.payrollItems(run?.id ?? 'none'),
+    queryFn: () => getPayrollItems(run!.id),
+    enabled: !!run?.id,
+  });
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: queryKeys.payrollRuns(companyId) });
     queryClient.invalidateQueries({ queryKey: queryKeys.paymentRequests(companyId) });
+    if (run?.id) {
+      queryClient.invalidateQueries({ queryKey: queryKeys.payrollItems(run.id) });
+    }
   };
 
   const generateMutation = useMutation({
@@ -80,6 +92,31 @@ export default function PayrollPage() {
     },
     onError: (e: Error) => toast(e.message, 'error'),
   });
+
+  const companyName = company?.name ?? 'BizManager';
+
+  const handlePayslipPdf = (item: NonNullable<typeof payrollItems>[number]) => {
+    if (!run) return;
+    downloadPayslipPdf({
+      companyName,
+      month: run.month,
+      year: run.year,
+      staff: item.staff,
+      item,
+    });
+  };
+
+  const handlePayslipWhatsApp = (item: NonNullable<typeof payrollItems>[number]) => {
+    if (!run) return;
+    const message = buildPayslipWhatsAppMessage({
+      companyName,
+      month: run.month,
+      year: run.year,
+      staff: item.staff,
+      item,
+    });
+    openWhatsAppShare(message, item.staff.phone);
+  };
 
   return (
     <AppShell title={t('payroll')}>
@@ -122,22 +159,36 @@ export default function PayrollPage() {
                 <th className="py-3 pr-4">Staff</th>
                 <th className="py-3 pr-4">{t('basicSalary')}</th>
                 <th className="py-3 pr-4">EPF (8%)</th>
-                <th className="py-3">{t('netPayable')}</th>
+                <th className="py-3 pr-4">{t('netPayable')}</th>
+                <th className="py-3">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {staff?.map((s) => {
-                const epf = s.basic_salary * 0.08;
-                const net = s.basic_salary - epf;
-                return (
-                  <tr key={s.id} className="border-b border-gray-100">
-                    <td className="py-3 pr-4 font-medium">{s.full_name}</td>
-                    <td className="py-3 pr-4">{formatCurrency(s.basic_salary)}</td>
-                    <td className="py-3 pr-4">{formatCurrency(epf)}</td>
-                    <td className="py-3 font-semibold">{formatCurrency(net)}</td>
-                  </tr>
-                );
-              })}
+              {(payrollItems ?? []).map((item) => (
+                <tr key={item.id} className="border-b border-gray-100">
+                  <td className="py-3 pr-4 font-medium">{item.staff.full_name}</td>
+                  <td className="py-3 pr-4">{formatCurrency(item.basic_salary)}</td>
+                  <td className="py-3 pr-4">{formatCurrency(item.epf_employee)}</td>
+                  <td className="py-3 pr-4 font-semibold">{formatCurrency(item.net_payable)}</td>
+                  <td className="py-3">
+                    <div className="flex flex-wrap gap-2">
+                      <PremiumButton size="sm" variant="secondary" onClick={() => handlePayslipPdf(item)}>
+                        PDF
+                      </PremiumButton>
+                      <PremiumButton size="sm" variant="secondary" onClick={() => handlePayslipWhatsApp(item)}>
+                        WhatsApp
+                      </PremiumButton>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {!payrollItems?.length && (
+                <tr>
+                  <td colSpan={5} className="py-8 text-center text-gray-500">
+                    Generate payroll to see staff payslips
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

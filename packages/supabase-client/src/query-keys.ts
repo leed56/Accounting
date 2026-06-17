@@ -21,4 +21,6 @@ export const queryKeys = {
   reports: (companyId: string, type: string, period: string) =>
     ['reports', companyId, type, period] as const,
   auditLogs: (companyId: string) => ['auditLogs', companyId] as const,
+  payrollItems: (runId: string) => ['payrollItems', runId] as const,
+  teamMembers: (companyId: string) => ['teamMembers', companyId] as const,
 };

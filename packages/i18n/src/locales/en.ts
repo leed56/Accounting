@@ -188,6 +188,15 @@ const en = {
   submitForApproval: 'Submit for Approval',
   markAsPaidSalary: 'Mark as Paid',
 
+  // Team
+  inviteUser: 'Invite Team Member',
+  inviteUserDesc: 'Add a manager or staff user to your company (max 3 users).',
+  inviteSent: 'Invitation sent',
+  role: 'Role',
+  roleManager: 'Manager',
+  roleStaff: 'Staff',
+  fullName: 'Full Name',
+
   // Approval detail
   requestedBy: 'Requested By',
   balanceImpact: 'Balance Impact',

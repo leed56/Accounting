@@ -86,6 +86,12 @@ export const approvalActionSchema = z.object({
   comment: z.string().optional().nullable(),
 });
 
+export const inviteSchema = z.object({
+  email: z.string().email('Invalid email'),
+  fullName: z.string().min(2, 'Name is required'),
+  role: z.enum(['manager', 'staff']),
+});
+
 export const settingsSchema = z.object({
   name: z.string().min(2),
   ownerName: z.string().optional().nullable(),
@@ -110,3 +116,4 @@ export type SupplierInput = z.infer<typeof supplierSchema>;
 export type StaffInput = z.infer<typeof staffSchema>;
 export type LeaveRequestInput = z.infer<typeof leaveRequestSchema>;
 export type SettingsInput = z.infer<typeof settingsSchema>;
+export type InviteInput = z.infer<typeof inviteSchema>;

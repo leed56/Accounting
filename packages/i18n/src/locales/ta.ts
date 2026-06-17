@@ -175,6 +175,14 @@ const ta = {
   submitForApproval: 'Submit for Approval',
   markAsPaidSalary: 'Mark as Paid',
 
+  inviteUser: 'Invite Team Member',
+  inviteUserDesc: 'Add a manager or staff user to your company (max 3 users).',
+  inviteSent: 'Invitation sent',
+  role: 'Role',
+  roleManager: 'Manager',
+  roleStaff: 'Staff',
+  fullName: 'Full Name',
+
   requestedBy: 'Requested By',
   balanceImpact: 'Balance Impact',
   addComment: 'Add Comment',

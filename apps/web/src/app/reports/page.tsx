@@ -7,20 +7,32 @@ import { IncomeExpenseChart, ExpenseCategoryChart, AttendanceBarChart, ChartCard
 import { PremiumButton } from '@/components/premium-button';
 import { PeriodToggle } from '@/components/period-toggle';
 import { useTranslation } from '@/components/language-switcher';
+import { useToast } from '@/components/toast';
 import { useAppStore } from '@/stores/app-store';
 import {
   getDashboardSummary,
   getCustomers,
   getSuppliers,
+  getTransactions,
+  getCompany,
   queryKeys,
   SAMPLE_COMPANY_ID,
 } from '@bizmanager/supabase-client';
 import { formatCurrency } from '@bizmanager/utils';
+import { downloadReportPdf } from '@/lib/export/report-pdf';
+import { downloadReportCsv, buildReportWhatsAppSummary } from '@/lib/export/report-csv';
+import { openWhatsAppShare } from '@/lib/export/download';
 
 export default function ReportsPage() {
   const { t } = useTranslation();
+  const toast = useToast((s) => s.show);
   const { period, setPeriod, companyId: storeCompanyId } = useAppStore();
   const companyId = storeCompanyId ?? SAMPLE_COMPANY_ID;
+
+  const { data: company } = useQuery({
+    queryKey: queryKeys.company(companyId),
+    queryFn: () => getCompany(companyId),
+  });
 
   const { data: summary } = useQuery({
     queryKey: queryKeys.dashboard(companyId, period),
@@ -37,14 +49,55 @@ export default function ReportsPage() {
     queryFn: () => getSuppliers(companyId),
   });
 
+  const { data: transactions } = useQuery({
+    queryKey: queryKeys.transactions(companyId),
+    queryFn: () => getTransactions(companyId, { limit: 100 }),
+  });
+
+  const periodLabel = period === 'daily' ? t('daily') : period === 'weekly' ? t('weekly') : t('monthly');
+
+  const exportData = summary && customers && suppliers && transactions ? {
+    companyName: company?.name ?? 'BizManager',
+    periodLabel,
+    summary,
+    customers,
+    suppliers,
+    transactions,
+  } : null;
+
+  const handlePdf = () => {
+    if (!exportData) {
+      toast(t('loading'), 'error');
+      return;
+    }
+    downloadReportPdf(exportData);
+  };
+
+  const handleCsv = () => {
+    if (!exportData) {
+      toast(t('loading'), 'error');
+      return;
+    }
+    downloadReportCsv(exportData);
+  };
+
+  const handleWhatsApp = () => {
+    if (!exportData) {
+      toast(t('loading'), 'error');
+      return;
+    }
+    openWhatsAppShare(buildReportWhatsAppSummary(exportData));
+  };
+
   return (
     <AppShell title={t('reports')}>
       <div className="space-y-6">
         <div className="flex flex-wrap justify-between gap-4">
           <PeriodToggle value={period} onChange={setPeriod} />
-          <div className="flex gap-2">
-            <PremiumButton variant="secondary">{t('exportPdf')} ({t('comingSoon')})</PremiumButton>
-            <PremiumButton variant="secondary">{t('exportExcel')} ({t('comingSoon')})</PremiumButton>
+          <div className="flex flex-wrap gap-2">
+            <PremiumButton variant="secondary" onClick={handlePdf}>{t('exportPdf')}</PremiumButton>
+            <PremiumButton variant="secondary" onClick={handleCsv}>{t('exportExcel')}</PremiumButton>
+            <PremiumButton variant="secondary" onClick={handleWhatsApp}>WhatsApp</PremiumButton>
           </div>
         </div>
 

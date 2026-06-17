@@ -11,7 +11,8 @@
     "db:migrate": "node scripts/apply-migration.mjs",
     "db:seed": "node scripts/seed-demo.mjs",
     "db:link-owner": "node scripts/link-owner.mjs",
-    "db:storage": "node scripts/setup-storage.mjs"
+    "db:storage": "node scripts/setup-storage.mjs",
+    "db:invite": "node scripts/invite-manager.mjs"
   },
   "devDependencies": {
     "@supabase/supabase-js": "^2.47.10",
