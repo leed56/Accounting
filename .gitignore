@@ -12,3 +12,4 @@ supabase/.env.local
 .DS_Store
 coverage
 *.tsbuildinfo
+.vercel

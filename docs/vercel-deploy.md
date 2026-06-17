@@ -15,15 +15,13 @@ Do **not** add service role or database password to Vercel.
 
 ## Deploy
 
-1. Connect GitHub repo `leed56/Accounting`
-2. Set Root Directory to `apps/web`
-3. Add env vars above
-4. Deploy
+1. Connect GitHub repo `leed56/Accounting` in [Vercel Dashboard](https://vercel.com/yasu-s-projects3/accounting/settings/git)
+2. **Root Directory:** leave as repository root (uses root `vercel.json`)
+3. Env vars are already set on project `accounting`
+4. Push to `main` triggers auto-deploy after Git is connected
 
-Or use CLI from repo root:
+Or CLI from repo root:
 
 ```bash
-npx vercel link
-npx vercel env pull
-npx vercel --prod
+npx vercel --prod --scope yasu-s-projects3
 ```
