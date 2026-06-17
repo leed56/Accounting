@@ -7,7 +7,7 @@ import type {
   SupplierInput,
   SupplierUpdateInput,
 } from '@bizmanager/types';
-import { calculateRiskLevel, requiresOwnerApproval } from '@bizmanager/utils';
+import { calculateRiskLevel, requiresOwnerApproval, formatCurrency } from '@bizmanager/utils';
 import { getSupabase } from './client';
 import { getCurrentProfile } from './auth';
 import { getCompany, getAccounts } from './queries';
@@ -38,6 +38,37 @@ export async function createAuditLog(
     old_value: oldValue ?? null,
     new_value: newValue ?? null,
   });
+}
+
+async function notifyOwners(
+  companyId: string,
+  type: string,
+  title: string,
+  body: string,
+  relatedType?: string,
+  relatedId?: string
+) {
+  const supabase = getSupabase();
+  const { data: owners } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('company_id', companyId)
+    .eq('role', 'owner')
+    .eq('is_active', true);
+
+  if (!owners?.length) return;
+
+  await supabase.from('notifications').insert(
+    owners.map((o) => ({
+      company_id: companyId,
+      user_id: o.id,
+      type,
+      title,
+      body,
+      related_type: relatedType ?? null,
+      related_id: relatedId ?? null,
+    }))
+  );
 }
 
 export async function createIncome(input: IncomeInput) {
@@ -139,7 +170,7 @@ export async function createExpense(input: ExpenseInput) {
       ? await supabase.from('suppliers').select('name').eq('id', input.supplierId).single()
       : { data: null };
 
-    await supabase.from('payment_requests').insert({
+    const { data: pr } = await supabase.from('payment_requests').insert({
       company_id: profile.company_id,
       request_type: 'expense',
       amount: input.amount,
@@ -156,7 +187,16 @@ export async function createExpense(input: ExpenseInput) {
           : 'This expense requires owner approval.',
       status: 'pending',
       requested_by: profile.id,
-    });
+    }).select('id').single();
+
+    await notifyOwners(
+      profile.company_id,
+      'approval',
+      'Expense needs approval',
+      `${input.category} — ${formatCurrency(input.amount)}`,
+      'payment_request',
+      pr?.id
+    );
   } else if (input.accountId) {
     const account = accounts.find((a) => a.id === input.accountId);
     if (account) {
@@ -578,7 +618,7 @@ export async function submitPayrollRun(runId: string) {
     .update({ status: 'submitted', submitted_by: profile.id })
     .eq('id', runId);
 
-  await supabase.from('payment_requests').insert({
+  const { data: pr } = await supabase.from('payment_requests').insert({
     company_id: profile.company_id,
     request_type: 'salary',
     amount: run.total_payable,
@@ -591,7 +631,16 @@ export async function submitPayrollRun(runId: string) {
     ai_note: 'Monthly payroll requires owner approval.',
     status: 'pending',
     requested_by: profile.id,
-  });
+  }).select('id').single();
+
+  await notifyOwners(
+    profile.company_id,
+    'payroll',
+    'Payroll submitted',
+    `${run.month}/${run.year} — ${formatCurrency(run.total_payable)}`,
+    'payment_request',
+    pr?.id
+  );
 
   await createAuditLog(profile.company_id, profile.id, 'submit', 'payroll_run', runId);
 }
@@ -628,4 +677,24 @@ export async function markPayrollPaid(runId: string) {
     .eq('payroll_run_id', runId);
 
   await createAuditLog(profile.company_id, profile.id, 'paid', 'payroll_run', runId);
+}
+
+export async function markNotificationRead(notificationId: string) {
+  const { profile } = await getContext();
+  const supabase = getSupabase();
+  await supabase
+    .from('notifications')
+    .update({ is_read: true })
+    .eq('id', notificationId)
+    .eq('user_id', profile.id);
+}
+
+export async function markAllNotificationsRead() {
+  const { profile } = await getContext();
+  const supabase = getSupabase();
+  await supabase
+    .from('notifications')
+    .update({ is_read: true })
+    .eq('user_id', profile.id)
+    .eq('is_read', false);
 }

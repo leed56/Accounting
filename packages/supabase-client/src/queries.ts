@@ -9,6 +9,7 @@ import type {
   PayrollRun,
   PayrollItemWithStaff,
   Profile,
+  Notification,
   Staff,
   Supplier,
   Transaction,
@@ -430,6 +431,34 @@ export async function getTeamMembers(companyId: string): Promise<Profile[]> {
     .order('full_name');
   if (error) throw error;
   return (data ?? []) as Profile[];
+}
+
+export async function getNotifications(profileId: string, limit = 20): Promise<Notification[]> {
+  if (isDemoMode()) {
+    return [
+      {
+        id: '1',
+        company_id: SAMPLE_COMPANY_ID,
+        user_id: profileId,
+        type: 'approval',
+        title: 'Expense needs approval',
+        body: 'Fuel — Rs. 8,500',
+        related_type: 'payment_request',
+        related_id: '1',
+        is_read: false,
+        created_at: new Date().toISOString(),
+      },
+    ];
+  }
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from('notifications')
+    .select('*')
+    .eq('user_id', profileId)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return (data ?? []) as Notification[];
 }
 
 export async function getAttendance(companyId: string, date: string): Promise<Attendance[]> {

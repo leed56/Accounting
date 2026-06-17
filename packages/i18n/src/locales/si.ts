@@ -175,6 +175,14 @@ const si = {
   submitForApproval: 'Submit for Approval',
   markAsPaidSalary: 'Mark as Paid',
 
+  goodMorning: 'සුභ උදෑසනක්',
+  goodAfternoon: 'සුභ දහවලක්',
+  goodEvening: 'සුභ සන්ධ්‍යාවක්',
+  signInToContinue: 'ඔබේ ව්‍යාපාරය කළමනාකරණය කිරීමට පිවිසෙන්න',
+  markAllRead: 'සියල්ල කියවූ ලෙස සලකන්න',
+  noNotifications: 'දැනුම්දීම් නැත',
+  offlineMode: 'ඔබ offline — සුරකින ලද දත්ත පෙන්වයි',
+
   downloadAllPayslips: 'සියලු වැටුප් පත්‍ර බාගත කරන්න',
   inviteEmailSent: 'ආරාධනා ඊමේල් යවන ලදී',
 

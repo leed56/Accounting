@@ -1,9 +1,10 @@
 'use client';
 
-import { Menu, Search, Bell, Plus } from 'lucide-react';
+import { Menu, Search, Plus } from 'lucide-react';
 import { useAppStore } from '@/stores/app-store';
 import { LanguageSwitcher, useTranslation } from './language-switcher';
 import { PeriodToggle } from './period-toggle';
+import { NotificationsPanel } from './notifications-panel';
 import Link from 'next/link';
 import { useAuth } from './auth-provider';
 import { getCompany, queryKeys, SAMPLE_COMPANY_ID } from '@bizmanager/supabase-client';
@@ -65,10 +66,7 @@ export function TopBar({
             </div>
           )}
           <LanguageSwitcher compact />
-          <button className="relative p-2 rounded-md hover:bg-gray-100 min-h-[44px] min-w-[44px] flex items-center justify-center">
-            <Bell className="h-5 w-5 text-gray-600" />
-            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-danger" />
-          </button>
+          <NotificationsPanel />
           <div className="hidden sm:flex items-center gap-2 pl-2 border-l border-border">
             <button
               type="button"

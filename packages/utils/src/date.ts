@@ -46,3 +46,9 @@ export function getDaysBetween(start: string, end: string): number {
   const diff = e.getTime() - s.getTime();
   return Math.max(1, Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1);
 }
+
+export function getTimeGreeting(hour = new Date().getHours()): 'morning' | 'afternoon' | 'evening' {
+  if (hour < 12) return 'morning';
+  if (hour < 17) return 'afternoon';
+  return 'evening';
+}

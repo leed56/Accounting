@@ -1,16 +1,18 @@
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useMobileStore } from '@/stores/app-store';
 import {
   getDashboardSummary,
   getTransactions,
+  getCompany,
   queryKeys,
   SAMPLE_COMPANY_ID,
 } from '@bizmanager/supabase-client';
 import { getDailyInsight } from '@bizmanager/ai';
-import { formatCurrency } from '@bizmanager/utils';
+import { formatCurrency, getTimeGreeting } from '@bizmanager/utils';
 import { colors, spacing, radius } from '@bizmanager/design-tokens';
 
 function MetricCard({ label, value, variant }: { label: string; value: string; variant?: string }) {
@@ -25,8 +27,17 @@ function MetricCard({ label, value, variant }: { label: string; value: string; v
 }
 
 export default function HomeScreen() {
+  const router = useRouter();
   const { t, language } = useTranslation();
   const companyId = useMobileStore((s) => s.companyId) ?? SAMPLE_COMPANY_ID;
+  const greetingKey = getTimeGreeting();
+  const greeting =
+    greetingKey === 'morning' ? t('goodMorning') : greetingKey === 'afternoon' ? t('goodAfternoon') : t('goodEvening');
+
+  const { data: company } = useQuery({
+    queryKey: queryKeys.company(companyId),
+    queryFn: () => getCompany(companyId),
+  });
 
   const { data: summary } = useQuery({
     queryKey: queryKeys.dashboard(companyId, 'daily'),
@@ -46,9 +57,18 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView contentContainerStyle={styles.scroll}>
-        <View style={styles.header}>
-          <Text style={styles.greeting}>Royal Travels Office</Text>
+        <View style={styles.hero}>
+          <Text style={styles.companyName}>{company?.name ?? 'BizManager'}</Text>
+          <Text style={styles.greeting}>{greeting}</Text>
           <Text style={styles.headerTitle}>{t('dashboard')}</Text>
+          <View style={styles.quickRow}>
+            <TouchableOpacity style={styles.quickBtn} onPress={() => router.push('/add-income')}>
+              <Text style={styles.quickBtnText}>{t('addIncome')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.quickBtn, styles.quickBtnAlt]} onPress={() => router.push('/add-expense')}>
+              <Text style={styles.quickBtnTextAlt}>{t('addExpense')}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {aiInsight && (
@@ -63,8 +83,6 @@ export default function HomeScreen() {
           <MetricCard label={t('todayExpenses')} value={formatCurrency(summary?.todayExpenses ?? 0)} variant="expense" />
           <MetricCard label={t('netProfit')} value={formatCurrency(summary?.netProfit ?? 0)} />
           <MetricCard label={t('cashBalance')} value={formatCurrency(summary?.cashBalance ?? 0)} />
-          <MetricCard label={t('bankBalance')} value={formatCurrency(summary?.bankBalance ?? 0)} />
-          <MetricCard label={t('staffPresent')} value={`${summary?.staffPresent ?? 0}/${summary?.staffTotal ?? 0}`} />
           <MetricCard label={t('pendingApprovals')} value={String(summary?.pendingApprovals ?? 0)} variant="warning" />
           <MetricCard label={t('moneyToReceive')} value={formatCurrency(summary?.receivables ?? 0)} variant="income" />
         </View>
@@ -86,9 +104,20 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   scroll: { padding: spacing[4], paddingBottom: spacing[8] },
-  header: { marginBottom: spacing[4] },
-  greeting: { fontSize: 14, color: colors.text.secondary },
-  headerTitle: { fontSize: 24, fontWeight: '700', color: colors.text.primary },
+  hero: {
+    backgroundColor: colors.primary.DEFAULT,
+    borderRadius: radius.lg,
+    padding: spacing[4],
+    marginBottom: spacing[4],
+  },
+  companyName: { fontSize: 13, color: 'rgba(255,255,255,0.8)' },
+  greeting: { fontSize: 22, fontWeight: '700', color: '#fff', marginTop: spacing[1] },
+  headerTitle: { fontSize: 14, color: 'rgba(255,255,255,0.7)', marginTop: spacing[1] },
+  quickRow: { flexDirection: 'row', gap: spacing[2], marginTop: spacing[4] },
+  quickBtn: { flex: 1, backgroundColor: '#fff', borderRadius: radius.md, padding: spacing[3], alignItems: 'center' },
+  quickBtnText: { color: colors.primary.DEFAULT, fontWeight: '600', fontSize: 13 },
+  quickBtnAlt: { backgroundColor: 'rgba(255,255,255,0.15)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)' },
+  quickBtnTextAlt: { color: '#fff', fontWeight: '600', fontSize: 13 },
   insightCard: { backgroundColor: colors.ai.light, borderRadius: radius.lg, padding: spacing[4], marginBottom: spacing[4] },
   insightTitle: { fontWeight: '600', color: colors.text.primary, marginBottom: spacing[1] },
   insightText: { fontSize: 14, color: colors.text.secondary, lineHeight: 20 },

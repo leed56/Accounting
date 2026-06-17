@@ -25,4 +25,5 @@ export const queryKeys = {
   auditLogs: (companyId: string) => ['auditLogs', companyId] as const,
   payrollItems: (runId: string) => ['payrollItems', runId] as const,
   teamMembers: (companyId: string) => ['teamMembers', companyId] as const,
+  notifications: (profileId: string) => ['notifications', profileId] as const,
 };

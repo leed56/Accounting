@@ -11,10 +11,12 @@ import { DashboardSkeleton } from '@/components/empty-state';
 import { IncomeExpenseChart, ChartCard } from '@/components/charts';
 import { useTranslation } from '@/components/language-switcher';
 import { useAppStore } from '@/stores/app-store';
+import { WelcomeHero } from '@/components/welcome-hero';
 import {
   getDashboardSummary,
   getTransactions,
   getPaymentRequests,
+  getCompany,
   queryKeys,
   SAMPLE_COMPANY_ID,
 } from '@bizmanager/supabase-client';
@@ -37,6 +39,11 @@ export default function DashboardPage() {
   const { data: summary, isLoading } = useQuery({
     queryKey: queryKeys.dashboard(companyId, 'daily'),
     queryFn: () => getDashboardSummary(companyId),
+  });
+
+  const { data: company } = useQuery({
+    queryKey: queryKeys.company(companyId),
+    queryFn: () => getCompany(companyId),
   });
 
   const { data: transactions } = useQuery({
@@ -65,6 +72,12 @@ export default function DashboardPage() {
   return (
     <AppShell title={t('dashboard')} showPeriod>
       <div className="space-y-6">
+        <WelcomeHero
+          companyName={company?.name ?? 'BizManager'}
+          ownerName={company?.owner_name}
+          pendingApprovals={summary.pendingApprovals}
+        />
+
         {aiInsight && (
           <InsightCard
             title={aiInsight.title}

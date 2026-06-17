@@ -175,6 +175,14 @@ const ta = {
   submitForApproval: 'Submit for Approval',
   markAsPaidSalary: 'Mark as Paid',
 
+  goodMorning: 'காலை வணக்கம்',
+  goodAfternoon: 'மதிய வணக்கம்',
+  goodEvening: 'மாலை வணக்கம்',
+  signInToContinue: 'உங்கள் வணிகத்தை நிர்வகிக்க உள்நுழையுங்கள்',
+  markAllRead: 'அனைத்தையும் படித்ததாகக் குறி',
+  noNotifications: 'அறிவிப்புகள் இல்லை',
+  offlineMode: 'நீங்கள் offline — சேமித்த தரவு காட்டப்படுகிறது',
+
   downloadAllPayslips: 'அனைத்து சம்பள சீட்டுகளையும் பதிவிறக்கு',
   inviteEmailSent: 'அழைப்பு மின்னஞ்சல் அனுப்பப்பட்டது',
 

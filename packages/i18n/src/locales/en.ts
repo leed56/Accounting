@@ -188,6 +188,14 @@ const en = {
   submitForApproval: 'Submit for Approval',
   markAsPaidSalary: 'Mark as Paid',
 
+  goodMorning: 'Good morning',
+  goodAfternoon: 'Good afternoon',
+  goodEvening: 'Good evening',
+  signInToContinue: 'Sign in to manage your business',
+  markAllRead: 'Mark all read',
+  noNotifications: 'No notifications yet',
+  offlineMode: 'You are offline — showing cached data',
+
   downloadAllPayslips: 'Download All Payslips',
   inviteEmailSent: 'Invite email sent',
 
