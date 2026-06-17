@@ -1,12 +1,27 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import type { Profile } from '@bizmanager/types';
 import { getSupabase, bootstrapSession, signOut as supaSignOut } from '@bizmanager/supabase-client';
 import { useAppStore } from '@/stores/app-store';
 
-const PUBLIC_PATHS = ['/onboarding', '/login', '/setup'];
+const PUBLIC_PATHS = ['/onboarding', '/login', '/setup', '/'];
+
+function isPublicPath(pathname: string) {
+  return PUBLIC_PATHS.some((p) => pathname === p || (p !== '/' && pathname.startsWith(p + '/')));
+}
+
+const BOOTSTRAP_TIMEOUT_MS = 8000;
+
+async function bootstrapWithTimeout() {
+  return Promise.race([
+    bootstrapSession(),
+    new Promise<{ userId: null; profile: null }>((resolve) =>
+      setTimeout(() => resolve({ userId: null, profile: null }), BOOTSTRAP_TIMEOUT_MS)
+    ),
+  ]);
+}
 
 interface AuthContextValue {
   profile: Profile | null;
@@ -28,18 +43,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const setCompanyId = useAppStore((s) => s.setCompanyId);
+  const bootstrapped = useRef(false);
 
   const refresh = useCallback(async () => {
-    const { profile: p } = await bootstrapSession();
+    const { profile: p } = await bootstrapWithTimeout();
     setProfile(p);
-    if (p) setCompanyId(p.company_id);
+    setCompanyId(p?.company_id ?? null);
   }, [setCompanyId]);
 
   useEffect(() => {
+    if (bootstrapped.current) return;
+    bootstrapped.current = true;
+
     refresh().finally(() => setLoading(false));
 
     const supabase = getSupabase();
-    const { data: sub } = supabase.auth.onAuthStateChange(async () => {
+    const { data: sub } = supabase.auth.onAuthStateChange(async (event) => {
+      if (event === 'INITIAL_SESSION') return;
       await refresh();
     });
     return () => sub.subscription.unsubscribe();
@@ -47,8 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (loading) return;
-    const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'));
-    if (!profile && !isPublic && pathname !== '/') {
+    if (!profile && !isPublicPath(pathname)) {
       router.replace('/login');
     }
   }, [loading, profile, pathname, router]);
@@ -60,9 +79,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.replace('/login');
   };
 
+  const showBlockingLoader = loading && !isPublicPath(pathname);
+
   return (
     <AuthContext.Provider value={{ profile, loading, signOut, refresh }}>
-      {loading ? (
+      {showBlockingLoader ? (
         <div className="min-h-screen flex items-center justify-center bg-background">
           <div className="animate-pulse text-gray-500">Loading...</div>
         </div>

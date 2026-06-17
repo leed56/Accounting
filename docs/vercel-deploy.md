@@ -10,8 +10,9 @@ The `vercel.json` in this folder runs install/build from the monorepo root so wo
 |----------|--------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon (public) key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (server-only, for team invites) |
 
-Do **not** add service role or database password to Vercel.
+Do **not** add database password to Vercel.
 
 ## Deploy
 
