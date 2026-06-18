@@ -94,40 +94,8 @@ export default function LoginPage() {
   });
 
   return (
-    <div className="min-h-screen flex">
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary via-primary to-primary-dark text-white p-12 flex-col justify-between relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3" />
-        <div className="relative">
-          <h1 className="text-3xl font-bold">{t('appName')}</h1>
-          <p className="text-white/80 mt-2 text-lg">{t('tagline')}</p>
-        </div>
-        <div className="relative space-y-6">
-          <div className="flex items-start gap-4">
-            <div className="p-2 bg-white/15 rounded-lg"><TrendingUp className="h-5 w-5" /></div>
-            <div>
-              <p className="font-semibold">{t('finance')}</p>
-              <p className="text-sm text-white/70">{t('moneyToReceive')} & {t('moneyToPay')}</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-4">
-            <div className="p-2 bg-white/15 rounded-lg"><Users className="h-5 w-5" /></div>
-            <div>
-              <p className="font-semibold">{t('staff')}</p>
-              <p className="text-sm text-white/70">{t('attendance')}, {t('leave')}, {t('payroll')}</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-4">
-            <div className="p-2 bg-white/15 rounded-lg"><Sparkles className="h-5 w-5" /></div>
-            <div>
-              <p className="font-semibold">{t('aiAssistant')}</p>
-              <p className="text-sm text-white/70">{t('dailyBriefing')}</p>
-            </div>
-          </div>
-        </div>
-        <p className="relative text-sm text-white/50">Built for Sri Lankan small businesses</p>
-      </div>
-
-      <div className="flex-1 flex items-center justify-center p-6 bg-background">
+    <div className="login-shell min-h-screen flex flex-col lg:flex-row">
+      <div className="login-panel order-1 lg:order-2 flex-1 flex items-center justify-center p-6 bg-background">
         <div className="max-w-md w-full">
           <div className="flex justify-between items-center mb-6">
             <div className="lg:hidden">
@@ -135,7 +103,7 @@ export default function LoginPage() {
             </div>
             <LanguageSwitcher />
           </div>
-          <div className="card shadow-elevated">
+          <div className="login-card card shadow-elevated">
             <h2 className="text-2xl font-bold text-gray-900 mb-1">{t('login')}</h2>
             <p className="text-sm text-gray-500 mb-4">{t('signInToContinue')}</p>
 
@@ -226,6 +194,38 @@ export default function LoginPage() {
             </Link>
           </div>
         </div>
+      </div>
+
+      <div className="login-hero order-2 lg:order-1 hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary via-primary to-primary-dark text-white p-12 flex-col justify-between relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3" />
+        <div className="relative">
+          <h1 className="text-3xl font-bold">{t('appName')}</h1>
+          <p className="text-white/80 mt-2 text-lg">{t('tagline')}</p>
+        </div>
+        <div className="relative space-y-6">
+          <div className="flex items-start gap-4">
+            <div className="p-2 bg-white/15 rounded-lg"><TrendingUp className="h-5 w-5" /></div>
+            <div>
+              <p className="font-semibold">{t('finance')}</p>
+              <p className="text-sm text-white/70">{t('moneyToReceive')} & {t('moneyToPay')}</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-4">
+            <div className="p-2 bg-white/15 rounded-lg"><Users className="h-5 w-5" /></div>
+            <div>
+              <p className="font-semibold">{t('staff')}</p>
+              <p className="text-sm text-white/70">{t('attendance')}, {t('leave')}, {t('payroll')}</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-4">
+            <div className="p-2 bg-white/15 rounded-lg"><Sparkles className="h-5 w-5" /></div>
+            <div>
+              <p className="font-semibold">{t('aiAssistant')}</p>
+              <p className="text-sm text-white/70">{t('dailyBriefing')}</p>
+            </div>
+          </div>
+        </div>
+        <p className="relative text-sm text-white/50">Built for Sri Lankan small businesses</p>
       </div>
     </div>
   );
