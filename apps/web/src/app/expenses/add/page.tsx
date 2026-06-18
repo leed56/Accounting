@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -22,15 +22,19 @@ import {
   SAMPLE_COMPANY_ID,
 } from '@bizmanager/supabase-client';
 import { useAppStore } from '@/stores/app-store';
+import { useBusinessLabels } from '@/hooks/use-business-labels';
 import { toISODate } from '@bizmanager/utils';
 import { PaymentMetaFields } from '@/components/payment-meta-fields';
 
 export default function AddExpensePage() {
   const { t } = useTranslation();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const categoryParam = searchParams.get('category');
   const toast = useToast((s) => s.show);
   const queryClient = useQueryClient();
   const companyId = useAppStore((s) => s.companyId) ?? SAMPLE_COMPANY_ID;
+  const { vendorLabel } = useBusinessLabels();
   const [receipt, setReceipt] = useState<File | null>(null);
 
   const { data: categories } = useQuery({
@@ -48,7 +52,7 @@ export default function AddExpensePage() {
     queryFn: () => getAccounts(companyId),
   });
 
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<ExpenseInput>({
+  const { register, handleSubmit, watch, reset, formState: { errors } } = useForm<ExpenseInput>({
     resolver: zodResolver(expenseSchema),
     defaultValues: {
       paymentMethod: 'cash',
@@ -57,6 +61,20 @@ export default function AddExpensePage() {
       category: 'Fuel',
     },
   });
+
+  useEffect(() => {
+    if (!categories?.length) return;
+    const preferred =
+      categoryParam && categories.some((c) => c.name_en === categoryParam)
+        ? categoryParam
+        : categories[0].name_en;
+    reset({
+      category: preferred,
+      paymentMethod: 'cash',
+      transactionDate: toISODate(),
+      requiresApproval: false,
+    });
+  }, [categories, reset, categoryParam]);
 
   const mutation = useMutation({
     mutationFn: async (data: ExpenseInput) => {
@@ -107,7 +125,7 @@ export default function AddExpensePage() {
           />
           <PaymentMetaFields register={register} watch={watch} errors={errors} />
           <SelectField
-            label={t('vendor')}
+            label={vendorLabel}
             options={[
               { value: '', label: '— Optional —' },
               ...(suppliers?.map((s) => ({ value: s.id, label: s.name })) ?? []),

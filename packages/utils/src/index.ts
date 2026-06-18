@@ -9,3 +9,4 @@ export * from './reports';
 export * from './payment-meta';
 export * from './whatsapp';
 export * from './pdf-labels';
+export * from './business-labels';

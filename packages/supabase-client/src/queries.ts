@@ -16,7 +16,8 @@ import type {
   Transaction,
   Account,
 } from '@bizmanager/types';
-import { toISODate, getExpenseCategoriesForBusinessType, getIncomeCategoriesForBusinessType, getPeriodDateRange } from '@bizmanager/utils';
+import { toISODate, getExpenseCategoriesForBusinessType, getIncomeCategoriesForBusinessType, getPeriodDateRange, MULTI_VENDOR_COMMISSION_CATEGORIES, MULTI_VENDOR_SETTLEMENT_CATEGORY } from '@bizmanager/utils';
+import type { BusinessTypeMetrics } from '@bizmanager/types';
 import type { BusinessType, PeriodType } from '@bizmanager/types';
 import { getSupabase } from './client';
 
@@ -239,6 +240,63 @@ export async function getDashboardSummary(
     pendingLeave: leaveRes.data?.length ?? 0,
     receivables,
     payables,
+  };
+}
+
+export async function getBusinessTypeMetrics(
+  companyId: string,
+  businessType: string
+): Promise<BusinessTypeMetrics | null> {
+  if (businessType !== 'multi_vendor') return null;
+  if (isDemoMode()) {
+    return {
+      commissionThisMonth: 85000,
+      vendorSettlementsThisMonth: 62000,
+      vendorCount: 3,
+      hasActivity: true,
+    };
+  }
+
+  const supabase = getSupabase();
+  const now = new Date();
+  const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+  const monthEnd = toISODate(now);
+
+  const [commissionRes, settlementRes, vendorRes, activityRes] = await Promise.all([
+    supabase
+      .from('transactions')
+      .select('amount')
+      .eq('company_id', companyId)
+      .eq('type', 'income')
+      .in('category', [...MULTI_VENDOR_COMMISSION_CATEGORIES])
+      .gte('transaction_date', monthStart)
+      .lte('transaction_date', monthEnd)
+      .in('status', ['approved', 'paid']),
+    supabase
+      .from('transactions')
+      .select('amount')
+      .eq('company_id', companyId)
+      .eq('type', 'expense')
+      .eq('category', MULTI_VENDOR_SETTLEMENT_CATEGORY)
+      .gte('transaction_date', monthStart)
+      .lte('transaction_date', monthEnd)
+      .in('status', ['approved', 'paid']),
+    supabase.from('suppliers').select('id').eq('company_id', companyId),
+    supabase.from('transactions').select('id').eq('company_id', companyId).limit(1),
+  ]);
+
+  const commissionThisMonth =
+    commissionRes.data?.reduce((s, t) => s + Number(t.amount), 0) ?? 0;
+  const vendorSettlementsThisMonth =
+    settlementRes.data?.reduce((s, t) => s + Number(t.amount), 0) ?? 0;
+  const vendorCount = vendorRes.data?.length ?? 0;
+  const hasActivity = (activityRes.data?.length ?? 0) > 0 || vendorCount > 0;
+
+  return {
+    commissionThisMonth,
+    vendorSettlementsThisMonth,
+    vendorCount,
+    hasActivity,
   };
 }
 

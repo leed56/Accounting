@@ -11,6 +11,7 @@ import { FormInput, TextAreaField } from '@/components/form-fields';
 import { PremiumButton } from '@/components/premium-button';
 import { useTranslation } from '@/components/language-switcher';
 import { useToast } from '@/components/toast';
+import { useBusinessLabels } from '@/hooks/use-business-labels';
 import { getSupplier, updateSupplier, queryKeys } from '@bizmanager/supabase-client';
 import { useAppStore } from '@/stores/app-store';
 import { formatCurrency } from '@bizmanager/utils';
@@ -23,6 +24,7 @@ export default function EditSupplierPage() {
   const toast = useToast((s) => s.show);
   const queryClient = useQueryClient();
   const companyId = useAppStore((s) => s.companyId);
+  const { vendorLabel } = useBusinessLabels();
 
   const { data: supplier, isLoading } = useQuery({
     queryKey: queryKeys.supplier(id),
@@ -73,7 +75,7 @@ export default function EditSupplierPage() {
           <p className="text-sm text-gray-500">
             Balance: <span className="font-semibold text-expense">{formatCurrency(supplier.current_balance)}</span>
           </p>
-          <FormInput label={t('vendor')} required error={errors.name?.message} {...register('name')} />
+          <FormInput label={vendorLabel} required error={errors.name?.message} {...register('name')} />
           <FormInput label="Phone" {...register('phone')} />
           <FormInput label={t('email')} type="email" {...register('email')} />
           <TextAreaField label="Address" {...register('address')} />

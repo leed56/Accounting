@@ -10,6 +10,7 @@ import { FormInput, TextAreaField } from '@/components/form-fields';
 import { PremiumButton } from '@/components/premium-button';
 import { useTranslation } from '@/components/language-switcher';
 import { useToast } from '@/components/toast';
+import { useBusinessLabels } from '@/hooks/use-business-labels';
 import { createSupplier, queryKeys } from '@bizmanager/supabase-client';
 import { useAppStore } from '@/stores/app-store';
 
@@ -19,6 +20,7 @@ export default function AddSupplierPage() {
   const toast = useToast((s) => s.show);
   const queryClient = useQueryClient();
   const companyId = useAppStore((s) => s.companyId);
+  const { addSupplierTitle } = useBusinessLabels();
 
   const { register, handleSubmit, formState: { errors } } = useForm<SupplierInput>({
     resolver: zodResolver(supplierSchema),
@@ -36,7 +38,7 @@ export default function AddSupplierPage() {
   });
 
   return (
-    <AppShell title={t('addSupplier')}>
+    <AppShell title={addSupplierTitle}>
       <div className="max-w-xl">
         <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="card space-y-4">
           <FormInput label="Supplier name" required error={errors.name?.message} {...register('name')} />

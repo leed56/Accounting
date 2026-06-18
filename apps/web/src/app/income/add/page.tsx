@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -28,6 +28,8 @@ import { PaymentMetaFields } from '@/components/payment-meta-fields';
 export default function AddIncomePage() {
   const { t, language } = useTranslation();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const categoryParam = searchParams.get('category');
   const toast = useToast((s) => s.show);
   const queryClient = useQueryClient();
   const companyId = useAppStore((s) => s.companyId) ?? SAMPLE_COMPANY_ID;
@@ -59,15 +61,18 @@ export default function AddIncomePage() {
   });
 
   useEffect(() => {
-    if (categories?.[0]) {
-      reset({
-        category: categories[0].name_en,
-        paymentMethod: 'cash',
-        transactionDate: toISODate(),
-        markAsPaid: true,
-      });
-    }
-  }, [categories, reset]);
+    if (!categories?.length) return;
+    const preferred =
+      categoryParam && categories.some((c) => c.name_en === categoryParam)
+        ? categoryParam
+        : categories[0].name_en;
+    reset({
+      category: preferred,
+      paymentMethod: 'cash',
+      transactionDate: toISODate(),
+      markAsPaid: true,
+    });
+  }, [categories, reset, categoryParam]);
 
   const mutation = useMutation({
     mutationFn: async (data: IncomeInput) => {

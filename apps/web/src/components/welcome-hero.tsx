@@ -3,16 +3,23 @@
 import Link from 'next/link';
 import { useTranslation } from './language-switcher';
 import { getTimeGreeting } from '@bizmanager/utils';
-import { Plus, TrendingUp, TrendingDown, CheckSquare } from 'lucide-react';
+import { TrendingUp, TrendingDown, CheckSquare, Users, Percent } from 'lucide-react';
 
 interface WelcomeHeroProps {
   companyName: string;
   ownerName?: string | null;
   pendingApprovals?: number;
   readOnly?: boolean;
+  isMultiVendor?: boolean;
 }
 
-export function WelcomeHero({ companyName, ownerName, pendingApprovals = 0, readOnly = false }: WelcomeHeroProps) {
+export function WelcomeHero({
+  companyName,
+  ownerName,
+  pendingApprovals = 0,
+  readOnly = false,
+  isMultiVendor = false,
+}: WelcomeHeroProps) {
   const { t } = useTranslation();
   const greetingKey = getTimeGreeting();
   const greeting =
@@ -32,7 +39,9 @@ export function WelcomeHero({ companyName, ownerName, pendingApprovals = 0, read
         <h2 className="text-2xl md:text-3xl font-bold mt-1">
           {greeting}, {name}
         </h2>
-        <p className="text-white/80 text-sm mt-2 max-w-lg">{t('tagline')}</p>
+        <p className="text-white/80 text-sm mt-2 max-w-lg">
+          {isMultiVendor ? t('multiVendorTagline') : t('tagline')}
+        </p>
 
         {pendingApprovals > 0 && (
           <p className="mt-3 text-sm bg-white/15 inline-block px-3 py-1 rounded-full">
@@ -42,24 +51,57 @@ export function WelcomeHero({ companyName, ownerName, pendingApprovals = 0, read
 
         {!readOnly && (
           <div className="flex flex-wrap gap-2 mt-6">
-            <Link href="/income/add" className="inline-flex items-center gap-2 bg-white text-primary font-semibold text-sm px-4 py-2.5 rounded-lg hover:bg-white/90 transition-colors min-h-[44px]">
-              <TrendingUp className="h-4 w-4" />
-              {t('addIncome')}
-            </Link>
-            <Link href="/expenses/add" className="inline-flex items-center gap-2 bg-white/15 text-white font-semibold text-sm px-4 py-2.5 rounded-lg hover:bg-white/25 transition-colors border border-white/20 min-h-[44px]">
-              <TrendingDown className="h-4 w-4" />
-              {t('addExpense')}
-            </Link>
+            {isMultiVendor ? (
+              <>
+                <Link
+                  href="/income/add?category=Vendor%20Commission"
+                  className="inline-flex items-center gap-2 bg-white text-primary font-semibold text-sm px-4 py-2.5 rounded-lg hover:bg-white/90 transition-colors min-h-[44px]"
+                >
+                  <Percent className="h-4 w-4" />
+                  {t('recordCommission')}
+                </Link>
+                <Link
+                  href="/expenses/add?category=Vendor%20Settlements"
+                  className="inline-flex items-center gap-2 bg-white/15 text-white font-semibold text-sm px-4 py-2.5 rounded-lg hover:bg-white/25 transition-colors border border-white/20 min-h-[44px]"
+                >
+                  <TrendingDown className="h-4 w-4" />
+                  {t('recordVendorSettlement')}
+                </Link>
+                <Link
+                  href="/suppliers/add"
+                  className="inline-flex items-center gap-2 bg-white/15 text-white font-semibold text-sm px-4 py-2.5 rounded-lg hover:bg-white/25 transition-colors border border-white/20 min-h-[44px]"
+                >
+                  <Users className="h-4 w-4" />
+                  {t('addVendor')}
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/income/add"
+                  className="inline-flex items-center gap-2 bg-white text-primary font-semibold text-sm px-4 py-2.5 rounded-lg hover:bg-white/90 transition-colors min-h-[44px]"
+                >
+                  <TrendingUp className="h-4 w-4" />
+                  {t('addIncome')}
+                </Link>
+                <Link
+                  href="/expenses/add"
+                  className="inline-flex items-center gap-2 bg-white/15 text-white font-semibold text-sm px-4 py-2.5 rounded-lg hover:bg-white/25 transition-colors border border-white/20 min-h-[44px]"
+                >
+                  <TrendingDown className="h-4 w-4" />
+                  {t('addExpense')}
+                </Link>
+              </>
+            )}
             {pendingApprovals > 0 && (
-              <Link href="/approvals" className="inline-flex items-center gap-2 bg-white/15 text-white font-semibold text-sm px-4 py-2.5 rounded-lg hover:bg-white/25 transition-colors border border-white/20 min-h-[44px]">
+              <Link
+                href="/approvals"
+                className="inline-flex items-center gap-2 bg-white/15 text-white font-semibold text-sm px-4 py-2.5 rounded-lg hover:bg-white/25 transition-colors border border-white/20 min-h-[44px]"
+              >
                 <CheckSquare className="h-4 w-4" />
                 {t('approvals')}
               </Link>
             )}
-            <Link href="/expenses/add" className="inline-flex items-center gap-2 bg-white/10 text-white/90 font-medium text-sm px-4 py-2.5 rounded-lg hover:bg-white/20 transition-colors min-h-[44px] sm:hidden">
-              <Plus className="h-4 w-4" />
-              {t('add')}
-            </Link>
           </div>
         )}
       </div>

@@ -5,8 +5,9 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAppStore } from '@/stores/app-store';
 import { useTranslation } from './language-switcher';
-import { getCompany, queryKeys, SAMPLE_COMPANY_ID } from '@bizmanager/supabase-client';
 import { useQuery } from '@tanstack/react-query';
+import { getCompany, queryKeys, SAMPLE_COMPANY_ID } from '@bizmanager/supabase-client';
+import { useBusinessLabels } from '@/hooks/use-business-labels';
 import {
   LayoutDashboard,
   TrendingUp,
@@ -52,11 +53,13 @@ function NavSection({
   items,
   pathname,
   t,
+  labelOverrides,
 }: {
   title?: string;
   items: { href: string; labelKey: keyof typeof import('@bizmanager/i18n').en; icon: typeof LayoutDashboard }[];
   pathname: string;
   t: (key: keyof typeof import('@bizmanager/i18n').en) => string;
+  labelOverrides?: Record<string, string>;
 }) {
   return (
     <div className="mb-6">
@@ -81,7 +84,7 @@ function NavSection({
               )}
             >
               <Icon className="h-5 w-5 shrink-0" />
-              {t(item.labelKey)}
+              {labelOverrides?.[item.href] ?? t(item.labelKey)}
             </Link>
           );
         })}
@@ -100,6 +103,11 @@ export function Sidebar() {
     queryFn: () => getCompany(companyId ?? SAMPLE_COMPANY_ID),
     enabled: !!companyId,
   });
+
+  const { suppliersTitle } = useBusinessLabels();
+  const navLabelOverrides = suppliersTitle !== t('suppliers')
+    ? { '/suppliers': suppliersTitle }
+    : undefined;
 
   return (
     <>
@@ -128,9 +136,9 @@ export function Sidebar() {
           </button>
         </div>
         <div className="flex-1 overflow-y-auto p-3">
-          <NavSection items={mainNav} pathname={pathname} t={t} />
-          <NavSection title="Staff" items={staffNav} pathname={pathname} t={t} />
-          <NavSection items={otherNav} pathname={pathname} t={t} />
+          <NavSection items={mainNav} pathname={pathname} t={t} labelOverrides={navLabelOverrides} />
+          <NavSection title="Staff" items={staffNav} pathname={pathname} t={t} labelOverrides={navLabelOverrides} />
+          <NavSection items={otherNav} pathname={pathname} t={t} labelOverrides={navLabelOverrides} />
         </div>
       </aside>
     </>

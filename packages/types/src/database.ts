@@ -286,6 +286,13 @@ export interface Notification {
   created_at: string;
 }
 
+export interface BusinessTypeMetrics {
+  commissionThisMonth: number;
+  vendorSettlementsThisMonth: number;
+  vendorCount: number;
+  hasActivity: boolean;
+}
+
 export interface DashboardSummary {
   todayIncome: number;
   todayExpenses: number;

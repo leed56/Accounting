@@ -8,6 +8,7 @@ import { EmptyState } from '@/components/empty-state';
 import { PremiumButton } from '@/components/premium-button';
 import { useTranslation } from '@/components/language-switcher';
 import { useAppStore } from '@/stores/app-store';
+import { useBusinessLabels } from '@/hooks/use-business-labels';
 import { getSuppliers, getCompany, queryKeys, SAMPLE_COMPANY_ID } from '@bizmanager/supabase-client';
 import { formatCurrency, buildPayableReminderMessage } from '@bizmanager/utils';
 import { openWhatsAppShare } from '@/lib/export/download';
@@ -17,6 +18,7 @@ import Link from 'next/link';
 export default function SuppliersPage() {
   const { t, language } = useTranslation();
   const companyId = useAppStore((s) => s.companyId) ?? SAMPLE_COMPANY_ID;
+  const { suppliersTitle, addSupplierTitle, payablesLabel, isMultiVendor } = useBusinessLabels();
 
   const { data: suppliers } = useQuery({
     queryKey: queryKeys.suppliers(companyId),
@@ -41,12 +43,20 @@ export default function SuppliersPage() {
   };
 
   return (
-    <AppShell title={t('suppliers')}>
+    <AppShell title={suppliersTitle}>
       <div className="space-y-6">
         <div className="flex justify-between items-center flex-wrap gap-4">
-          <MetricCard label={t('moneyToPay')} value={formatCurrency(totalPayable)} variant="expense" className="max-w-xs" />
+          <MetricCard
+            label={payablesLabel}
+            value={formatCurrency(totalPayable)}
+            variant="expense"
+            className="max-w-xs"
+          />
           <Link href="/suppliers/add">
-            <PremiumButton><Plus className="h-4 w-4" />{t('addSupplier')}</PremiumButton>
+            <PremiumButton>
+              <Plus className="h-4 w-4" />
+              {addSupplierTitle}
+            </PremiumButton>
           </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -75,7 +85,19 @@ export default function SuppliersPage() {
           ))}
         </div>
         {!suppliers?.length && (
-          <EmptyState icon={<Truck className="h-8 w-8" />} title={t('noSuppliers')} description={t('noSuppliersDesc')} />
+          <EmptyState
+            icon={<Truck className="h-8 w-8" />}
+            title={isMultiVendor ? t('noVendors') : t('noSuppliers')}
+            description={isMultiVendor ? t('noVendorsDesc') : t('noSuppliersDesc')}
+            action={
+              <Link href="/suppliers/add">
+                <PremiumButton>
+                  <Plus className="h-4 w-4" />
+                  {addSupplierTitle}
+                </PremiumButton>
+              </Link>
+            }
+          />
         )}
       </div>
     </AppShell>
