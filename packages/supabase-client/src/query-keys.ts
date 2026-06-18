@@ -17,7 +17,8 @@ export const queryKeys = {
   payrollRuns: (companyId: string) => ['payrollRuns', companyId] as const,
   paymentRequests: (companyId: string, status?: string) =>
     ['paymentRequests', companyId, status] as const,
-  categories: (companyId: string) => ['categories', companyId] as const,
+  categories: (companyId: string, scope: 'active' | 'all' = 'active') =>
+    ['categories', companyId, scope] as const,
   accounts: (companyId: string) => ['accounts', companyId] as const,
   aiInsights: (companyId: string) => ['aiInsights', companyId] as const,
   reports: (companyId: string, type: string, period: string) =>

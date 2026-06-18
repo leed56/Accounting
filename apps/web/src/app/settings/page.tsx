@@ -10,6 +10,7 @@ import { FormInput, SelectField } from '@/components/form-fields';
 import { PremiumButton } from '@/components/premium-button';
 import { LanguageSwitcher, useTranslation } from '@/components/language-switcher';
 import { SummaryCard } from '@/components/metric-card';
+import { ExpenseCategoriesManager } from '@/components/expense-categories-manager';
 import { useToast } from '@/components/toast';
 import { usePermissions } from '@/hooks/use-permissions';
 import { useAppStore } from '@/stores/app-store';
@@ -137,6 +138,10 @@ export default function SettingsPage() {
               <LanguageSwitcher />
             </div>
           </div>
+        </SummaryCard>
+
+        <SummaryCard title={t('expenseCategories')}>
+          <ExpenseCategoriesManager companyId={companyId} canEdit={isOwner} />
         </SummaryCard>
 
         <SummaryCard title={t('userRoles')}>

@@ -328,7 +328,10 @@ export async function getLeaveRequests(companyId: string, status?: string): Prom
   return (data ?? []) as LeaveRequest[];
 }
 
-export async function getExpenseCategories(companyId: string): Promise<ExpenseCategory[]> {
+export async function getExpenseCategories(
+  companyId: string,
+  options?: { includeHidden?: boolean }
+): Promise<ExpenseCategory[]> {
   if (isDemoMode()) {
     return getExpenseCategoriesForBusinessType('travel_agency').map((c, i) => ({
       id: String(i + 1),
@@ -339,10 +342,15 @@ export async function getExpenseCategories(companyId: string): Promise<ExpenseCa
       icon: c.icon,
       color: c.color,
       is_default: true,
+      is_hidden: false,
     }));
   }
   const supabase = getSupabase();
-  const { data, error } = await supabase.from('expense_categories').select('*').eq('company_id', companyId);
+  let query = supabase.from('expense_categories').select('*').eq('company_id', companyId);
+  if (!options?.includeHidden) {
+    query = query.eq('is_hidden', false);
+  }
+  const { data, error } = await query;
   if (error) throw error;
   const categories = (data ?? []) as ExpenseCategory[];
   const seen = new Set<string>();

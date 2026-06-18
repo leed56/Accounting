@@ -101,6 +101,10 @@ export const inviteSchema = z.object({
   role: z.enum(['manager', 'accountant', 'staff']),
 });
 
+export const expenseCategorySchema = z.object({
+  name_en: z.string().min(1, 'Name is required').max(80),
+});
+
 export const settingsSchema = z.object({
   name: z.string().min(2),
   ownerName: z.string().optional().nullable(),
@@ -127,4 +131,5 @@ export type SupplierUpdateInput = z.infer<typeof supplierUpdateSchema>;
 export type StaffInput = z.infer<typeof staffSchema>;
 export type LeaveRequestInput = z.infer<typeof leaveRequestSchema>;
 export type SettingsInput = z.infer<typeof settingsSchema>;
+export type ExpenseCategoryInput = z.infer<typeof expenseCategorySchema>;
 export type InviteInput = z.infer<typeof inviteSchema>;

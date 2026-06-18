@@ -123,6 +123,7 @@ export interface ExpenseCategory {
   icon: string | null;
   color: string | null;
   is_default: boolean;
+  is_hidden: boolean;
 }
 
 export interface Attendance {

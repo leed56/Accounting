@@ -16,17 +16,24 @@ pnpm db:seed
 
 Or in Supabase SQL — only inserts missing names (safe to re-run logic via seed script).
 
-## Step 2 — Settings UI (next)
+## Step 2 — Settings UI ✅
 
 - Settings → **Manage expense categories**
 - Owner can add / rename / hide (not delete if used in transactions)
+- Migration: `is_hidden` column on `expense_categories`
 
-## Step 3 — Business templates (later)
+## Step 3 — Business templates ✅
 
-- Retail, restaurant, office each get 2–4 extra presets on setup
-- Onboarding picks template from `business_type`
+- **Retail** (+4): Inventory, Packaging, Delivery, Shop Supplies
+- **Restaurant / Café** (+4): Food Ingredients, Kitchen Supplies, Gas (LPG), Cleaning
+- **Office / Admin** (+3): Software, Professional Services, Travel
+- **Service business** (+3): Tools & Equipment, Transport, Client Entertainment
+- **Freelancer / Agency** (+3): Software, Subcontractors, Marketing
+- **Travel agency** (+3): Vehicle Maintenance, Marketing, Parking & Tolls
+- Setup page shows live category preview; `createCompany` seeds by `business_type`
+- Settings → **Add missing template categories** for existing companies
 
-## Step 4 — Income categories (later)
+## Step 4 — Income categories (next)
 
 - Separate list for income (Tour Booking, Transfer, etc.)
 - Mirror expense pattern on income add form

@@ -378,6 +378,7 @@ OPENAI_API_KEY               # optional
 | v1.7 Mobile settings + persisted dark/prefs | ✅ Done |
 
 ### Next — v1.8
+- Income categories (Step 4)
 - Dark theme on all mobile tabs
 - Mobile notifications list
 - Phone OTP auth (optional)
