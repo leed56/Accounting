@@ -67,7 +67,7 @@ export function SelectField({
   label: string;
   error?: string;
   required?: boolean;
-  options: { value: string; label: string }[];
+  options: { value: string; label: string; key?: string }[];
 }) {
   return (
     <div className={className}>
@@ -76,8 +76,8 @@ export function SelectField({
         {required && <span className="text-danger ml-1">*</span>}
       </label>
       <select className={cn('input-field', error && 'border-danger')} {...props}>
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
+        {options.map((o, i) => (
+          <option key={o.key ?? `${o.value}-${i}`} value={o.value}>
             {o.label}
           </option>
         ))}

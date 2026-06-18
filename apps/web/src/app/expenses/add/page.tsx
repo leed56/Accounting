@@ -93,7 +93,7 @@ export default function AddExpensePage() {
           <SelectField
             label={t('category')}
             required
-            options={categories?.map((c) => ({ value: c.name_en, label: c.name_en })) ?? [{ value: 'Other', label: 'Other' }]}
+            options={categories?.map((c) => ({ value: c.name_en, label: c.name_en, key: c.id })) ?? [{ value: 'Other', label: 'Other' }]}
             error={errors.category?.message}
             {...register('category')}
           />

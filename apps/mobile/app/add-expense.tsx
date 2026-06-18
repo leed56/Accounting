@@ -64,8 +64,6 @@ export default function AddExpenseScreen() {
     },
   });
 
-  const categoryOptions = categories?.map((c) => c.name_en) ?? ['Fuel', 'Other'];
-
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView contentContainerStyle={styles.scroll}>
@@ -76,7 +74,15 @@ export default function AddExpenseScreen() {
 
         <Text style={styles.label}>{t('category')}</Text>
         <View style={styles.row}>
-          {categoryOptions.slice(0, 4).map((c) => (
+          {categories?.slice(0, 4).map((c) => (
+            <TouchableOpacity
+              key={c.id}
+              style={[styles.chip, category === c.name_en && styles.chipActive]}
+              onPress={() => setCategory(c.name_en)}
+            >
+              <Text style={category === c.name_en ? styles.chipTextActive : styles.chipText}>{c.name_en}</Text>
+            </TouchableOpacity>
+          )) ?? ['Fuel', 'Other'].map((c) => (
             <TouchableOpacity
               key={c}
               style={[styles.chip, category === c && styles.chipActive]}

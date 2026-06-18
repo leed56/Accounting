@@ -338,7 +338,13 @@ export async function getExpenseCategories(companyId: string): Promise<ExpenseCa
   const supabase = getSupabase();
   const { data, error } = await supabase.from('expense_categories').select('*').eq('company_id', companyId);
   if (error) throw error;
-  return (data ?? []) as ExpenseCategory[];
+  const categories = (data ?? []) as ExpenseCategory[];
+  const seen = new Set<string>();
+  return categories.filter((c) => {
+    if (seen.has(c.name_en)) return false;
+    seen.add(c.name_en);
+    return true;
+  });
 }
 
 export async function getAccounts(companyId: string): Promise<Account[]> {
