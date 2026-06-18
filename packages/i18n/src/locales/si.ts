@@ -76,6 +76,7 @@ const si = {
   selectLanguage: 'භාෂාව තෝරන්න',
   companySetup: 'සමාගම් සැකසුම',
   companySetupHint: 'ඔබේ දෛනික ව්‍යාපාරයට ආසන්න වර්ගය තෝරන්න — වියදම් කාණ්ඩ සූදානම් කර ඇත.',
+  alreadyHasCompany: 'You already have a company — opening your dashboard.',
   businessName: 'ව්‍යාපාර නම',
   businessType: 'ව්‍යාපාර වර්ගය',
   ownerName: 'හිමිකරුගේ නම',

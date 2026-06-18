@@ -80,6 +80,7 @@ const en = {
   selectLanguage: 'Select Language',
   companySetup: 'Company Setup',
   companySetupHint: 'Pick the type closest to your daily work — we set up expense categories so you can start recording in minutes.',
+  alreadyHasCompany: 'You already have a company — opening your dashboard.',
   businessName: 'Business Name',
   businessType: 'Business Type',
   ownerName: 'Owner Name',

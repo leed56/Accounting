@@ -108,6 +108,7 @@ const ta = {
   bizTypeDesc_workshop_repair: 'Auto, phone, AC repair.',
   bizTypeDesc_other: 'Edit categories later in Settings.',
   companySetupHint: 'Pick the type closest to your daily work.',
+  alreadyHasCompany: 'You already have a company — opening your dashboard.',
   categoryTemplatePreview: 'Ready-made expense categories',
 
   amount: 'தொகை',

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,11 +11,7 @@ import { useTranslation } from '@/components/language-switcher';
 import { useToast } from '@/components/toast';
 import { useAuth } from '@/components/auth-provider';
 import { useAppStore } from '@/stores/app-store';
-import {
-  createCompanyWithProfile,
-  getSession,
-  SAMPLE_COMPANY_ID,
-} from '@bizmanager/supabase-client';
+import { getSession, SAMPLE_COMPANY_ID } from '@bizmanager/supabase-client';
 import {
   getCategoryName,
   getExpenseCategoriesForBusinessType,
@@ -29,9 +25,16 @@ export default function SetupPage() {
   const { t, language } = useTranslation();
   const router = useRouter();
   const toast = useToast((s) => s.show);
-  const { refresh } = useAuth();
+  const { profile, loading: authLoading, refresh } = useAuth();
   const setCompanyId = useAppStore((s) => s.setCompanyId);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && profile) {
+      setCompanyId(profile.company_id);
+      router.replace('/dashboard');
+    }
+  }, [authLoading, profile, router, setCompanyId]);
 
   const {
     register,
@@ -59,22 +62,37 @@ export default function SetupPage() {
     setLoading(true);
     try {
       const { data: { session } } = await getSession();
-      if (session?.user?.email) {
-        const result = await createCompanyWithProfile(session.user.id, session.user.email, {
-          businessName: data.businessName,
-          businessType: data.businessType,
-          currency: data.currency,
-          ownerName: data.ownerName,
-          staffModuleEnabled: data.staffModuleEnabled,
-          taxEnabled: data.taxEnabled,
-          language: data.language,
-        });
-        if (!result) throw new Error('Could not create company');
-        setCompanyId(result.companyId);
-        await refresh();
-      } else {
+      if (!session?.access_token) {
         setCompanyId(SAMPLE_COMPANY_ID);
+        toast(t('success'), 'success');
+        router.push('/dashboard');
+        return;
       }
+
+      const res = await fetch('/api/setup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+
+      if (res.status === 409 && json.companyId) {
+        setCompanyId(json.companyId);
+        await refresh();
+        toast(json.error ?? t('alreadyHasCompany'), 'success');
+        router.push('/dashboard');
+        return;
+      }
+
+      if (!res.ok) {
+        throw new Error(json.error ?? 'Could not create company');
+      }
+
+      setCompanyId(json.companyId);
+      await refresh();
       toast(t('success'), 'success');
       router.push('/dashboard');
     } catch (e) {
@@ -88,6 +106,14 @@ export default function SetupPage() {
     t(BUSINESS_TYPE_LABEL_KEYS[type] as keyof TranslationKeys);
   const desc = (type: BusinessType) =>
     t(BUSINESS_TYPE_DESC_KEYS[type] as keyof TranslationKeys);
+
+  if (authLoading || profile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-pulse text-gray-500">{t('loading')}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">

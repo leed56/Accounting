@@ -565,9 +565,20 @@ export async function createCompanyWithProfile(
     taxEnabled: boolean;
     language: string;
   }
-): Promise<{ companyId: string } | null> {
+): Promise<{ companyId: string }> {
   if (isDemoMode()) return { companyId: SAMPLE_COMPANY_ID };
   const supabase = getSupabase();
+
+  const { data: existingProfile } = await supabase
+    .from('profiles')
+    .select('company_id')
+    .eq('auth_user_id', userId)
+    .maybeSingle();
+
+  if (existingProfile) {
+    throw new Error('You already have a company linked to this account.');
+  }
+
   const { data: company, error: companyError } = await supabase
     .from('companies')
     .insert({
@@ -579,10 +590,14 @@ export async function createCompanyWithProfile(
       staff_module_enabled: setup.staffModuleEnabled,
       tax_enabled: setup.taxEnabled,
     })
-    .select()
+    .select('id')
     .single();
-  if (companyError || !company) return null;
-  await supabase.from('profiles').insert({
+
+  if (companyError || !company) {
+    throw new Error(companyError?.message ?? 'Could not create company. Use the web setup page while signed in.');
+  }
+
+  const { error: profileError } = await supabase.from('profiles').insert({
     auth_user_id: userId,
     company_id: company.id,
     full_name: setup.ownerName,
@@ -590,10 +605,14 @@ export async function createCompanyWithProfile(
     role: 'owner',
     language: setup.language,
   });
-  await supabase.from('accounts').insert([
+  if (profileError) throw new Error(profileError.message);
+
+  const { error: accountsError } = await supabase.from('accounts').insert([
     { company_id: company.id, name: 'Cash', type: 'cash', current_balance: 0, is_default: true },
     { company_id: company.id, name: 'Bank', type: 'bank', current_balance: 0, is_default: true },
   ]);
+  if (accountsError) throw new Error(accountsError.message);
+
   await seedExpenseCategoriesForCompany(company.id, setup.businessType as BusinessType);
   return { companyId: company.id };
 }
