@@ -15,7 +15,8 @@ import type {
   Transaction,
   Account,
 } from '@bizmanager/types';
-import { toISODate } from '@bizmanager/utils';
+import { toISODate, getExpenseCategoriesForBusinessType } from '@bizmanager/utils';
+import type { BusinessType } from '@bizmanager/types';
 import { getSupabase } from './client';
 
 // Sample data for demo when Supabase is not configured
@@ -329,11 +330,16 @@ export async function getLeaveRequests(companyId: string, status?: string): Prom
 
 export async function getExpenseCategories(companyId: string): Promise<ExpenseCategory[]> {
   if (isDemoMode()) {
-    return [
-      { id: '1', company_id: companyId, name_en: 'Rent', name_si: 'කුලී', name_ta: 'கட்டணம்', icon: 'home', color: '#3B82F6', is_default: true },
-      { id: '2', company_id: companyId, name_en: 'Fuel', name_si: 'ඉන්ධන', name_ta: 'எரிபொருள்', icon: 'fuel', color: '#F59E0B', is_default: true },
-      { id: '3', company_id: companyId, name_en: 'Internet', name_si: 'අන්තර්ජාල', name_ta: 'இணையம்', icon: 'wifi', color: '#06B6D4', is_default: true },
-    ];
+    return getExpenseCategoriesForBusinessType('travel_agency').map((c, i) => ({
+      id: String(i + 1),
+      company_id: companyId,
+      name_en: c.name_en,
+      name_si: c.name_si,
+      name_ta: c.name_ta,
+      icon: c.icon,
+      color: c.color,
+      is_default: true,
+    }));
   }
   const supabase = getSupabase();
   const { data, error } = await supabase.from('expense_categories').select('*').eq('company_id', companyId);
@@ -345,6 +351,33 @@ export async function getExpenseCategories(companyId: string): Promise<ExpenseCa
     seen.add(c.name_en);
     return true;
   });
+}
+
+export async function seedExpenseCategoriesForCompany(
+  companyId: string,
+  businessType: BusinessType = 'other'
+) {
+  const supabase = getSupabase();
+  const templates = getExpenseCategoriesForBusinessType(businessType);
+  const { data: existing } = await supabase
+    .from('expense_categories')
+    .select('name_en')
+    .eq('company_id', companyId);
+  const existingNames = new Set((existing ?? []).map((r) => r.name_en));
+  const toInsert = templates
+    .filter((c) => !existingNames.has(c.name_en))
+    .map((c) => ({
+      company_id: companyId,
+      name_en: c.name_en,
+      name_si: c.name_si,
+      name_ta: c.name_ta,
+      icon: c.icon,
+      color: c.color,
+      is_default: true,
+    }));
+  if (toInsert.length === 0) return;
+  const { error } = await supabase.from('expense_categories').insert(toInsert);
+  if (error) throw error;
 }
 
 export async function getAccounts(companyId: string): Promise<Account[]> {
@@ -553,6 +586,7 @@ export async function createCompanyWithProfile(
     { company_id: company.id, name: 'Cash', type: 'cash', current_balance: 0, is_default: true },
     { company_id: company.id, name: 'Bank', type: 'bank', current_balance: 0, is_default: true },
   ]);
+  await seedExpenseCategoriesForCompany(company.id, setup.businessType as BusinessType);
   return { companyId: company.id };
 }
 

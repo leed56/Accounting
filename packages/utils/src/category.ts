@@ -1,4 +1,5 @@
 import type { Language } from '@bizmanager/i18n';
+import type { BusinessType } from '@bizmanager/types';
 
 export function getCategoryName(
   category: { name_en: string; name_si?: string | null; name_ta?: string | null },
@@ -19,3 +20,19 @@ export const DEFAULT_EXPENSE_CATEGORIES = [
   { name_en: 'Salaries', name_si: 'වැටුප්', name_ta: 'சம்பளம்', icon: 'users', color: '#16A34A' },
   { name_en: 'Other', name_si: 'වෙනත්', name_ta: 'மற்றவை', icon: 'more', color: '#9CA3AF' },
 ];
+
+/** Extra categories for travel agencies (added on top of defaults). */
+export const TRAVEL_AGENCY_EXPENSE_CATEGORIES = [
+  { name_en: 'Vehicle Maintenance', name_si: 'වාහන නඩත්තු', name_ta: 'வாகன பராமரிப்பு', icon: 'wrench', color: '#EC4899' },
+  { name_en: 'Marketing', name_si: 'ප්‍රචාරණ', name_ta: 'விளம்பரம்', icon: 'megaphone', color: '#F97316' },
+  { name_en: 'Parking & Tolls', name_si: 'පාර්කිං', name_ta: 'பார்க்கிங்', icon: 'car', color: '#6366F1' },
+] as const;
+
+export function getExpenseCategoriesForBusinessType(businessType: BusinessType) {
+  if (businessType === 'travel_agency') {
+    const seen = new Set(DEFAULT_EXPENSE_CATEGORIES.map((c) => c.name_en));
+    const extra = TRAVEL_AGENCY_EXPENSE_CATEGORIES.filter((c) => !seen.has(c.name_en));
+    return [...DEFAULT_EXPENSE_CATEGORIES, ...extra];
+  }
+  return DEFAULT_EXPENSE_CATEGORIES;
+}

@@ -79,13 +79,20 @@ async function seed() {
   const { error: staffErr } = await supabase.from('staff').insert(staff);
   if (staffErr && !staffErr.message.includes('duplicate')) console.warn('Staff:', staffErr.message);
 
-  const categories = [
-    { company_id: COMPANY_ID, name_en: 'Rent', name_si: 'කුලී', name_ta: 'கட்டணம்', icon: 'home', color: '#3B82F6', is_default: true },
-    { company_id: COMPANY_ID, name_en: 'Fuel', name_si: 'ඉන්ධන', name_ta: 'எரிபொருள்', icon: 'fuel', color: '#F59E0B', is_default: true },
-    { company_id: COMPANY_ID, name_en: 'Internet', name_si: 'අන්තර්ජාල', name_ta: 'இணையம்', icon: 'wifi', color: '#06B6D4', is_default: true },
-  ];
-  const { error: catErr } = await supabase.from('expense_categories').insert(categories);
-  if (catErr && !catErr.message.includes('duplicate')) console.warn('Categories:', catErr.message);
+  const categories = (await import('@bizmanager/utils')).getExpenseCategoriesForBusinessType('travel_agency').map(
+    (c) => ({ company_id: COMPANY_ID, ...c, is_default: true })
+  );
+  for (const cat of categories) {
+    const { data: existing } = await supabase
+      .from('expense_categories')
+      .select('id')
+      .eq('company_id', COMPANY_ID)
+      .eq('name_en', cat.name_en)
+      .maybeSingle();
+    if (existing) continue;
+    const { error } = await supabase.from('expense_categories').insert(cat);
+    if (error) console.warn('Category', cat.name_en, error.message);
+  }
 
   const customers = [
     { company_id: COMPANY_ID, name: 'ABC Traders', current_balance: 45000 },
