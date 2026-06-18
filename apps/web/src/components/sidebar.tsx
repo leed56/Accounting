@@ -59,7 +59,7 @@ function NavSection({
   return (
     <div className="mb-6">
       {title && (
-        <p className="px-3 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+        <p className="px-3 mb-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
           {title}
         </p>
       )}
@@ -74,8 +74,8 @@ function NavSection({
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors min-h-[44px]',
                 active
-                  ? 'bg-primary-light text-primary-dark'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                  ? 'bg-primary-light text-primary-dark dark:bg-primary/20 dark:text-primary-light'
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
               )}
             >
               <Icon className="h-5 w-5 shrink-0" />
@@ -109,17 +109,17 @@ export function Sidebar() {
       )}
       <aside
         className={cn(
-          'fixed top-0 left-0 z-50 h-full w-64 bg-white border-r border-border flex flex-col transition-transform lg:translate-x-0 lg:static lg:z-auto',
+          'fixed top-0 left-0 z-50 h-full w-64 bg-white dark:bg-gray-900 border-r border-border dark:border-gray-800 flex flex-col transition-transform lg:translate-x-0 lg:static lg:z-auto',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
-        <div className="flex items-center justify-between p-4 border-b border-border">
+        <div className="flex items-center justify-between p-4 border-b border-border dark:border-gray-800">
           <div>
             <h1 className="text-lg font-bold text-primary">BizManager</h1>
-            <p className="text-xs text-gray-500">{company?.name ?? 'BizManager'}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{company?.name ?? 'BizManager'}</p>
           </div>
           <button
-            className="lg:hidden p-2 rounded-md hover:bg-gray-100"
+            className="lg:hidden p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
             onClick={() => setSidebarOpen(false)}
           >
             <X className="h-5 w-5" />
@@ -147,7 +147,7 @@ export function BottomNav() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-border lg:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-gray-900 border-t border-border dark:border-gray-800 lg:hidden">
       <div className="flex items-center justify-around py-2">
         {items.map((item) => {
           const active = pathname === item.href || pathname.startsWith(item.href + '/');
@@ -158,7 +158,7 @@ export function BottomNav() {
               href={item.href}
               className={cn(
                 'flex flex-col items-center gap-0.5 px-2 py-1 min-w-[64px] min-h-[44px] justify-center',
-                active ? 'text-primary' : 'text-gray-500'
+                active ? 'text-primary' : 'text-gray-500 dark:text-gray-400'
               )}
             >
               <Icon className="h-5 w-5" />

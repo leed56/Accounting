@@ -58,9 +58,16 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.hero}>
-          <Text style={styles.companyName}>{company?.name ?? 'BizManager'}</Text>
-          <Text style={styles.greeting}>{greeting}</Text>
-          <Text style={styles.headerTitle}>{t('dashboard')}</Text>
+          <View style={styles.heroTop}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.companyName}>{company?.name ?? 'BizManager'}</Text>
+              <Text style={styles.greeting}>{greeting}</Text>
+              <Text style={styles.headerTitle}>{t('dashboard')}</Text>
+            </View>
+            <TouchableOpacity style={styles.searchBtn} onPress={() => router.push('/search')}>
+              <Text style={styles.searchBtnText}>🔍</Text>
+            </TouchableOpacity>
+          </View>
           <View style={styles.quickRow}>
             <TouchableOpacity style={styles.quickBtn} onPress={() => router.push('/add-income')}>
               <Text style={styles.quickBtnText}>{t('addIncome')}</Text>
@@ -110,6 +117,18 @@ const styles = StyleSheet.create({
     padding: spacing[4],
     marginBottom: spacing[4],
   },
+  heroTop: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[2] },
+  searchBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+  },
+  searchBtnText: { fontSize: 18 },
   companyName: { fontSize: 13, color: 'rgba(255,255,255,0.8)' },
   greeting: { fontSize: 22, fontWeight: '700', color: '#fff', marginTop: spacing[1] },
   headerTitle: { fontSize: 14, color: 'rgba(255,255,255,0.7)', marginTop: spacing[1] },

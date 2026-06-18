@@ -15,8 +15,20 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { useAppStore } from '@/stores/app-store';
+
+function useChartTheme() {
+  const darkMode = useAppStore((s) => s.darkMode);
+  return {
+    grid: darkMode ? '#374151' : '#E5E7EB',
+    tick: darkMode ? '#9CA3AF' : '#6B7280',
+    tooltipBg: darkMode ? '#111827' : '#FFFFFF',
+    tooltipBorder: darkMode ? '#374151' : '#E5E7EB',
+  };
+}
 
 export function IncomeExpenseChart() {
+  const theme = useChartTheme();
   const data = [
     { name: 'Mon', income: 95000, expense: 42000 },
     { name: 'Tue', income: 110000, expense: 55000 },
@@ -30,10 +42,13 @@ export function IncomeExpenseChart() {
   return (
     <ResponsiveContainer width="100%" height={280}>
       <LineChart data={data}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-        <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-        <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => `${v / 1000}k`} />
-        <Tooltip formatter={(v: number) => [`Rs. ${v.toLocaleString()}`, '']} />
+        <CartesianGrid strokeDasharray="3 3" stroke={theme.grid} />
+        <XAxis dataKey="name" tick={{ fontSize: 12, fill: theme.tick }} />
+        <YAxis tick={{ fontSize: 12, fill: theme.tick }} tickFormatter={(v) => `${v / 1000}k`} />
+        <Tooltip
+          formatter={(v: number) => [`Rs. ${v.toLocaleString()}`, '']}
+          contentStyle={{ backgroundColor: theme.tooltipBg, borderColor: theme.tooltipBorder }}
+        />
         <Legend />
         <Line type="monotone" dataKey="income" stroke="#16A34A" strokeWidth={2} name="Income" />
         <Line type="monotone" dataKey="expense" stroke="#EF4444" strokeWidth={2} name="Expenses" />
@@ -43,6 +58,7 @@ export function IncomeExpenseChart() {
 }
 
 export function ExpenseCategoryChart() {
+  const theme = useChartTheme();
   const data = [
     { name: 'Rent', value: 75000, color: '#3B82F6' },
     { name: 'Fuel', value: 12750, color: '#F59E0B' },
@@ -58,7 +74,10 @@ export function ExpenseCategoryChart() {
             <Cell key={i} fill={entry.color} />
           ))}
         </Pie>
-        <Tooltip formatter={(v: number) => `Rs. ${v.toLocaleString()}`} />
+        <Tooltip
+          formatter={(v: number) => `Rs. ${v.toLocaleString()}`}
+          contentStyle={{ backgroundColor: theme.tooltipBg, borderColor: theme.tooltipBorder }}
+        />
         <Legend />
       </PieChart>
     </ResponsiveContainer>
@@ -66,6 +85,7 @@ export function ExpenseCategoryChart() {
 }
 
 export function AttendanceBarChart() {
+  const theme = useChartTheme();
   const data = [
     { day: 'Mon', present: 4 },
     { day: 'Tue', present: 3 },
@@ -77,10 +97,10 @@ export function AttendanceBarChart() {
   return (
     <ResponsiveContainer width="100%" height={200}>
       <BarChart data={data}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-        <XAxis dataKey="day" tick={{ fontSize: 12 }} />
-        <YAxis tick={{ fontSize: 12 }} domain={[0, 4]} />
-        <Tooltip />
+        <CartesianGrid strokeDasharray="3 3" stroke={theme.grid} />
+        <XAxis dataKey="day" tick={{ fontSize: 12, fill: theme.tick }} />
+        <YAxis tick={{ fontSize: 12, fill: theme.tick }} domain={[0, 4]} />
+        <Tooltip contentStyle={{ backgroundColor: theme.tooltipBg, borderColor: theme.tooltipBorder }} />
         <Bar dataKey="present" fill="#16A34A" radius={[4, 4, 0, 0]} name="Present" />
       </BarChart>
     </ResponsiveContainer>
@@ -96,7 +116,7 @@ export function ChartCard({
 }) {
   return (
     <div className="card">
-      <h3 className="text-base font-semibold text-gray-900 mb-4">{title}</h3>
+      <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-4">{title}</h3>
       {children}
     </div>
   );

@@ -448,6 +448,30 @@ export async function getNotifications(profileId: string, limit = 20): Promise<N
         is_read: false,
         created_at: new Date().toISOString(),
       },
+      {
+        id: '2',
+        company_id: SAMPLE_COMPANY_ID,
+        user_id: profileId,
+        type: 'payroll',
+        title: 'Payroll ready for review',
+        body: 'June 2026 payroll submitted',
+        related_type: 'payroll_run',
+        related_id: '1',
+        is_read: false,
+        created_at: new Date(Date.now() - 3600000).toISOString(),
+      },
+      {
+        id: '3',
+        company_id: SAMPLE_COMPANY_ID,
+        user_id: profileId,
+        type: 'leave',
+        title: 'Leave request pending',
+        body: 'Kasun Perera — annual leave',
+        related_type: 'leave_request',
+        related_id: '1',
+        is_read: true,
+        created_at: new Date(Date.now() - 7200000).toISOString(),
+      },
     ];
   }
   const supabase = getSupabase();

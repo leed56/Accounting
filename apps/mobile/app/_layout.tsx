@@ -27,6 +27,7 @@ export default function RootLayout() {
         <Stack.Screen name="login" />
         <Stack.Screen name="add-income" />
         <Stack.Screen name="add-expense" />
+        <Stack.Screen name="search" />
         <Stack.Screen name="(tabs)" />
         </Stack>
       </AppProviders>

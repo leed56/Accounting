@@ -23,9 +23,8 @@ supabase db push
 # or apply supabase/migrations/20260617000002_add_accountant_role.sql manually
 ```
 
-## Next (v1.6)
+## Next (v1.7)
 
-- Mobile global search
-- Filter notifications by user preferences
-- Full dark mode polish (sidebar, charts)
+- Mobile dark mode + notification prefs (persisted)
+- Mobile settings screen
 - Phone OTP auth (original v1.3 backlog)

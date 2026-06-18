@@ -39,7 +39,7 @@ export function TopBar({
       <div className="flex items-center gap-3 px-4 py-3 lg:px-6">
         <button
           onClick={toggleSidebar}
-          className="lg:hidden p-2 rounded-md hover:bg-gray-100 min-h-[44px] min-w-[44px] flex items-center justify-center"
+          className="lg:hidden p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 min-h-[44px] min-w-[44px] flex items-center justify-center"
           aria-label="Toggle menu"
         >
           <Menu className="h-5 w-5" />
@@ -67,7 +67,7 @@ export function TopBar({
             <button
               type="button"
               onClick={() => signOut()}
-              className="h-8 w-8 rounded-full bg-primary-light flex items-center justify-center text-primary font-semibold text-sm"
+              className="h-8 w-8 rounded-full bg-primary-light dark:bg-primary/20 flex items-center justify-center text-primary font-semibold text-sm"
               title={t('logout')}
             >
               {initials}

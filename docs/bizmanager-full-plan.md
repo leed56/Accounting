@@ -354,6 +354,12 @@ OPENAI_API_KEY               # optional
 - Accountant read-only role + `usePermissions` hook
 - Docs: `docs/sprint-14.md`
 
+### Sprint 15 — v1.6 Mobile Search & Polish
+- Mobile global search screen
+- Notification filtering by user preferences
+- Full dark mode polish (sidebar, charts, notifications)
+- Docs: `docs/sprint-15.md`
+
 ### Post-MVP roadmap — status
 | Version | Status |
 |---------|--------|
@@ -362,12 +368,12 @@ OPENAI_API_KEY               # optional
 | v1.3 OTP/LankaQR/cheque | ⏸ Deferred |
 | v1.4 Premium polish | ✅ Done |
 | v1.5 Search, prefs, dark mode, accountant | ✅ Done |
+| v1.6 Mobile search, notification filter, dark polish | ✅ Done |
 
-### Next — v1.6
-- Mobile global search
-- Notification filtering by user prefs
-- Full dark mode (sidebar, charts)
-- GitHub ↔ Vercel auto-deploy (manual connect in dashboard)
+### Next — v1.7
+- Mobile dark mode + notification prefs (persisted)
+- Mobile settings screen
+- Phone OTP auth (optional)
 - App Store submit (`eas init` → `pnpm mobile:build`)
 
 ### Manual checklist (still open)
@@ -385,5 +391,5 @@ OPENAI_API_KEY               # optional
 - [Architecture](./architecture.md)
 - [RLS Policies](./rls-policies.md)
 - [Vercel Deploy](./vercel-deploy.md)
-- [Sprint 9](./sprint-9.md) · [Sprint 10](./sprint-10.md) · [Sprint 11](./sprint-11.md) · [Sprint 12](./sprint-12.md) · [Sprint 13](./sprint-13.md) · [Sprint 14](./sprint-14.md)
+- [Sprint 9](./sprint-9.md) · [Sprint 10](./sprint-10.md) · [Sprint 11](./sprint-11.md) · [Sprint 12](./sprint-12.md) · [Sprint 13](./sprint-13.md) · [Sprint 14](./sprint-14.md) · [Sprint 15](./sprint-15.md)
 - [App Store Listing](./app-store-listing.md)
