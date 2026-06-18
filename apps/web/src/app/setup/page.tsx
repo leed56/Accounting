@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { companySetupSchema, type CompanySetupInput, type BusinessType, BUSINESS_TYPES } from '@bizmanager/types';
+import { companySetupSchema, type CompanySetupInput, type BusinessType } from '@bizmanager/types';
 import { FormInput, SelectField } from '@/components/form-fields';
 import { PremiumButton } from '@/components/premium-button';
 import { useTranslation } from '@/components/language-switcher';
@@ -16,17 +16,14 @@ import {
   getSession,
   SAMPLE_COMPANY_ID,
 } from '@bizmanager/supabase-client';
-import { getCategoryName, getExpenseCategoriesForBusinessType } from '@bizmanager/utils';
-
-const BUSINESS_TYPE_LABEL_KEYS: Record<BusinessType, 'bizType_travel_agency' | 'bizType_retail_shop' | 'bizType_service_business' | 'bizType_office_admin' | 'bizType_restaurant_cafe' | 'bizType_freelancer_agency' | 'bizType_other'> = {
-  travel_agency: 'bizType_travel_agency',
-  retail_shop: 'bizType_retail_shop',
-  service_business: 'bizType_service_business',
-  office_admin: 'bizType_office_admin',
-  restaurant_cafe: 'bizType_restaurant_cafe',
-  freelancer_agency: 'bizType_freelancer_agency',
-  other: 'bizType_other',
-};
+import {
+  getCategoryName,
+  getExpenseCategoriesForBusinessType,
+  BUSINESS_TYPE_SETUP_ORDER,
+  BUSINESS_TYPE_LABEL_KEYS,
+  BUSINESS_TYPE_DESC_KEYS,
+} from '@bizmanager/utils';
+import type { TranslationKeys } from '@bizmanager/i18n';
 
 export default function SetupPage() {
   const { t, language } = useTranslation();
@@ -87,10 +84,16 @@ export default function SetupPage() {
     }
   };
 
+  const label = (type: BusinessType) =>
+    t(BUSINESS_TYPE_LABEL_KEYS[type] as keyof TranslationKeys);
+  const desc = (type: BusinessType) =>
+    t(BUSINESS_TYPE_DESC_KEYS[type] as keyof TranslationKeys);
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <div className="max-w-lg w-full card">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">{t('companySetup')}</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">{t('companySetup')}</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">{t('companySetupHint')}</p>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <FormInput
             label={t('businessName')}
@@ -101,13 +104,15 @@ export default function SetupPage() {
           <SelectField
             label={t('businessType')}
             required
-            options={BUSINESS_TYPES.map((b) => ({
+            options={BUSINESS_TYPE_SETUP_ORDER.map((b) => ({
               value: b,
-              label: t(BUSINESS_TYPE_LABEL_KEYS[b]),
+              label: label(b),
             }))}
             error={errors.businessType?.message}
             {...register('businessType')}
           />
+
+          <p className="text-sm text-gray-600 dark:text-gray-300">{desc(businessType)}</p>
 
           <div className="rounded-lg bg-gray-50 dark:bg-gray-900/50 p-4 border border-gray-100 dark:border-gray-800">
             <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">

@@ -33,6 +33,14 @@ Or in Supabase SQL — only inserts missing names (safe to re-run logic via seed
 - Setup page shows live category preview; `createCompany` seeds by `business_type`
 - Settings → **Add missing template categories** for existing companies
 
+### Tier 1 expansion (customer gaps) ✅
+
+Added 5 types for high-volume SL micro businesses not covered by generic `service_business`:
+
+- `construction_contractor`, `salon_beauty`, `tuition_education`, `transport_hire`, `workshop_repair`
+- Friendly setup labels + descriptions (not gov sector codes)
+- See [business-types-strategy.md](./business-types-strategy.md)
+
 ## Step 4 — Income categories (next)
 
 - Separate list for income (Tour Booking, Transfer, etc.)

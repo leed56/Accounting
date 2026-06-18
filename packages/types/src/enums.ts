@@ -76,6 +76,11 @@ export const BUSINESS_TYPES = [
   'office_admin',
   'restaurant_cafe',
   'freelancer_agency',
+  'construction_contractor',
+  'salon_beauty',
+  'tuition_education',
+  'transport_hire',
+  'workshop_repair',
   'other',
 ] as const;
 export type BusinessType = typeof BUSINESS_TYPES[number];

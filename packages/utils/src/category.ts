@@ -67,6 +67,41 @@ export const FREELANCER_AGENCY_EXPENSE_CATEGORIES: CategoryTemplate[] = [
   { name_en: 'Marketing', name_si: 'ප්‍රචාරණ', name_ta: 'விளம்பரம்', icon: 'megaphone', color: '#F97316' },
 ];
 
+export const CONSTRUCTION_CONTRACTOR_EXPENSE_CATEGORIES: CategoryTemplate[] = [
+  { name_en: 'Building Materials', name_si: 'නිමැවුම් ද්‍රව්‍ය', name_ta: 'கட்டுமான பொருட்கள்', icon: 'brick', color: '#78716C' },
+  { name_en: 'Subcontractors', name_si: 'උප කොන්ත්‍රාත්කරු', name_ta: 'துணை ஒப்பந்தக்காரர்கள்', icon: 'users', color: '#7C3AED' },
+  { name_en: 'Site Transport', name_si: 'අඩවි ප්‍රවාහන', name_ta: 'தள போக்குவரத்து', icon: 'truck', color: '#0891B2' },
+  { name_en: 'Safety Equipment', name_si: 'Safety Equipment', name_ta: 'Safety Equipment', icon: 'shield', color: '#EAB308' },
+];
+
+export const SALON_BEAUTY_EXPENSE_CATEGORIES: CategoryTemplate[] = [
+  { name_en: 'Hair & Beauty Products', name_si: 'රූපලාවණ්‍ය නිෂ්පාදන', name_ta: 'அழகுப் பொருட்கள்', icon: 'sparkles', color: '#EC4899' },
+  { name_en: 'Salon Supplies', name_si: 'Salon Supplies', name_ta: 'Salon Supplies', icon: 'scissors', color: '#A855F7' },
+  { name_en: 'Towels & Laundry', name_si: 'Towels & Laundry', name_ta: 'Towels & Laundry', icon: 'shirt', color: '#06B6D4' },
+  { name_en: 'Equipment', name_si: 'උපකරණ', name_ta: 'உபகரணங்கள்', icon: 'wrench', color: '#64748B' },
+];
+
+export const TUITION_EDUCATION_EXPENSE_CATEGORIES: CategoryTemplate[] = [
+  { name_en: 'Books & Materials', name_si: 'පොත් & ද්‍රව්‍ය', name_ta: 'புத்தக & பொருட்கள்', icon: 'book', color: '#3B82F6' },
+  { name_en: 'Classroom Rent', name_si: 'පන්ති කාමර කුලී', name_ta: 'வகுப்பறை வாடகை', icon: 'home', color: '#8B5CF6' },
+  { name_en: 'Printing & Handouts', name_si: 'මුද්‍රණ', name_ta: 'அச்சிடுதல்', icon: 'printer', color: '#64748B' },
+  { name_en: 'Exam & Event Fees', name_si: 'විභාග & උත්සව', name_ta: 'தேர்வு & நிகழ்வு', icon: 'calendar', color: '#F97316' },
+];
+
+export const TRANSPORT_HIRE_EXPENSE_CATEGORIES: CategoryTemplate[] = [
+  { name_en: 'Vehicle Insurance', name_si: 'වාහන රක්ෂණ', name_ta: 'வாகன காப்பீடு', icon: 'shield', color: '#6366F1' },
+  { name_en: 'Tyres & Parts', name_si: 'Tyres & Parts', name_ta: 'Tyres & Parts', icon: 'circle', color: '#78716C' },
+  { name_en: 'Road Tax & Permits', name_si: 'මාර්ග බදු', name_ta: 'சாலை வரி', icon: 'file', color: '#0891B2' },
+  { name_en: 'Vehicle Maintenance', name_si: 'වාහන නඩත්තු', name_ta: 'வாகன பராமரிப்பு', icon: 'wrench', color: '#EC4899' },
+];
+
+export const WORKSHOP_REPAIR_EXPENSE_CATEGORIES: CategoryTemplate[] = [
+  { name_en: 'Spare Parts', name_si: 'Spare Parts', name_ta: 'Spare Parts', icon: 'cog', color: '#78716C' },
+  { name_en: 'Job Materials', name_si: 'Job Materials', name_ta: 'Job Materials', icon: 'package', color: '#0EA5E9' },
+  { name_en: 'Workshop Rent', name_si: 'Workshop Rent', name_ta: 'Workshop Rent', icon: 'home', color: '#8B5CF6' },
+  { name_en: 'Testing Equipment', name_si: 'Testing Equipment', name_ta: 'Testing Equipment', icon: 'gauge', color: '#14B8A6' },
+];
+
 const BUSINESS_TYPE_CATEGORY_EXTRAS: Record<BusinessType, CategoryTemplate[]> = {
   travel_agency: TRAVEL_AGENCY_EXPENSE_CATEGORIES,
   retail_shop: RETAIL_SHOP_EXPENSE_CATEGORIES,
@@ -74,6 +109,11 @@ const BUSINESS_TYPE_CATEGORY_EXTRAS: Record<BusinessType, CategoryTemplate[]> = 
   office_admin: OFFICE_ADMIN_EXPENSE_CATEGORIES,
   service_business: SERVICE_BUSINESS_EXPENSE_CATEGORIES,
   freelancer_agency: FREELANCER_AGENCY_EXPENSE_CATEGORIES,
+  construction_contractor: CONSTRUCTION_CONTRACTOR_EXPENSE_CATEGORIES,
+  salon_beauty: SALON_BEAUTY_EXPENSE_CATEGORIES,
+  tuition_education: TUITION_EDUCATION_EXPENSE_CATEGORIES,
+  transport_hire: TRANSPORT_HIRE_EXPENSE_CATEGORIES,
+  workshop_repair: WORKSHOP_REPAIR_EXPENSE_CATEGORIES,
   other: [],
 };
 

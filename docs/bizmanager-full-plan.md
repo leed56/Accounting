@@ -22,7 +22,7 @@
 | **Manager/Accountant (Nimal)** | Records daily income/expenses, marks attendance | Fast entry forms, prepare payroll, create payment requests, limited reports |
 | **Staff (optional MVP)** | Driver, assistant | View own attendance/salary, request leave, expense claims — **manual management by owner/manager is sufficient for MVP** |
 
-**Business types:** travel agencies, retail shops, service businesses, offices, restaurants/cafes, freelancers/agencies, import/export micro-ops.
+**Business types:** 12 customer-first presets (shop, restaurant, salon, tuition, transport, construction, workshop, travel, office, agency, general service, other) — see [business-types-strategy.md](./business-types-strategy.md).
 
 ---
 
