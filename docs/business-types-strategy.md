@@ -22,19 +22,25 @@ If yes → add a type with **ready-made expense categories**. If no → map to a
 
 ---
 
-## Our 12 types (June 2026)
+## Our 18 types (June 2026)
 
 Ordered for setup — **most common Sri Lankan micro businesses first**:
 
 | Type | Who it's for | Why we added it |
 |------|----------------|-----------------|
-| `retail_shop` | Kade, boutique, hardware counter | Largest trade segment |
+| `grocery_kade` | Mini supermarket, fresh produce kade | Dedicated grocery categories |
+| `retail_shop` | Boutique, hardware counter | Largest trade segment |
+| `textile_shop` | Saree, fabric, clothing retail | Fabric & alteration costs |
+| `multi_vendor` | Marketplace, multi-supplier traders | Vendor settlements & commission |
 | `restaurant_cafe` | Restaurant, bakery, kade kitchen | Food cost is daily |
-| `salon_beauty` | Salon, barber, spa | Product + supply costs |
+| `salon_beauty` | Salon, barber, spa, cosmetics | Product + supply costs |
+| `pharmacy` | Pharmacy, medical counter | Stock + compliance |
 | `tuition_education` | Tuition, coaching | Materials + classroom rent |
 | `transport_hire` | Three-wheel, taxi, van | Vehicle costs dominate |
 | `construction_contractor` | Builder, mason | Materials + subcontractors |
 | `workshop_repair` | Auto, phone, AC repair | Spare parts + job materials |
+| `guesthouse` | Guesthouse, homestay, lodge | Room revenue + OTA fees |
+| `agriculture` | Farm, livestock, produce seller | Seed, feed, market transport |
 | `travel_agency` | Tour desk (Royal Travels) | Original demo customer |
 | `office_admin` | Accountant, lawyer, NGO | Software + professional services |
 | `freelancer_agency` | Design, dev, marketing | Subcontractors + software |
@@ -63,9 +69,12 @@ Ordered for setup — **most common Sri Lankan micro businesses first**:
 
 ## Next gaps (when customers ask)
 
-- Income templates by type (Step 4)
-- Guesthouse / homestay (room revenue)
-- Pharmacy (if regulated customers need it)
-- Agriculture (feed, seed — rural expansion)
+- ~~Income templates by type~~ ✅
+- ~~Guesthouse / homestay~~ ✅ `guesthouse`
+- ~~Pharmacy~~ ✅ `pharmacy`
+- ~~Agriculture~~ ✅ `agriculture`
+- ~~Grocery / textile / multi-vendor dedicated types~~ ✅
+- Push notification delivery pipeline (tokens stored; Expo send TBD)
+- Full Sinhala/Tamil PDF font embedding (labels localized; Helvetica for body)
 
 See also: [categories-roadmap.md](./categories-roadmap.md)

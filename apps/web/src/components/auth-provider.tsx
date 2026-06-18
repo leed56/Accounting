@@ -6,7 +6,7 @@ import type { Profile } from '@bizmanager/types';
 import { getSupabase, bootstrapSession, signOut as supaSignOut } from '@bizmanager/supabase-client';
 import { useAppStore } from '@/stores/app-store';
 
-const PUBLIC_PATHS = ['/onboarding', '/login', '/setup', '/privacy', '/'];
+const PUBLIC_PATHS = ['/onboarding', '/login', '/setup', '/privacy', '/forgot-password', '/'];
 
 function isPublicPath(pathname: string) {
   return PUBLIC_PATHS.some((p) => pathname === p || (p !== '/' && pathname.startsWith(p + '/')));

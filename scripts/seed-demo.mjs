@@ -6,10 +6,8 @@ import { createClient } from '@supabase/supabase-js';
 import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import {
-  getExpenseCategoriesForBusinessType,
-  getIncomeCategoriesForBusinessType,
-} from '@bizmanager/utils';
+import { getExpenseCategoriesForBusinessType } from '../packages/utils/src/category.ts';
+import { getIncomeCategoriesForBusinessType } from '../packages/utils/src/income-category.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 

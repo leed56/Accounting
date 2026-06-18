@@ -23,6 +23,13 @@ import { getSupabase } from './client';
 // Sample data for demo when Supabase is not configured
 export const SAMPLE_COMPANY_ID = '00000000-0000-4000-8000-000000000001';
 
+const nullPaymentMeta = {
+  payment_reference: null,
+  cheque_number: null,
+  cheque_status: null,
+  cheque_cleared_at: null,
+} as const;
+
 export const sampleDashboard: DashboardSummary = {
   todayIncome: 125750,
   todayExpenses: 68540,
@@ -114,11 +121,11 @@ export const sampleSuppliers: Supplier[] = [
 ];
 
 export const sampleTransactions: Transaction[] = [
-  { id: '1', company_id: SAMPLE_COMPANY_ID, type: 'income', category: 'Tour Booking', amount: 85000, payment_method: 'bank_transfer', status: 'approved', account_id: null, customer_id: '1', supplier_id: null, staff_id: null, description: 'Colombo tour package', transaction_date: toISODate(), requires_approval: false, created_by: null, approved_by: null, approved_at: null, created_at: new Date().toISOString() },
-  { id: '2', company_id: SAMPLE_COMPANY_ID, type: 'income', category: 'Airport Transfer', amount: 40750, payment_method: 'cash', status: 'approved', account_id: null, customer_id: '2', supplier_id: null, staff_id: null, description: 'Airport pickup', transaction_date: toISODate(), requires_approval: false, created_by: null, approved_by: null, approved_at: null, created_at: new Date().toISOString() },
-  { id: '3', company_id: SAMPLE_COMPANY_ID, type: 'expense', category: 'Fuel', amount: 12750, payment_method: 'cash', status: 'approved', account_id: null, customer_id: null, supplier_id: '2', staff_id: null, description: 'Vehicle fuel', transaction_date: toISODate(), requires_approval: false, created_by: null, approved_by: null, approved_at: null, created_at: new Date().toISOString() },
-  { id: '4', company_id: SAMPLE_COMPANY_ID, type: 'expense', category: 'Internet', amount: 8500, payment_method: 'bank_transfer', status: 'approved', account_id: null, customer_id: null, supplier_id: '1', staff_id: null, description: 'Monthly internet bill', transaction_date: toISODate(), requires_approval: false, created_by: null, approved_by: null, approved_at: null, created_at: new Date().toISOString() },
-  { id: '5', company_id: SAMPLE_COMPANY_ID, type: 'expense', category: 'Rent', amount: 75000, payment_method: 'bank_transfer', status: 'pending', account_id: null, customer_id: null, supplier_id: '3', staff_id: null, description: 'Office rent - June', transaction_date: toISODate(), requires_approval: true, created_by: null, approved_by: null, approved_at: null, created_at: new Date().toISOString() },
+  { id: '1', company_id: SAMPLE_COMPANY_ID, type: 'income', category: 'Tour Booking', amount: 85000, payment_method: 'bank_transfer', ...nullPaymentMeta, status: 'approved', account_id: null, customer_id: '1', supplier_id: null, staff_id: null, description: 'Colombo tour package', transaction_date: toISODate(), requires_approval: false, created_by: null, approved_by: null, approved_at: null, created_at: new Date().toISOString() },
+  { id: '2', company_id: SAMPLE_COMPANY_ID, type: 'income', category: 'Airport Transfer', amount: 40750, payment_method: 'cash', ...nullPaymentMeta, status: 'approved', account_id: null, customer_id: '2', supplier_id: null, staff_id: null, description: 'Airport pickup', transaction_date: toISODate(), requires_approval: false, created_by: null, approved_by: null, approved_at: null, created_at: new Date().toISOString() },
+  { id: '3', company_id: SAMPLE_COMPANY_ID, type: 'expense', category: 'Fuel', amount: 12750, payment_method: 'cash', ...nullPaymentMeta, status: 'approved', account_id: null, customer_id: null, supplier_id: '2', staff_id: null, description: 'Vehicle fuel', transaction_date: toISODate(), requires_approval: false, created_by: null, approved_by: null, approved_at: null, created_at: new Date().toISOString() },
+  { id: '4', company_id: SAMPLE_COMPANY_ID, type: 'expense', category: 'Internet', amount: 8500, payment_method: 'bank_transfer', ...nullPaymentMeta, status: 'approved', account_id: null, customer_id: null, supplier_id: '1', staff_id: null, description: 'Monthly internet bill', transaction_date: toISODate(), requires_approval: false, created_by: null, approved_by: null, approved_at: null, created_at: new Date().toISOString() },
+  { id: '5', company_id: SAMPLE_COMPANY_ID, type: 'expense', category: 'Rent', amount: 75000, payment_method: 'bank_transfer', ...nullPaymentMeta, status: 'pending', account_id: null, customer_id: null, supplier_id: '3', staff_id: null, description: 'Office rent - June', transaction_date: toISODate(), requires_approval: true, created_by: null, approved_by: null, approved_at: null, created_at: new Date().toISOString() },
 ];
 
 export const samplePaymentRequests: PaymentRequest[] = [
@@ -174,6 +181,9 @@ export async function getCompany(companyId: string): Promise<Company | null> {
       service_charge_rate: 0,
       staff_module_enabled: true,
       approval_auto_limit: 5000,
+      subscription_plan: 'trial',
+      trial_ends_at: new Date(Date.now() + 30 * 86400000).toISOString(),
+      max_users: 3,
       timezone: 'Asia/Colombo',
       created_at: new Date().toISOString(),
     };
@@ -718,9 +728,49 @@ export async function createCompanyWithProfile(
   return { companyId: company.id };
 }
 
+export async function getPendingCheques(companyId: string) {
+  if (isDemoMode()) return [];
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('*')
+    .eq('company_id', companyId)
+    .eq('payment_method', 'cheque')
+    .eq('cheque_status', 'pending')
+    .order('transaction_date', { ascending: false });
+  if (error) throw error;
+  return data ?? [];
+}
+
 export async function signIn(email: string, password: string) {
   const supabase = getSupabase();
   return supabase.auth.signInWithPassword({ email, password });
+}
+
+export async function signInWithPhoneOtp(phone: string) {
+  const supabase = getSupabase();
+  const normalized = phone.startsWith('+') ? phone : `+94${phone.replace(/^0/, '')}`;
+  return supabase.auth.signInWithOtp({ phone: normalized });
+}
+
+export async function verifyPhoneOtp(phone: string, token: string) {
+  const supabase = getSupabase();
+  const normalized = phone.startsWith('+') ? phone : `+94${phone.replace(/^0/, '')}`;
+  return supabase.auth.verifyOtp({ phone: normalized, token, type: 'sms' });
+}
+
+export async function resetPasswordForEmail(email: string) {
+  const supabase = getSupabase();
+  const redirectTo =
+    typeof window !== 'undefined'
+      ? `${window.location.origin}/login`
+      : 'https://accounting-one-fawn.vercel.app/login';
+  return supabase.auth.resetPasswordForEmail(email, { redirectTo });
+}
+
+export async function updatePassword(newPassword: string) {
+  const supabase = getSupabase();
+  return supabase.auth.updateUser({ password: newPassword });
 }
 
 export async function signUp(email: string, password: string) {

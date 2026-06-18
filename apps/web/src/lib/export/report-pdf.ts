@@ -1,7 +1,7 @@
 import { jsPDF } from 'jspdf';
 import type { Customer, DashboardSummary, Supplier } from '@bizmanager/types';
 import type { CategoryChartItem } from '@bizmanager/utils';
-import { formatCurrency } from '@bizmanager/utils';
+import { formatCurrency, PDF_REPORT_LABELS } from '@bizmanager/utils';
 import type { Language } from '@bizmanager/i18n';
 import { downloadBlob } from './download';
 
@@ -18,13 +18,15 @@ export interface ReportExportData {
 
 export function downloadReportPdf(data: ReportExportData) {
   const doc = new jsPDF();
+  const lang = data.language ?? 'en';
+  const labels = PDF_REPORT_LABELS[lang];
   const { companyName, periodLabel, summary, customers, suppliers, expenseBreakdown, incomeBreakdown } = data;
 
   doc.setFontSize(18);
   doc.text(companyName, 20, 24);
   doc.setFontSize(12);
   doc.setTextColor(100);
-  doc.text(`Business Report — ${periodLabel}`, 20, 32);
+  doc.text(`${labels.reportTitle} — ${periodLabel}`, 20, 32);
   doc.setTextColor(0);
 
   let y = 48;
@@ -36,11 +38,11 @@ export function downloadReportPdf(data: ReportExportData) {
     y += 10;
   };
 
-  metric('Income', formatCurrency(summary.todayIncome));
-  metric('Expenses', formatCurrency(summary.todayExpenses));
-  metric('Net Profit', formatCurrency(summary.netProfit));
-  metric('Receivables', formatCurrency(summary.receivables));
-  metric('Payables', formatCurrency(summary.payables));
+  metric(labels.income, formatCurrency(summary.todayIncome));
+  metric(labels.expenses, formatCurrency(summary.todayExpenses));
+  metric(labels.netProfit, formatCurrency(summary.netProfit));
+  metric(labels.receivables, formatCurrency(summary.receivables));
+  metric(labels.payables, formatCurrency(summary.payables));
 
   const writeBreakdown = (title: string, items?: CategoryChartItem[]) => {
     if (!items?.length || y > 250) return;
@@ -59,14 +61,14 @@ export function downloadReportPdf(data: ReportExportData) {
     }
   };
 
-  writeBreakdown('Expenses by Category', expenseBreakdown);
-  writeBreakdown('Income by Category', incomeBreakdown);
+  writeBreakdown(labels.expensesByCategory, expenseBreakdown);
+  writeBreakdown(labels.incomeByCategory, incomeBreakdown);
 
   y += 6;
   if (y < 240) {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
-    doc.text('Top Receivables', 20, y);
+    doc.text(labels.topReceivables, 20, y);
     y += 8;
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);

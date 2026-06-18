@@ -21,12 +21,14 @@ import {
   Settings,
   Sparkles,
   X,
+  FileText,
 } from 'lucide-react';
 
 const mainNav = [
   { href: '/dashboard', labelKey: 'dashboard' as const, icon: LayoutDashboard },
   { href: '/income', labelKey: 'income' as const, icon: TrendingUp },
   { href: '/expenses', labelKey: 'expenses' as const, icon: TrendingDown },
+  { href: '/cheques', labelKey: 'cheques' as const, icon: FileText },
   { href: '/customers', labelKey: 'customers' as const, icon: Users },
   { href: '/suppliers', labelKey: 'suppliers' as const, icon: Truck },
 ];

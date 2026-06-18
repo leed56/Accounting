@@ -33,6 +33,12 @@ export const PAYMENT_METHODS = [
 ] as const;
 export type PaymentMethod = typeof PAYMENT_METHODS[number];
 
+export const CHEQUE_STATUSES = ['pending', 'cleared', 'bounced', 'cancelled'] as const;
+export type ChequeStatus = typeof CHEQUE_STATUSES[number];
+
+export const SUBSCRIPTION_PLANS = ['trial', 'small_office', 'pro'] as const;
+export type SubscriptionPlan = typeof SUBSCRIPTION_PLANS[number];
+
 export const ATTENDANCE_STATUSES = [
   'present',
   'absent',
@@ -70,17 +76,23 @@ export const RISK_LEVELS = ['low', 'medium', 'high'] as const;
 export type RiskLevel = typeof RISK_LEVELS[number];
 
 export const BUSINESS_TYPES = [
-  'travel_agency',
+  'grocery_kade',
   'retail_shop',
-  'service_business',
-  'office_admin',
+  'textile_shop',
+  'multi_vendor',
   'restaurant_cafe',
-  'freelancer_agency',
-  'construction_contractor',
   'salon_beauty',
+  'pharmacy',
   'tuition_education',
   'transport_hire',
+  'construction_contractor',
   'workshop_repair',
+  'guesthouse',
+  'agriculture',
+  'travel_agency',
+  'office_admin',
+  'freelancer_agency',
+  'service_business',
   'other',
 ] as const;
 export type BusinessType = typeof BUSINESS_TYPES[number];

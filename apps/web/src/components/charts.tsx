@@ -146,7 +146,7 @@ export function ChartCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="card">
+    <div className="card h-full">
       <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-4">{title}</h3>
       {children}
     </div>

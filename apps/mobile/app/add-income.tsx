@@ -23,7 +23,10 @@ import {
   SAMPLE_COMPANY_ID,
 } from '@bizmanager/supabase-client';
 import { toISODate } from '@bizmanager/utils';
+import type { PaymentMethod } from '@bizmanager/types';
 import { spacing, radius } from '@bizmanager/design-tokens';
+
+const MOBILE_PAYMENT_METHODS: PaymentMethod[] = ['cash', 'bank_transfer', 'cheque', 'lankaqr'];
 
 export default function AddIncomeScreen() {
   const router = useRouter();
@@ -35,7 +38,9 @@ export default function AddIncomeScreen() {
   const [amount, setAmount] = useState('');
   const [notes, setNotes] = useState('');
   const [category, setCategory] = useState('General Income');
-  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'bank_transfer'>('cash');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
+  const [chequeNumber, setChequeNumber] = useState('');
+  const [paymentReference, setPaymentReference] = useState('');
 
   const { data: categories } = useQuery({
     queryKey: queryKeys.incomeCategories(companyId),
@@ -58,6 +63,8 @@ export default function AddIncomeScreen() {
         category,
         amount: Number(amount),
         paymentMethod,
+        chequeNumber: paymentMethod === 'cheque' ? chequeNumber : null,
+        paymentReference: paymentMethod === 'lankaqr' ? paymentReference : null,
         transactionDate: toISODate(),
         notes: notes || null,
         markAsPaid: true,
@@ -120,7 +127,7 @@ export default function AddIncomeScreen() {
 
         <Text style={[styles.label, { color: colors.text.secondary }]}>{t('paymentMethod')}</Text>
         <View style={styles.row}>
-          {(['cash', 'bank_transfer'] as const).map((m) => (
+          {MOBILE_PAYMENT_METHODS.map((m) => (
             <TouchableOpacity
               key={m}
               style={[
@@ -136,6 +143,30 @@ export default function AddIncomeScreen() {
             </TouchableOpacity>
           ))}
         </View>
+
+        {paymentMethod === 'cheque' && (
+          <>
+            <Text style={[styles.label, { color: colors.text.secondary }]}>{t('chequeNumber')}</Text>
+            <TextInput
+              style={[styles.input, { borderColor: colors.border, backgroundColor: colors.surface, color: colors.text.primary }]}
+              value={chequeNumber}
+              onChangeText={setChequeNumber}
+              placeholderTextColor={colors.text.muted}
+            />
+          </>
+        )}
+
+        {paymentMethod === 'lankaqr' && (
+          <>
+            <Text style={[styles.label, { color: colors.text.secondary }]}>{t('lankaQrReference')}</Text>
+            <TextInput
+              style={[styles.input, { borderColor: colors.border, backgroundColor: colors.surface, color: colors.text.primary }]}
+              value={paymentReference}
+              onChangeText={setPaymentReference}
+              placeholderTextColor={colors.text.muted}
+            />
+          </>
+        )}
 
         <Text style={[styles.label, { color: colors.text.secondary }]}>{t('notes')}</Text>
         <TextInput

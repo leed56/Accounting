@@ -38,6 +38,23 @@ pnpm db:link-owner your@email.com "Owner Name"
 - Email: `appleview778@gmail.com`
 - Temp password: `BizManager2026!` — change after first login
 
+### Admin: create a new customer company
+
+One command — auth user + company + owner + categories:
+
+```bash
+pnpm admin:create-company kasun@gmail.com "Kasun Perera" "Shakthi Maths Academy" tuition_education
+```
+
+Optional 6th arg = temp password, 7th = language (`en` | `si` | `ta`).
+
+Share with customer:
+
+- Login: https://accounting-one-fawn.vercel.app/login
+- Email + temp password from script output
+
+See [admin-onboarding.md](./admin-onboarding.md) for full guide.
+
 ### Rotate keys when done testing
 
 Supabase Dashboard → Settings → API → rotate anon + service role keys and database password.

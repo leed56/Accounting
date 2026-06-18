@@ -4,11 +4,22 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { loginSchema, type LoginInput } from '@bizmanager/types';
+import {
+  loginSchema,
+  phoneOtpRequestSchema,
+  phoneOtpVerifySchema,
+  type LoginInput,
+  type PhoneOtpRequestInput,
+  type PhoneOtpVerifyInput,
+} from '@bizmanager/types';
 import { FormInput } from '@/components/form-fields';
 import { PremiumButton } from '@/components/premium-button';
 import { LanguageSwitcher, useTranslation } from '@/components/language-switcher';
-import { signIn } from '@bizmanager/supabase-client';
+import {
+  signIn,
+  signInWithPhoneOtp,
+  verifyPhoneOtp,
+} from '@bizmanager/supabase-client';
 import { useAuth } from '@/components/auth-provider';
 import { useToast } from '@/components/toast';
 import Link from 'next/link';
@@ -19,19 +30,27 @@ export default function LoginPage() {
   const router = useRouter();
   const { refresh } = useAuth();
   const toast = useToast((s) => s.show);
+  const [mode, setMode] = useState<'email' | 'phone'>('email');
+  const [otpSent, setOtpSent] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginInput>({
+  const emailForm = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: 'appleview778@gmail.com', password: 'BizManager2026!' },
   });
 
-  const onSubmit = async (data: LoginInput) => {
+  const phoneForm = useForm<PhoneOtpRequestInput>({
+    resolver: zodResolver(phoneOtpRequestSchema),
+    defaultValues: { phone: '' },
+  });
+
+  const otpForm = useForm<PhoneOtpVerifyInput>({
+    resolver: zodResolver(phoneOtpVerifySchema),
+    defaultValues: { phone: '', token: '' },
+  });
+
+  const onEmailSubmit = emailForm.handleSubmit(async (data) => {
     setLoading(true);
     setError('');
     const { error: authError } = await signIn(data.email, data.password);
@@ -44,7 +63,35 @@ export default function LoginPage() {
     toast(t('success'), 'success');
     router.push('/dashboard');
     setLoading(false);
-  };
+  });
+
+  const onSendOtp = phoneForm.handleSubmit(async (data) => {
+    setLoading(true);
+    setError('');
+    const { error: authError } = await signInWithPhoneOtp(data.phone);
+    setLoading(false);
+    if (authError) {
+      setError(authError.message);
+      return;
+    }
+    otpForm.setValue('phone', data.phone);
+    setOtpSent(true);
+  });
+
+  const onVerifyOtp = otpForm.handleSubmit(async (data) => {
+    setLoading(true);
+    setError('');
+    const { error: authError } = await verifyPhoneOtp(data.phone, data.token);
+    if (authError) {
+      setError(authError.message);
+      setLoading(false);
+      return;
+    }
+    await refresh();
+    toast(t('success'), 'success');
+    router.push('/dashboard');
+    setLoading(false);
+  });
 
   return (
     <div className="min-h-screen flex">
@@ -90,30 +137,84 @@ export default function LoginPage() {
           </div>
           <div className="card shadow-elevated">
             <h2 className="text-2xl font-bold text-gray-900 mb-1">{t('login')}</h2>
-            <p className="text-sm text-gray-500 mb-6">{t('signInToContinue')}</p>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <FormInput
-                label={t('email')}
-                type="email"
-                required
-                error={errors.email?.message}
-                {...register('email')}
-              />
-              <FormInput
-                label={t('password')}
-                type="password"
-                required
-                error={errors.password?.message}
-                {...register('password')}
-              />
-              {error && <p className="text-sm text-danger">{error}</p>}
-              <PremiumButton type="submit" className="w-full" loading={loading}>
-                {t('signIn')}
-              </PremiumButton>
-            </form>
+            <p className="text-sm text-gray-500 mb-4">{t('signInToContinue')}</p>
+
+            <div className="flex gap-2 mb-4">
+              <button
+                type="button"
+                className={`flex-1 py-2 text-sm rounded-lg ${mode === 'email' ? 'bg-primary-light text-primary-dark font-semibold' : 'bg-gray-100'}`}
+                onClick={() => setMode('email')}
+              >
+                Email
+              </button>
+              <button
+                type="button"
+                className={`flex-1 py-2 text-sm rounded-lg ${mode === 'phone' ? 'bg-primary-light text-primary-dark font-semibold' : 'bg-gray-100'}`}
+                onClick={() => setMode('phone')}
+              >
+                {t('loginWithPhone')}
+              </button>
+            </div>
+
+            {mode === 'email' ? (
+              <form onSubmit={onEmailSubmit} className="space-y-4">
+                <FormInput
+                  label={t('email')}
+                  type="email"
+                  required
+                  error={emailForm.formState.errors.email?.message}
+                  {...emailForm.register('email')}
+                />
+                <FormInput
+                  label={t('password')}
+                  type="password"
+                  required
+                  error={emailForm.formState.errors.password?.message}
+                  {...emailForm.register('password')}
+                />
+                {error && <p className="text-sm text-danger">{error}</p>}
+                <PremiumButton type="submit" className="w-full" loading={loading}>
+                  {t('signIn')}
+                </PremiumButton>
+              </form>
+            ) : !otpSent ? (
+              <form onSubmit={onSendOtp} className="space-y-4">
+                <FormInput
+                  label={t('phoneNumber')}
+                  placeholder="771234567"
+                  required
+                  error={phoneForm.formState.errors.phone?.message}
+                  {...phoneForm.register('phone')}
+                />
+                {error && <p className="text-sm text-danger">{error}</p>}
+                <PremiumButton type="submit" className="w-full" loading={loading}>
+                  {t('sendOtp')}
+                </PremiumButton>
+              </form>
+            ) : (
+              <form onSubmit={onVerifyOtp} className="space-y-4">
+                <FormInput
+                  label={t('otpCode')}
+                  required
+                  error={otpForm.formState.errors.token?.message}
+                  {...otpForm.register('token')}
+                />
+                {error && <p className="text-sm text-danger">{error}</p>}
+                <PremiumButton type="submit" className="w-full" loading={loading}>
+                  {t('verifyOtp')}
+                </PremiumButton>
+              </form>
+            )}
+
+            <Link
+              href="/forgot-password"
+              className="block mt-4 text-center text-sm text-primary font-medium"
+            >
+              {t('forgotPassword')}
+            </Link>
             <Link
               href="/setup"
-              className="block mt-4 text-center text-sm text-primary font-medium"
+              className="block mt-3 text-center text-sm text-primary font-medium"
             >
               {t('companySetup')}
             </Link>

@@ -1,15 +1,44 @@
 import { z } from 'zod';
 import {
   BUSINESS_TYPES,
+  CHEQUE_STATUSES,
   LEAVE_TYPES,
   PAYMENT_METHODS,
   PAYMENT_REQUEST_TYPES,
 } from './enums';
 
+const paymentMetaFields = {
+  paymentReference: z.string().optional().nullable(),
+  chequeNumber: z.string().optional().nullable(),
+  chequeStatus: z.enum(CHEQUE_STATUSES).optional().nullable(),
+};
+
 export const loginSchema = z.object({
   email: z.string().email('Invalid email'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
+
+export const phoneOtpRequestSchema = z.object({
+  phone: z.string().min(9, 'Enter a valid phone number').max(15),
+});
+
+export const phoneOtpVerifySchema = phoneOtpRequestSchema.extend({
+  token: z.string().length(6, 'Enter the 6-digit code'),
+});
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().email('Invalid email'),
+});
+
+export const changePasswordSchema = z
+  .object({
+    newPassword: z.string().min(6, 'Password must be at least 6 characters'),
+    confirmPassword: z.string().min(6),
+  })
+  .refine((d) => d.newPassword === d.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
 
 export const signupSchema = loginSchema.extend({
   fullName: z.string().min(2, 'Name is required'),
@@ -26,27 +55,47 @@ export const companySetupSchema = z.object({
   language: z.enum(['en', 'si', 'ta']).default('en'),
 });
 
-export const incomeSchema = z.object({
-  category: z.string().min(1, 'Category is required'),
-  customerId: z.string().optional().nullable(),
-  amount: z.coerce.number().positive('Amount must be positive'),
-  paymentMethod: z.enum(PAYMENT_METHODS),
-  accountId: z.string().optional().nullable(),
-  transactionDate: z.string(),
-  notes: z.string().optional().nullable(),
-  markAsPaid: z.boolean().default(true),
-});
+export const incomeSchema = z
+  .object({
+    category: z.string().min(1, 'Category is required'),
+    customerId: z.string().optional().nullable(),
+    amount: z.coerce.number().positive('Amount must be positive'),
+    paymentMethod: z.enum(PAYMENT_METHODS),
+    accountId: z.string().optional().nullable(),
+    transactionDate: z.string(),
+    notes: z.string().optional().nullable(),
+    markAsPaid: z.boolean().default(true),
+    ...paymentMetaFields,
+  })
+  .superRefine((data, ctx) => {
+    if (data.paymentMethod === 'cheque' && !data.chequeNumber?.trim()) {
+      ctx.addIssue({ code: 'custom', message: 'Cheque number is required', path: ['chequeNumber'] });
+    }
+    if (data.paymentMethod === 'lankaqr' && !data.paymentReference?.trim()) {
+      ctx.addIssue({ code: 'custom', message: 'LankaQR reference is required', path: ['paymentReference'] });
+    }
+  });
 
-export const expenseSchema = z.object({
-  category: z.string().min(1, 'Category is required'),
-  amount: z.coerce.number().positive('Amount must be positive'),
-  paymentMethod: z.enum(PAYMENT_METHODS),
-  accountId: z.string().optional().nullable(),
-  supplierId: z.string().optional().nullable(),
-  transactionDate: z.string(),
-  notes: z.string().optional().nullable(),
-  requiresApproval: z.boolean().default(false),
-});
+export const expenseSchema = z
+  .object({
+    category: z.string().min(1, 'Category is required'),
+    amount: z.coerce.number().positive('Amount must be positive'),
+    paymentMethod: z.enum(PAYMENT_METHODS),
+    accountId: z.string().optional().nullable(),
+    supplierId: z.string().optional().nullable(),
+    transactionDate: z.string(),
+    notes: z.string().optional().nullable(),
+    requiresApproval: z.boolean().default(false),
+    ...paymentMetaFields,
+  })
+  .superRefine((data, ctx) => {
+    if (data.paymentMethod === 'cheque' && !data.chequeNumber?.trim()) {
+      ctx.addIssue({ code: 'custom', message: 'Cheque number is required', path: ['chequeNumber'] });
+    }
+    if (data.paymentMethod === 'lankaqr' && !data.paymentReference?.trim()) {
+      ctx.addIssue({ code: 'custom', message: 'LankaQR reference is required', path: ['paymentReference'] });
+    }
+  });
 
 export const customerSchema = z.object({
   name: z.string().min(2, 'Name is required'),
@@ -121,6 +170,10 @@ export const settingsSchema = z.object({
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
+export type PhoneOtpRequestInput = z.infer<typeof phoneOtpRequestSchema>;
+export type PhoneOtpVerifyInput = z.infer<typeof phoneOtpVerifySchema>;
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 export type SignupInput = z.infer<typeof signupSchema>;
 export type CompanySetupInput = z.infer<typeof companySetupSchema>;
 export type IncomeInput = z.infer<typeof incomeSchema>;

@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import Constants from 'expo-constants';
+import { getSupabase, getCurrentProfile } from '@bizmanager/supabase-client';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -11,6 +12,27 @@ Notifications.setNotificationHandler({
     shouldSetBadge: true,
   }),
 });
+
+async function persistPushToken(token: string) {
+  try {
+    const profile = await getCurrentProfile();
+    if (!profile) return;
+    const supabase = getSupabase();
+    await supabase.from('device_push_tokens').upsert(
+      {
+        profile_id: profile.id,
+        company_id: profile.company_id,
+        expo_push_token: token,
+        platform: Platform.OS,
+        is_active: true,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'profile_id,expo_push_token' }
+    );
+  } catch {
+    /* optional until migration applied */
+  }
+}
 
 export async function registerForPushNotifications(): Promise<string | null> {
   if (!Device.isDevice) return null;
@@ -34,6 +56,7 @@ export async function registerForPushNotifications(): Promise<string | null> {
         importance: Notifications.AndroidImportance.DEFAULT,
       });
     }
+    await persistPushToken(token.data);
     return token.data;
   } catch {
     return null;

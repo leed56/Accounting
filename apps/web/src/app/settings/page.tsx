@@ -15,6 +15,11 @@ import { IncomeCategoriesManager } from '@/components/income-categories-manager'
 import { useToast } from '@/components/toast';
 import { usePermissions } from '@/hooks/use-permissions';
 import { useAppStore } from '@/stores/app-store';
+import { ChangePasswordForm } from '@/components/change-password-form';
+import { useAuth } from '@/components/auth-provider';
+import { BUSINESS_TYPE_LABEL_KEYS } from '@bizmanager/utils';
+import { formatSubscriptionLabel, isSuperAdminEmail } from '@/lib/admin';
+import Link from 'next/link';
 import {
   getTeamMembers,
   getCompany,
@@ -34,6 +39,7 @@ export default function SettingsPage() {
   const notificationPrefs = useAppStore((s) => s.notificationPrefs);
   const setNotificationPrefs = useAppStore((s) => s.setNotificationPrefs);
   const { canManageSettings, canInvite } = usePermissions();
+  const { profile } = useAuth();
   const isOwner = canManageSettings;
   const [inviteLoading, setInviteLoading] = useState(false);
   const [lastTempPassword, setLastTempPassword] = useState<string | null>(null);
@@ -133,6 +139,11 @@ export default function SettingsPage() {
           <div className="space-y-4">
             <FormInput label={t('businessName')} {...register('name')} />
             <FormInput label={t('ownerName')} {...register('ownerName')} />
+            {company?.business_type && (
+              <p className="text-sm text-gray-500">
+                {t('businessTypeLabel')}: {t(BUSINESS_TYPE_LABEL_KEYS[company.business_type])}
+              </p>
+            )}
             <FormInput label={t('currency')} {...register('currency')} />
             <div>
               <label className="label">{t('languagePreference')}</label>
@@ -255,8 +266,28 @@ export default function SettingsPage() {
         </SummaryCard>
 
         <SummaryCard title={t('subscription')}>
-          <p className="text-sm text-gray-600">Free trial · Small Office plan (up to 3 users)</p>
+          <p className="text-sm text-gray-600">
+            {company
+              ? formatSubscriptionLabel(
+                  company.subscription_plan ?? 'trial',
+                  company.trial_ends_at ?? null,
+                  company.max_users ?? 3
+                )
+              : 'Free trial · Small Office plan (up to 3 users)'}
+          </p>
         </SummaryCard>
+
+        <SummaryCard title={t('password')}>
+          <ChangePasswordForm />
+        </SummaryCard>
+
+        {isSuperAdminEmail(profile?.email) && (
+          <SummaryCard title={t('adminPanel')}>
+            <Link href="/admin" className="text-sm text-primary font-medium hover:underline">
+              {t('adminPanel')} →
+            </Link>
+          </SummaryCard>
+        )}
 
         <PremiumButton type="submit" loading={saveMutation.isPending} disabled={!isOwner}>
           {t('save')}

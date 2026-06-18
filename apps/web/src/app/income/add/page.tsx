@@ -23,6 +23,7 @@ import {
 } from '@bizmanager/supabase-client';
 import { useAppStore } from '@/stores/app-store';
 import { toISODate, getCategoryName } from '@bizmanager/utils';
+import { PaymentMetaFields } from '@/components/payment-meta-fields';
 
 export default function AddIncomePage() {
   const { t, language } = useTranslation();
@@ -47,7 +48,7 @@ export default function AddIncomePage() {
     queryFn: () => getIncomeCategories(companyId),
   });
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<IncomeInput>({
+  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<IncomeInput>({
     resolver: zodResolver(incomeSchema),
     defaultValues: {
       category: 'General Income',
@@ -124,6 +125,7 @@ export default function AddIncomePage() {
             error={errors.paymentMethod?.message}
             {...register('paymentMethod')}
           />
+          <PaymentMetaFields register={register} watch={watch} errors={errors} />
           <SelectField
             label="Account"
             options={accounts?.map((a) => ({ value: a.id, label: `${a.name} (${a.type})` })) ?? []}

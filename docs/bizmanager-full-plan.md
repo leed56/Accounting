@@ -389,9 +389,24 @@ OPENAI_API_KEY               # optional
 - ~~Privacy policy URL~~ ✅ `/privacy` + mobile links
 - ~~Launch checklist~~ ✅ [launch-checklist.md](./launch-checklist.md)
 - ~~Fix `pnpm db:seed`~~ ✅ runs via `tsx`
-- **Commit + deploy** all v1.8/v1.9 changes
+- ~~Admin create-company script~~ ✅ `pnpm admin:create-company`
+- ~~Gap enhancements (v2.0 prep)~~ ✅ Sprint 18 — see below
+- **Commit + deploy** all changes
 - Run `eas init` + `pnpm mobile:build:prod` (see [mobile-store-submit.md](./mobile-store-submit.md))
-- Phone OTP auth (optional, deferred from v1.3)
+- Enable Supabase Phone provider for OTP login (UI ready)
+
+### v2.0 — Sprint 18 ✅ (gap fixes)
+- **6 new business types:** grocery_kade, textile_shop, multi_vendor, guesthouse, pharmacy, agriculture
+- **Cheque lifecycle:** pending/cleared/bounced + `/cheques` page
+- **LankaQR references** on income/expense forms (web + mobile)
+- **Change password** + forgot-password (web + mobile settings)
+- **Phone OTP login tab** (requires Supabase Phone SMS config)
+- **WhatsApp reminders** on customers/suppliers (EN/SI/TA)
+- **PDF report labels** localized (SI/TA section titles)
+- **Push token storage** (`device_push_tokens` table + mobile save)
+- **Subscription fields** on companies + dynamic Settings display
+- **Super-admin UI** at `/admin` (env: `SUPER_ADMIN_EMAILS`)
+- Migration: `20260618000005_gap_enhancements.sql` — run `pnpm db:migrate`
 
 ### Manual checklist (still open)
 - [ ] Connect GitHub to Vercel for auto-deploy

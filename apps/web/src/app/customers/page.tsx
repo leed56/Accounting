@@ -1,19 +1,21 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import type { Customer } from '@bizmanager/types';
 import { AppShell } from '@/components/app-shell';
 import { MetricCard } from '@/components/metric-card';
 import { EmptyState } from '@/components/empty-state';
 import { PremiumButton } from '@/components/premium-button';
 import { useTranslation } from '@/components/language-switcher';
 import { useAppStore } from '@/stores/app-store';
-import { getCustomers, queryKeys, SAMPLE_COMPANY_ID } from '@bizmanager/supabase-client';
-import { formatCurrency } from '@bizmanager/utils';
-import { Users, Plus, Pencil } from 'lucide-react';
+import { getCustomers, getCompany, queryKeys, SAMPLE_COMPANY_ID } from '@bizmanager/supabase-client';
+import { formatCurrency, buildReceivableReminderMessage } from '@bizmanager/utils';
+import { openWhatsAppShare } from '@/lib/export/download';
+import { Users, Plus, Pencil, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 
 export default function CustomersPage() {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const companyId = useAppStore((s) => s.companyId) ?? SAMPLE_COMPANY_ID;
 
   const { data: customers } = useQuery({
@@ -21,7 +23,22 @@ export default function CustomersPage() {
     queryFn: () => getCustomers(companyId),
   });
 
+  const { data: company } = useQuery({
+    queryKey: queryKeys.company(companyId),
+    queryFn: () => getCompany(companyId),
+  });
+
   const totalReceivable = customers?.reduce((s, c) => s + c.current_balance, 0) ?? 0;
+
+  const sendReminder = (customer: Customer) => {
+    if (!company) return;
+    const message = buildReceivableReminderMessage(
+      { name: company.name },
+      { name: customer.name, phone: customer.phone, balance: customer.current_balance },
+      language
+    );
+    openWhatsAppShare(message, customer.phone);
+  };
 
   return (
     <AppShell title={t('customers')}>
@@ -43,6 +60,17 @@ export default function CustomersPage() {
               </div>
               <p className="text-2xl font-bold text-income mt-2">{formatCurrency(c.current_balance)}</p>
               {c.phone && <p className="text-sm text-gray-500 mt-2">{c.phone}</p>}
+              {c.current_balance > 0 && (
+                <PremiumButton
+                  type="button"
+                  variant="secondary"
+                  className="mt-3 w-full"
+                  onClick={() => sendReminder(c)}
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  {t('sendWhatsAppReminder')}
+                </PremiumButton>
+              )}
               {c.current_balance > 50000 && (
                 <span className="inline-block mt-2 text-xs font-medium text-warning bg-warning-light px-2 py-0.5 rounded-full">Overdue</span>
               )}

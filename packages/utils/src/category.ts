@@ -96,13 +96,61 @@ export const TRANSPORT_HIRE_EXPENSE_CATEGORIES: CategoryTemplate[] = [
 ];
 
 export const WORKSHOP_REPAIR_EXPENSE_CATEGORIES: CategoryTemplate[] = [
-  { name_en: 'Spare Parts', name_si: 'Spare Parts', name_ta: 'Spare Parts', icon: 'cog', color: '#78716C' },
+  { name_en: 'Spare Parts', name_si: 'අමතර කොටස්', name_ta: 'Spare Parts', icon: 'cog', color: '#78716C' },
   { name_en: 'Job Materials', name_si: 'Job Materials', name_ta: 'Job Materials', icon: 'package', color: '#0EA5E9' },
   { name_en: 'Workshop Rent', name_si: 'Workshop Rent', name_ta: 'Workshop Rent', icon: 'home', color: '#8B5CF6' },
   { name_en: 'Testing Equipment', name_si: 'Testing Equipment', name_ta: 'Testing Equipment', icon: 'gauge', color: '#14B8A6' },
 ];
 
+export const GROCERY_KADE_EXPENSE_CATEGORIES: CategoryTemplate[] = [
+  { name_en: 'Fresh Produce', name_si: 'අලුත් භාණ්ඩ', name_ta: 'Fresh Produce', icon: 'apple', color: '#22C55E' },
+  { name_en: 'Dry Goods', name_si: 'Dry Goods', name_ta: 'Dry Goods', icon: 'package', color: '#D97706' },
+  { name_en: 'Beverages', name_si: 'Beverages', name_ta: 'Beverages', icon: 'cup', color: '#0EA5E9' },
+  { name_en: 'Cold Storage', name_si: 'Cold Storage', name_ta: 'Cold Storage', icon: 'snowflake', color: '#06B6D4' },
+];
+
+export const TEXTILE_SHOP_EXPENSE_CATEGORIES: CategoryTemplate[] = [
+  { name_en: 'Fabric Stock', name_si: 'Fabric Stock', name_ta: 'Fabric Stock', icon: 'shirt', color: '#EC4899' },
+  { name_en: 'Thread & Accessories', name_si: 'Thread & Accessories', name_ta: 'Thread & Accessories', icon: 'scissors', color: '#A855F7' },
+  { name_en: 'Display & Mannequins', name_si: 'Display & Mannequins', name_ta: 'Display & Mannequins', icon: 'layout', color: '#6366F1' },
+  { name_en: 'Alteration Supplies', name_si: 'Alteration Supplies', name_ta: 'Alteration Supplies', icon: 'needle', color: '#14B8A6' },
+];
+
+export const MULTI_VENDOR_EXPENSE_CATEGORIES: CategoryTemplate[] = [
+  { name_en: 'Vendor Settlements', name_si: 'Vendor Settlements', name_ta: 'Vendor Settlements', icon: 'users', color: '#7C3AED' },
+  { name_en: 'Platform Fees', name_si: 'Platform Fees', name_ta: 'Platform Fees', icon: 'percent', color: '#F97316' },
+  { name_en: 'Packaging', name_si: 'Packaging', name_ta: 'Packaging', icon: 'box', color: '#64748B' },
+  { name_en: 'Delivery', name_si: 'Delivery', name_ta: 'Delivery', icon: 'truck', color: '#0891B2' },
+];
+
+export const GUESTHOUSE_EXPENSE_CATEGORIES: CategoryTemplate[] = [
+  { name_en: 'Linen & Laundry', name_si: 'Linen & Laundry', name_ta: 'Linen & Laundry', icon: 'shirt', color: '#06B6D4' },
+  { name_en: 'Guest Supplies', name_si: 'Guest Supplies', name_ta: 'Guest Supplies', icon: 'coffee', color: '#D97706' },
+  { name_en: 'OTA Commission', name_si: 'OTA Commission', name_ta: 'OTA Commission', icon: 'globe', color: '#6366F1' },
+  { name_en: 'Property Maintenance', name_si: 'Property Maintenance', name_ta: 'Property Maintenance', icon: 'wrench', color: '#78716C' },
+];
+
+export const PHARMACY_EXPENSE_CATEGORIES: CategoryTemplate[] = [
+  { name_en: 'Medicine Stock', name_si: 'Medicine Stock', name_ta: 'Medicine Stock', icon: 'pill', color: '#EF4444' },
+  { name_en: 'Cold Chain', name_si: 'Cold Chain', name_ta: 'Cold Chain', icon: 'snowflake', color: '#06B6D4' },
+  { name_en: 'License & Compliance', name_si: 'License & Compliance', name_ta: 'License & Compliance', icon: 'file', color: '#6366F1' },
+  { name_en: 'Prescription Supplies', name_si: 'Prescription Supplies', name_ta: 'Prescription Supplies', icon: 'clipboard', color: '#14B8A6' },
+];
+
+export const AGRICULTURE_EXPENSE_CATEGORIES: CategoryTemplate[] = [
+  { name_en: 'Seed & Fertilizer', name_si: 'Seed & Fertilizer', name_ta: 'Seed & Fertilizer', icon: 'sprout', color: '#22C55E' },
+  { name_en: 'Feed', name_si: 'Feed', name_ta: 'Feed', icon: 'wheat', color: '#D97706' },
+  { name_en: 'Equipment Hire', name_si: 'Equipment Hire', name_ta: 'Equipment Hire', icon: 'tractor', color: '#78716C' },
+  { name_en: 'Transport to Market', name_si: 'Transport to Market', name_ta: 'Transport to Market', icon: 'truck', color: '#0891B2' },
+];
+
 const BUSINESS_TYPE_CATEGORY_EXTRAS: Record<BusinessType, CategoryTemplate[]> = {
+  grocery_kade: GROCERY_KADE_EXPENSE_CATEGORIES,
+  textile_shop: TEXTILE_SHOP_EXPENSE_CATEGORIES,
+  multi_vendor: MULTI_VENDOR_EXPENSE_CATEGORIES,
+  guesthouse: GUESTHOUSE_EXPENSE_CATEGORIES,
+  pharmacy: PHARMACY_EXPENSE_CATEGORIES,
+  agriculture: AGRICULTURE_EXPENSE_CATEGORIES,
   travel_agency: TRAVEL_AGENCY_EXPENSE_CATEGORIES,
   retail_shop: RETAIL_SHOP_EXPENSE_CATEGORIES,
   restaurant_cafe: RESTAURANT_CAFE_EXPENSE_CATEGORIES,

@@ -30,4 +30,5 @@ export const queryKeys = {
   teamMembers: (companyId: string) => ['teamMembers', companyId] as const,
   notifications: (profileId: string) => ['notifications', profileId] as const,
   search: (companyId: string, q: string) => ['search', companyId, q] as const,
+  pendingCheques: (companyId: string) => ['pendingCheques', companyId] as const,
 };

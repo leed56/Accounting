@@ -1,4 +1,4 @@
-import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Switch, Linking } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Switch, Linking, TextInput, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,6 +8,8 @@ import { useMobileStore } from '@/stores/app-store';
 import { spacing, radius } from '@bizmanager/design-tokens';
 import { languages } from '@bizmanager/i18n';
 import { PRIVACY_POLICY_URL } from '@/constants/urls';
+import { updatePassword } from '@bizmanager/supabase-client';
+import { useState } from 'react';
 
 function SettingRow({
   label,
@@ -34,6 +36,30 @@ export default function SettingsScreen() {
   const setDarkMode = useMobileStore((s) => s.setDarkMode);
   const notificationPrefs = useMobileStore((s) => s.notificationPrefs);
   const setNotificationPrefs = useMobileStore((s) => s.setNotificationPrefs);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordLoading, setPasswordLoading] = useState(false);
+
+  const onUpdatePassword = async () => {
+    if (newPassword.length < 6) {
+      Alert.alert(t('error'), 'Password must be at least 6 characters');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      Alert.alert(t('error'), 'Passwords do not match');
+      return;
+    }
+    setPasswordLoading(true);
+    const { error } = await updatePassword(newPassword);
+    setPasswordLoading(false);
+    if (error) {
+      Alert.alert(t('error'), error.message);
+      return;
+    }
+    setNewPassword('');
+    setConfirmPassword('');
+    Alert.alert(t('success'), t('passwordUpdated'));
+  };
 
   return (
     <SafeAreaView style={screen} edges={['top']}>
@@ -104,6 +130,33 @@ export default function SettingsScreen() {
           </SettingRow>
         </View>
 
+        <Text style={[styles.sectionTitle, { color: colors.text.muted }]}>{t('password')}</Text>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border, padding: spacing[4], gap: spacing[3] }]}>
+          <TextInput
+            style={[styles.passwordInput, { borderColor: colors.border, color: colors.text.primary }]}
+            secureTextEntry
+            placeholder={t('newPassword')}
+            placeholderTextColor={colors.text.muted}
+            value={newPassword}
+            onChangeText={setNewPassword}
+          />
+          <TextInput
+            style={[styles.passwordInput, { borderColor: colors.border, color: colors.text.primary }]}
+            secureTextEntry
+            placeholder={t('confirmPassword')}
+            placeholderTextColor={colors.text.muted}
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+          />
+          <TouchableOpacity
+            style={[styles.passwordBtn, { backgroundColor: colors.primary.DEFAULT, opacity: passwordLoading ? 0.7 : 1 }]}
+            onPress={onUpdatePassword}
+            disabled={passwordLoading}
+          >
+            <Text style={styles.passwordBtnText}>{t('updatePassword')}</Text>
+          </TouchableOpacity>
+        </View>
+
         <Text style={[styles.sectionTitle, { color: colors.text.muted }]}>Legal</Text>
         <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <TouchableOpacity
@@ -167,4 +220,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing[4],
   },
   footer: { textAlign: 'center', fontSize: 12, marginTop: spacing[4] },
+  passwordInput: { borderWidth: 1, borderRadius: radius.md, padding: spacing[3], fontSize: 15 },
+  passwordBtn: { borderRadius: radius.md, padding: spacing[3], alignItems: 'center' },
+  passwordBtnText: { color: '#fff', fontWeight: '600' },
 });

@@ -23,6 +23,7 @@ import {
 } from '@bizmanager/supabase-client';
 import { useAppStore } from '@/stores/app-store';
 import { toISODate } from '@bizmanager/utils';
+import { PaymentMetaFields } from '@/components/payment-meta-fields';
 
 export default function AddExpensePage() {
   const { t } = useTranslation();
@@ -47,7 +48,7 @@ export default function AddExpensePage() {
     queryFn: () => getAccounts(companyId),
   });
 
-  const { register, handleSubmit, formState: { errors } } = useForm<ExpenseInput>({
+  const { register, handleSubmit, watch, formState: { errors } } = useForm<ExpenseInput>({
     resolver: zodResolver(expenseSchema),
     defaultValues: {
       paymentMethod: 'cash',
@@ -104,6 +105,7 @@ export default function AddExpensePage() {
             options={PAYMENT_METHODS.map((m) => ({ value: m, label: m.replace(/_/g, ' ') }))}
             {...register('paymentMethod')}
           />
+          <PaymentMetaFields register={register} watch={watch} errors={errors} />
           <SelectField
             label={t('vendor')}
             options={[

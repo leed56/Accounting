@@ -4,13 +4,19 @@ import type { BusinessType } from '@bizmanager/types';
  * Setup order: most common Sri Lankan micro businesses first (customer research, not gov codes).
  */
 export const BUSINESS_TYPE_SETUP_ORDER: BusinessType[] = [
+  'grocery_kade',
   'retail_shop',
+  'textile_shop',
+  'multi_vendor',
   'restaurant_cafe',
   'salon_beauty',
+  'pharmacy',
   'tuition_education',
   'transport_hire',
   'construction_contractor',
   'workshop_repair',
+  'guesthouse',
+  'agriculture',
   'travel_agency',
   'office_admin',
   'freelancer_agency',
@@ -19,6 +25,12 @@ export const BUSINESS_TYPE_SETUP_ORDER: BusinessType[] = [
 ];
 
 export const BUSINESS_TYPE_LABEL_KEYS = {
+  grocery_kade: 'bizType_grocery_kade',
+  textile_shop: 'bizType_textile_shop',
+  multi_vendor: 'bizType_multi_vendor',
+  guesthouse: 'bizType_guesthouse',
+  pharmacy: 'bizType_pharmacy',
+  agriculture: 'bizType_agriculture',
   travel_agency: 'bizType_travel_agency',
   retail_shop: 'bizType_retail_shop',
   service_business: 'bizType_service_business',
@@ -34,6 +46,12 @@ export const BUSINESS_TYPE_LABEL_KEYS = {
 } as const satisfies Record<BusinessType, string>;
 
 export const BUSINESS_TYPE_DESC_KEYS = {
+  grocery_kade: 'bizTypeDesc_grocery_kade',
+  textile_shop: 'bizTypeDesc_textile_shop',
+  multi_vendor: 'bizTypeDesc_multi_vendor',
+  guesthouse: 'bizTypeDesc_guesthouse',
+  pharmacy: 'bizTypeDesc_pharmacy',
+  agriculture: 'bizTypeDesc_agriculture',
   travel_agency: 'bizTypeDesc_travel_agency',
   retail_shop: 'bizTypeDesc_retail_shop',
   service_business: 'bizTypeDesc_service_business',

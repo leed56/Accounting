@@ -59,8 +59,16 @@ export async function POST(req: NextRequest) {
     .eq('company_id', profile.company_id)
     .eq('is_active', true);
 
-  if ((members?.length ?? 0) >= 3) {
-    return NextResponse.json({ error: 'Small Office plan allows up to 3 users' }, { status: 400 });
+  const { data: companyRow } = await admin
+    .from('companies')
+    .select('max_users')
+    .eq('id', profile.company_id)
+    .single();
+
+  const maxUsers = companyRow?.max_users ?? 3;
+
+  if ((members?.length ?? 0) >= maxUsers) {
+    return NextResponse.json({ error: `Plan allows up to ${maxUsers} users` }, { status: 400 });
   }
 
   const { data: existingProfile } = await admin

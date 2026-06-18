@@ -6,3 +6,6 @@ export * from './income-category';
 export * from './business-type';
 export * from './notifications';
 export * from './reports';
+export * from './payment-meta';
+export * from './whatsapp';
+export * from './pdf-labels';

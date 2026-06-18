@@ -1,12 +1,14 @@
 import type {
   AttendanceStatus,
   BusinessType,
+  ChequeStatus,
   LeaveStatus,
   LeaveType,
   PaymentMethod,
   PaymentRequestType,
   PayrollStatus,
   RiskLevel,
+  SubscriptionPlan,
   TransactionStatus,
   TransactionType,
   UserRole,
@@ -26,6 +28,9 @@ export interface Company {
   service_charge_rate: number;
   staff_module_enabled: boolean;
   approval_auto_limit: number;
+  subscription_plan: SubscriptionPlan;
+  trial_ends_at: string | null;
+  max_users: number;
   timezone: string;
   created_at: string;
 }
@@ -100,6 +105,10 @@ export interface Transaction {
   category: string | null;
   amount: number;
   payment_method: PaymentMethod;
+  payment_reference: string | null;
+  cheque_number: string | null;
+  cheque_status: ChequeStatus | null;
+  cheque_cleared_at: string | null;
   status: TransactionStatus;
   account_id: string | null;
   customer_id: string | null;
@@ -112,6 +121,16 @@ export interface Transaction {
   approved_by: string | null;
   approved_at: string | null;
   created_at: string;
+}
+
+export interface DevicePushToken {
+  id: string;
+  profile_id: string;
+  company_id: string;
+  expo_push_token: string;
+  platform: string | null;
+  is_active: boolean;
+  updated_at: string;
 }
 
 export interface IncomeCategory {

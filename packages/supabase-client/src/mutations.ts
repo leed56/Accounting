@@ -8,7 +8,7 @@ import type {
   SupplierInput,
   SupplierUpdateInput,
 } from '@bizmanager/types';
-import { calculateRiskLevel, requiresOwnerApproval, formatCurrency } from '@bizmanager/utils';
+import { calculateRiskLevel, requiresOwnerApproval, formatCurrency, buildPaymentMetaFields } from '@bizmanager/utils';
 import { getSupabase } from './client';
 import { getCurrentProfile } from './auth';
 import { getCompany, getAccounts, isDemoMode } from './queries';
@@ -76,6 +76,7 @@ export async function createIncome(input: IncomeInput) {
   const { profile } = await getContext();
   const supabase = getSupabase();
   const status = input.markAsPaid ? 'approved' : 'pending';
+  const paymentMeta = buildPaymentMetaFields(input);
 
   const { data, error } = await supabase
     .from('transactions')
@@ -85,6 +86,7 @@ export async function createIncome(input: IncomeInput) {
       category: input.category,
       amount: input.amount,
       payment_method: input.paymentMethod,
+      ...paymentMeta,
       account_id: input.accountId || null,
       customer_id: input.customerId || null,
       description: input.notes || null,
@@ -153,6 +155,7 @@ export async function createExpense(input: ExpenseInput) {
       category: input.category,
       amount: input.amount,
       payment_method: input.paymentMethod,
+      ...buildPaymentMetaFields(input),
       account_id: input.accountId || null,
       supplier_id: input.supplierId || null,
       description: input.notes || null,
@@ -915,4 +918,55 @@ export async function setIncomeCategoryHidden(id: string, hidden: boolean) {
     data
   );
   return data;
+}
+
+export async function updateChequeStatus(
+  transactionId: string,
+  status: 'cleared' | 'bounced' | 'cancelled'
+) {
+  const { profile } = await getContext();
+  if (profile.role !== 'owner' && profile.role !== 'manager') {
+    throw new Error('Not allowed to update cheque status');
+  }
+  const supabase = getSupabase();
+
+  const { data: existing, error: fetchErr } = await supabase
+    .from('transactions')
+    .select('*')
+    .eq('id', transactionId)
+    .eq('company_id', profile.company_id)
+    .single();
+  if (fetchErr || !existing) throw new Error('Transaction not found');
+  if (existing.payment_method !== 'cheque') throw new Error('Not a cheque payment');
+
+  const { data, error } = await supabase
+    .from('transactions')
+    .update({
+      cheque_status: status,
+      cheque_cleared_at: status === 'cleared' ? new Date().toISOString() : null,
+    })
+    .eq('id', transactionId)
+    .select()
+    .single();
+  if (error) throw error;
+  await createAuditLog(profile.company_id, profile.id, 'update', 'transaction', transactionId, existing, data);
+  return data;
+}
+
+export async function savePushToken(expoPushToken: string, platform?: string) {
+  const { profile } = await getContext();
+  const supabase = getSupabase();
+
+  const { error } = await supabase.from('device_push_tokens').upsert(
+    {
+      profile_id: profile.id,
+      company_id: profile.company_id,
+      expo_push_token: expoPushToken,
+      platform: platform ?? null,
+      is_active: true,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: 'profile_id,expo_push_token' }
+  );
+  if (error) throw error;
 }

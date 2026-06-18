@@ -109,41 +109,48 @@ export default function DashboardPage() {
           />
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 auto-rows-fr">
           <MetricCard
+            className="h-full"
             label={t('todayIncome')}
             value={formatCurrency(summary.todayIncome)}
             variant="income"
             icon={<TrendingUp className="h-5 w-5 text-income" />}
           />
           <MetricCard
+            className="h-full"
             label={t('todayExpenses')}
             value={formatCurrency(summary.todayExpenses)}
             variant="expense"
             icon={<TrendingDown className="h-5 w-5 text-expense" />}
           />
           <MetricCard
+            className="h-full"
             label={t('netProfit')}
             value={formatCurrency(summary.netProfit)}
             variant="profit"
           />
           <MetricCard
+            className="h-full"
             label={t('cashBalance')}
             value={formatCurrency(summary.cashBalance)}
             icon={<Wallet className="h-5 w-5 text-gray-400" />}
           />
           <MetricCard
+            className="h-full"
             label={t('bankBalance')}
             value={formatCurrency(summary.bankBalance)}
             icon={<Building2 className="h-5 w-5 text-gray-400" />}
           />
           <MetricCard
+            className="h-full"
             label={t('staffPresent')}
             value={`${summary.staffPresent}/${summary.staffTotal}`}
             variant="default"
             icon={<Users className="h-5 w-5 text-gray-400" />}
           />
           <MetricCard
+            className="h-full"
             label={t('pendingApprovals')}
             value={String(summary.pendingApprovals)}
             variant="warning"
@@ -151,14 +158,15 @@ export default function DashboardPage() {
             icon={<CheckSquare className="h-5 w-5 text-warning" />}
           />
           <MetricCard
+            className="h-full"
             label={t('moneyToReceive')}
             value={formatCurrency(summary.receivables)}
             variant="income"
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 items-stretch">
+          <div className="xl:col-span-2 h-full">
             <ChartCard title={t('incomeVsExpenses')}>
               <IncomeExpenseChart
                 data={incomeTrend}
@@ -168,7 +176,7 @@ export default function DashboardPage() {
               />
             </ChartCard>
           </div>
-          <SummaryCard title={t('pendingApprovals')}>
+          <SummaryCard className="xl:col-span-2 h-full" title={t('pendingApprovals')}>
             <div className="space-y-3">
               {approvals?.slice(0, 3).map((a) => (
                 <ApprovalCard key={a.id} request={a} />

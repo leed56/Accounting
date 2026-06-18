@@ -61,7 +61,49 @@ export const SERVICE_INCOME_CATEGORIES: CategoryTemplate[] = [
   { name_en: 'Retainer', name_si: 'Retainer', name_ta: 'Retainer', icon: 'repeat', color: '#0EA5E9' },
 ];
 
+export const GROCERY_KADE_INCOME_CATEGORIES: CategoryTemplate[] = [
+  { name_en: 'Daily Sales', name_si: 'Daily Sales', name_ta: 'Daily Sales', icon: 'shopping-bag', color: '#22C55E' },
+  { name_en: 'Credit Collection', name_si: 'Credit Collection', name_ta: 'Credit Collection', icon: 'users', color: '#0EA5E9' },
+  { name_en: 'Bulk Order', name_si: 'Bulk Order', name_ta: 'Bulk Order', icon: 'package', color: '#8B5CF6' },
+];
+
+export const TEXTILE_SHOP_INCOME_CATEGORIES: CategoryTemplate[] = [
+  { name_en: 'Retail Sale', name_si: 'Retail Sale', name_ta: 'Retail Sale', icon: 'shirt', color: '#EC4899' },
+  { name_en: 'Bulk Order', name_si: 'Bulk Order', name_ta: 'Bulk Order', icon: 'package', color: '#8B5CF6' },
+  { name_en: 'Alteration Fee', name_si: 'Alteration Fee', name_ta: 'Alteration Fee', icon: 'scissors', color: '#A855F7' },
+];
+
+export const MULTI_VENDOR_INCOME_CATEGORIES: CategoryTemplate[] = [
+  { name_en: 'Vendor Commission', name_si: 'Vendor Commission', name_ta: 'Vendor Commission', icon: 'percent', color: '#F97316' },
+  { name_en: 'Service Fee', name_si: 'Service Fee', name_ta: 'Service Fee', icon: 'coins', color: '#16A34A' },
+  { name_en: 'Listing Fee', name_si: 'Listing Fee', name_ta: 'Listing Fee', icon: 'file', color: '#6366F1' },
+];
+
+export const GUESTHOUSE_INCOME_CATEGORIES: CategoryTemplate[] = [
+  { name_en: 'Room Booking', name_si: 'Room Booking', name_ta: 'Room Booking', icon: 'bed', color: '#3B82F6' },
+  { name_en: 'Extra Services', name_si: 'Extra Services', name_ta: 'Extra Services', icon: 'sparkles', color: '#8B5CF6' },
+  { name_en: 'Food & Beverage', name_si: 'Food & Beverage', name_ta: 'Food & Beverage', icon: 'utensils', color: '#EF4444' },
+];
+
+export const PHARMACY_INCOME_CATEGORIES: CategoryTemplate[] = [
+  { name_en: 'OTC Sales', name_si: 'OTC Sales', name_ta: 'OTC Sales', icon: 'pill', color: '#EF4444' },
+  { name_en: 'Prescription Sales', name_si: 'Prescription Sales', name_ta: 'Prescription Sales', icon: 'clipboard', color: '#6366F1' },
+  { name_en: 'Health Products', name_si: 'Health Products', name_ta: 'Health Products', icon: 'heart', color: '#EC4899' },
+];
+
+export const AGRICULTURE_INCOME_CATEGORIES: CategoryTemplate[] = [
+  { name_en: 'Crop Sale', name_si: 'Crop Sale', name_ta: 'Crop Sale', icon: 'sprout', color: '#22C55E' },
+  { name_en: 'Livestock Sale', name_si: 'Livestock Sale', name_ta: 'Livestock Sale', icon: 'cow', color: '#D97706' },
+  { name_en: 'Subsidy Grant', name_si: 'Subsidy Grant', name_ta: 'Subsidy Grant', icon: 'banknote', color: '#16A34A' },
+];
+
 const BUSINESS_TYPE_INCOME_EXTRAS: Record<BusinessType, CategoryTemplate[]> = {
+  grocery_kade: GROCERY_KADE_INCOME_CATEGORIES,
+  textile_shop: TEXTILE_SHOP_INCOME_CATEGORIES,
+  multi_vendor: MULTI_VENDOR_INCOME_CATEGORIES,
+  guesthouse: GUESTHOUSE_INCOME_CATEGORIES,
+  pharmacy: PHARMACY_INCOME_CATEGORIES,
+  agriculture: AGRICULTURE_INCOME_CATEGORIES,
   travel_agency: TRAVEL_AGENCY_INCOME_CATEGORIES,
   retail_shop: RETAIL_SHOP_INCOME_CATEGORIES,
   restaurant_cafe: RESTAURANT_CAFE_INCOME_CATEGORIES,
