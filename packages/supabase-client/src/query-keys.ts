@@ -19,6 +19,8 @@ export const queryKeys = {
     ['paymentRequests', companyId, status] as const,
   categories: (companyId: string, scope: 'active' | 'all' = 'active') =>
     ['categories', companyId, scope] as const,
+  incomeCategories: (companyId: string, scope: 'active' | 'all' = 'active') =>
+    ['incomeCategories', companyId, scope] as const,
   accounts: (companyId: string) => ['accounts', companyId] as const,
   aiInsights: (companyId: string) => ['aiInsights', companyId] as const,
   reports: (companyId: string, type: string, period: string) =>

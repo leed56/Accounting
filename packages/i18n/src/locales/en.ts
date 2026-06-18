@@ -185,6 +185,11 @@ const en = {
   taxDisclaimer: 'Confirm tax rates with your accountant',
   expenseCategories: 'Expense Categories',
   expenseCategoriesDesc: 'Add, rename, or hide categories used when recording expenses. Hidden categories stay on past transactions.',
+  incomeCategories: 'Income Categories',
+  incomeCategoriesDesc: 'Add, rename, or hide categories used when recording income.',
+  incomeCategoryNamePlaceholder: 'e.g. Tour Booking',
+  syncTemplateIncomeCategories: 'Add missing income template categories',
+  templateIncomeCategoriesSynced: 'Income template categories added',
   addCategory: 'Add Category',
   newCategory: 'New category',
   categoryNamePlaceholder: 'e.g. Office Supplies',
@@ -200,6 +205,8 @@ const en = {
   // Reports
   incomeVsExpenses: 'Income vs Expenses',
   expenseByCategory: 'Expense by Category',
+  incomeByCategory: 'Income by Category',
+  noReportData: 'No data for this period',
   staffAttendanceReport: 'Staff Attendance',
   salaryReport: 'Salary Report',
   receivables: 'Receivables',
@@ -233,6 +240,7 @@ const en = {
   goodEvening: 'Good evening',
   signInToContinue: 'Sign in to manage your business',
   markAllRead: 'Mark all read',
+  privacyPolicy: 'Privacy Policy',
   noNotifications: 'No notifications yet',
   offlineMode: 'You are offline — showing cached data',
 

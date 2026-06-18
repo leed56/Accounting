@@ -4,6 +4,7 @@ import type {
   Customer,
   DashboardSummary,
   ExpenseCategory,
+  IncomeCategory,
   LeaveRequest,
   PaymentRequest,
   PayrollRun,
@@ -15,8 +16,8 @@ import type {
   Transaction,
   Account,
 } from '@bizmanager/types';
-import { toISODate, getExpenseCategoriesForBusinessType } from '@bizmanager/utils';
-import type { BusinessType } from '@bizmanager/types';
+import { toISODate, getExpenseCategoriesForBusinessType, getIncomeCategoriesForBusinessType, getPeriodDateRange } from '@bizmanager/utils';
+import type { BusinessType, PeriodType } from '@bizmanager/types';
 import { getSupabase } from './client';
 
 // Sample data for demo when Supabase is not configured
@@ -233,11 +234,13 @@ export async function getDashboardSummary(
 
 export async function getTransactions(
   companyId: string,
-  filters?: { type?: string; limit?: number }
+  filters?: { type?: string; limit?: number; startDate?: string; endDate?: string }
 ): Promise<Transaction[]> {
   if (isDemoMode()) {
     let txs = [...sampleTransactions];
     if (filters?.type) txs = txs.filter((t) => t.type === filters.type);
+    if (filters?.startDate) txs = txs.filter((t) => t.transaction_date >= filters.startDate!);
+    if (filters?.endDate) txs = txs.filter((t) => t.transaction_date <= filters.endDate!);
     if (filters?.limit) txs = txs.slice(0, filters.limit);
     return txs;
   }
@@ -248,6 +251,8 @@ export async function getTransactions(
     .eq('company_id', companyId)
     .order('transaction_date', { ascending: false });
   if (filters?.type) query = query.eq('type', filters.type);
+  if (filters?.startDate) query = query.gte('transaction_date', filters.startDate);
+  if (filters?.endDate) query = query.lte('transaction_date', filters.endDate);
   if (filters?.limit) query = query.limit(filters.limit);
   const { data, error } = await query;
   if (error) throw error;
@@ -385,6 +390,66 @@ export async function seedExpenseCategoriesForCompany(
     }));
   if (toInsert.length === 0) return;
   const { error } = await supabase.from('expense_categories').insert(toInsert);
+  if (error) throw error;
+}
+
+export async function getIncomeCategories(
+  companyId: string,
+  options?: { includeHidden?: boolean }
+): Promise<IncomeCategory[]> {
+  if (isDemoMode()) {
+    return getIncomeCategoriesForBusinessType('travel_agency').map((c, i) => ({
+      id: String(i + 1),
+      company_id: companyId,
+      name_en: c.name_en,
+      name_si: c.name_si,
+      name_ta: c.name_ta,
+      icon: c.icon,
+      color: c.color,
+      is_default: true,
+      is_hidden: false,
+    }));
+  }
+  const supabase = getSupabase();
+  let query = supabase.from('income_categories').select('*').eq('company_id', companyId);
+  if (!options?.includeHidden) {
+    query = query.eq('is_hidden', false);
+  }
+  const { data, error } = await query;
+  if (error) throw error;
+  const categories = (data ?? []) as IncomeCategory[];
+  const seen = new Set<string>();
+  return categories.filter((c) => {
+    if (seen.has(c.name_en)) return false;
+    seen.add(c.name_en);
+    return true;
+  });
+}
+
+export async function seedIncomeCategoriesForCompany(
+  companyId: string,
+  businessType: BusinessType = 'other'
+) {
+  const supabase = getSupabase();
+  const templates = getIncomeCategoriesForBusinessType(businessType);
+  const { data: existing } = await supabase
+    .from('income_categories')
+    .select('name_en')
+    .eq('company_id', companyId);
+  const existingNames = new Set((existing ?? []).map((r) => r.name_en));
+  const toInsert = templates
+    .filter((c) => !existingNames.has(c.name_en))
+    .map((c) => ({
+      company_id: companyId,
+      name_en: c.name_en,
+      name_si: c.name_si,
+      name_ta: c.name_ta,
+      icon: c.icon,
+      color: c.color,
+      is_default: true,
+    }));
+  if (toInsert.length === 0) return;
+  const { error } = await supabase.from('income_categories').insert(toInsert);
   if (error) throw error;
 }
 
@@ -553,6 +618,41 @@ export async function getAttendance(companyId: string, date: string): Promise<At
   return (data ?? []) as Attendance[];
 }
 
+export async function getAttendanceForRange(
+  companyId: string,
+  startDate: string,
+  endDate: string
+): Promise<Attendance[]> {
+  if (isDemoMode()) {
+    const records: Attendance[] = [];
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const day = toISODate(d);
+      const dayRecords = await getAttendance(companyId, day);
+      records.push(...dayRecords);
+    }
+    return records;
+  }
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from('attendance')
+    .select('*')
+    .eq('company_id', companyId)
+    .gte('date', startDate)
+    .lte('date', endDate);
+  if (error) throw error;
+  return (data ?? []) as Attendance[];
+}
+
+export async function getTransactionsForPeriod(
+  companyId: string,
+  period: PeriodType
+): Promise<Transaction[]> {
+  const { start, end } = getPeriodDateRange(period);
+  return getTransactions(companyId, { startDate: start, endDate: end });
+}
+
 export async function createCompanyWithProfile(
   userId: string,
   email: string,
@@ -614,6 +714,7 @@ export async function createCompanyWithProfile(
   if (accountsError) throw new Error(accountsError.message);
 
   await seedExpenseCategoriesForCompany(company.id, setup.businessType as BusinessType);
+  await seedIncomeCategoriesForCompany(company.id, setup.businessType as BusinessType);
   return { companyId: company.id };
 }
 

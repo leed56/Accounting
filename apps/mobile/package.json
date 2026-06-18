@@ -9,6 +9,7 @@
     "ios": "expo start --ios",
     "build:preview": "eas build --profile preview --platform all",
     "build:prod": "eas build --profile production --platform all",
+    "submit:prod": "eas submit --profile production --platform all",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

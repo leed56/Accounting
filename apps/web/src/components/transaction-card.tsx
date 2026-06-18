@@ -4,8 +4,19 @@ import { formatDate } from '@bizmanager/utils';
 import type { Transaction } from '@bizmanager/types';
 import { ArrowDownLeft, ArrowUpRight } from 'lucide-react';
 
-export function TransactionCard({ transaction }: { transaction: Transaction }) {
+export function TransactionCard({
+  transaction,
+  categoryLabel,
+}: {
+  transaction: Transaction;
+  categoryLabel?: string | null;
+}) {
   const isIncome = transaction.type === 'income';
+  const title =
+    transaction.description ??
+    categoryLabel ??
+    transaction.category ??
+    transaction.type;
 
   return (
     <div className="flex items-center gap-3 py-3 border-b border-gray-100 last:border-0">
@@ -22,11 +33,10 @@ export function TransactionCard({ transaction }: { transaction: Transaction }) {
         )}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-medium text-gray-900 truncate">
-          {transaction.description ?? transaction.category ?? transaction.type}
-        </p>
+        <p className="font-medium text-gray-900 truncate">{title}</p>
         <p className="text-xs text-gray-500">
           {formatDate(transaction.transaction_date)} · {transaction.payment_method}
+          {categoryLabel && transaction.description ? ` · ${categoryLabel}` : ''}
         </p>
       </div>
       <p

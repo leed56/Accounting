@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,14 +17,15 @@ import {
   uploadReceipt,
   getCustomers,
   getAccounts,
+  getIncomeCategories,
   queryKeys,
   SAMPLE_COMPANY_ID,
 } from '@bizmanager/supabase-client';
 import { useAppStore } from '@/stores/app-store';
-import { toISODate } from '@bizmanager/utils';
+import { toISODate, getCategoryName } from '@bizmanager/utils';
 
 export default function AddIncomePage() {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const router = useRouter();
   const toast = useToast((s) => s.show);
   const queryClient = useQueryClient();
@@ -41,14 +42,31 @@ export default function AddIncomePage() {
     queryFn: () => getAccounts(companyId),
   });
 
-  const { register, handleSubmit, formState: { errors } } = useForm<IncomeInput>({
+  const { data: categories } = useQuery({
+    queryKey: queryKeys.incomeCategories(companyId),
+    queryFn: () => getIncomeCategories(companyId),
+  });
+
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<IncomeInput>({
     resolver: zodResolver(incomeSchema),
     defaultValues: {
+      category: 'General Income',
       paymentMethod: 'cash',
       transactionDate: toISODate(),
       markAsPaid: true,
     },
   });
+
+  useEffect(() => {
+    if (categories?.[0]) {
+      reset({
+        category: categories[0].name_en,
+        paymentMethod: 'cash',
+        transactionDate: toISODate(),
+        markAsPaid: true,
+      });
+    }
+  }, [categories, reset]);
 
   const mutation = useMutation({
     mutationFn: async (data: IncomeInput) => {
@@ -79,6 +97,17 @@ export default function AddIncomePage() {
     <AppShell title={t('addIncome')}>
       <div className="max-w-xl">
         <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="card space-y-4">
+          <SelectField
+            label={t('category')}
+            required
+            options={categories?.map((c) => ({
+              value: c.name_en,
+              label: getCategoryName(c, language),
+              key: c.id,
+            })) ?? [{ value: 'General Income', label: 'General Income' }]}
+            error={errors.category?.message}
+            {...register('category')}
+          />
           <SelectField
             label={t('customer')}
             options={[

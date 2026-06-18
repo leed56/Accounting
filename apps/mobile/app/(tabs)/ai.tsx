@@ -3,10 +3,11 @@ import { ScrollView, View, Text, TextInput, TouchableOpacity, StyleSheet } from 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useMobileTheme } from '@/hooks/useMobileTheme';
 import { useMobileStore } from '@/stores/app-store';
 import { askBusinessQuestion, getDailyInsight } from '@bizmanager/ai';
 import { SAMPLE_COMPANY_ID } from '@bizmanager/supabase-client';
-import { colors, spacing, radius } from '@bizmanager/design-tokens';
+import { spacing, radius } from '@bizmanager/design-tokens';
 
 const suggestions = [
   'aiQuestionToday',
@@ -17,6 +18,7 @@ const suggestions = [
 
 export default function AIScreen() {
   const { t, language } = useTranslation();
+  const { colors, screen } = useMobileTheme();
   const companyId = useMobileStore((s) => s.companyId) ?? SAMPLE_COMPANY_ID;
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; text: string }>>([]);
@@ -38,40 +40,55 @@ export default function AIScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={screen} edges={['top']}>
       <ScrollView contentContainerStyle={styles.scroll}>
-        <Text style={styles.title}>{t('aiAssistant')}</Text>
+        <Text style={[styles.title, { color: colors.text.primary }]}>{t('aiAssistant')}</Text>
         {briefing && (
-          <View style={styles.briefing}>
-            <Text style={styles.briefingTitle}>{briefing.title}</Text>
-            <Text style={styles.briefingText}>{briefing.message}</Text>
+          <View style={[styles.briefing, { backgroundColor: colors.ai.light }]}>
+            <Text style={[styles.briefingTitle, { color: colors.text.primary }]}>{briefing.title}</Text>
+            <Text style={[styles.briefingText, { color: colors.text.secondary }]}>{briefing.message}</Text>
           </View>
         )}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chips}>
           {suggestions.map((key) => (
-            <TouchableOpacity key={key} style={styles.chip} onPress={() => send(t(key))}>
-              <Text style={styles.chipText}>{t(key)}</Text>
+            <TouchableOpacity
+              key={key}
+              style={[styles.chip, { backgroundColor: colors.ai.light }]}
+              onPress={() => send(t(key))}
+            >
+              <Text style={[styles.chipText, { color: colors.ai.DEFAULT }]}>{t(key)}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
         <View style={styles.chat}>
           {messages.map((msg, i) => (
-            <View key={i} style={[styles.bubble, msg.role === 'user' ? styles.userBubble : styles.aiBubble]}>
-              <Text style={[styles.bubbleText, msg.role === 'user' && styles.userText]}>{msg.text}</Text>
+            <View
+              key={i}
+              style={[
+                styles.bubble,
+                msg.role === 'user'
+                  ? { alignSelf: 'flex-end', backgroundColor: colors.primary.DEFAULT }
+                  : { alignSelf: 'flex-start', backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1 },
+              ]}
+            >
+              <Text style={[styles.bubbleText, { color: msg.role === 'user' ? '#fff' : colors.text.primary }]}>
+                {msg.text}
+              </Text>
             </View>
           ))}
-          {loading && <Text style={styles.loading}>{t('loading')}</Text>}
+          {loading && <Text style={[styles.loading, { color: colors.text.muted }]}>{t('loading')}</Text>}
         </View>
       </ScrollView>
-      <View style={styles.inputRow}>
+      <View style={[styles.inputRow, { borderTopColor: colors.border, backgroundColor: colors.surface }]}>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { borderColor: colors.border, backgroundColor: colors.background, color: colors.text.primary }]}
           value={input}
           onChangeText={setInput}
           placeholder={t('askAnything')}
+          placeholderTextColor={colors.text.muted}
           onSubmitEditing={() => send(input)}
         />
-        <TouchableOpacity style={styles.sendBtn} onPress={() => send(input)}>
+        <TouchableOpacity style={[styles.sendBtn, { backgroundColor: colors.primary.DEFAULT }]} onPress={() => send(input)}>
           <Text style={styles.sendText}>→</Text>
         </TouchableOpacity>
       </View>
@@ -80,24 +97,20 @@ export default function AIScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
   scroll: { padding: spacing[4], paddingBottom: spacing[4] },
   title: { fontSize: 24, fontWeight: '700', marginBottom: spacing[4] },
-  briefing: { backgroundColor: colors.ai.light, borderRadius: radius.lg, padding: spacing[4], marginBottom: spacing[4] },
+  briefing: { borderRadius: radius.lg, padding: spacing[4], marginBottom: spacing[4] },
   briefingTitle: { fontWeight: '600', marginBottom: spacing[1] },
-  briefingText: { fontSize: 14, color: colors.text.secondary, lineHeight: 20 },
+  briefingText: { fontSize: 14, lineHeight: 20 },
   chips: { marginBottom: spacing[4] },
-  chip: { backgroundColor: colors.ai.light, paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.full, marginRight: spacing[2] },
-  chipText: { color: colors.ai.DEFAULT, fontSize: 13, fontWeight: '500' },
+  chip: { paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.full, marginRight: spacing[2] },
+  chipText: { fontSize: 13, fontWeight: '500' },
   chat: { minHeight: 200 },
   bubble: { maxWidth: '85%', padding: spacing[3], borderRadius: radius.lg, marginBottom: spacing[2] },
-  userBubble: { alignSelf: 'flex-end', backgroundColor: colors.primary.DEFAULT },
-  aiBubble: { alignSelf: 'flex-start', backgroundColor: '#f3f4f6' },
   bubbleText: { fontSize: 14, lineHeight: 20 },
-  userText: { color: '#fff' },
-  loading: { color: colors.text.muted, fontSize: 13 },
-  inputRow: { flexDirection: 'row', padding: spacing[3], borderTopWidth: 1, borderTopColor: colors.border, backgroundColor: colors.surface, gap: spacing[2] },
-  input: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: spacing[3], fontSize: 16 },
-  sendBtn: { backgroundColor: colors.primary.DEFAULT, borderRadius: radius.md, width: 48, alignItems: 'center', justifyContent: 'center' },
+  loading: { fontSize: 13 },
+  inputRow: { flexDirection: 'row', padding: spacing[3], borderTopWidth: 1, gap: spacing[2] },
+  input: { flex: 1, borderWidth: 1, borderRadius: radius.md, padding: spacing[3], fontSize: 16 },
+  sendBtn: { borderRadius: radius.md, width: 48, alignItems: 'center', justifyContent: 'center' },
   sendText: { color: '#fff', fontSize: 20, fontWeight: '600' },
 });

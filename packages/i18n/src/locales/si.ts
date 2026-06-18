@@ -175,6 +175,11 @@ const si = {
   taxDisclaimer: 'Confirm tax rates with your accountant',
   expenseCategories: 'Expense Categories',
   expenseCategoriesDesc: 'Add, rename, or hide categories used when recording expenses.',
+  incomeCategories: 'Income Categories',
+  incomeCategoriesDesc: 'Add, rename, or hide categories used when recording income.',
+  incomeCategoryNamePlaceholder: 'e.g. Tour Booking',
+  syncTemplateIncomeCategories: 'Add missing income template categories',
+  templateIncomeCategoriesSynced: 'Income template categories added',
   addCategory: 'Add Category',
   newCategory: 'New category',
   categoryNamePlaceholder: 'e.g. Office Supplies',
@@ -189,6 +194,8 @@ const si = {
 
   incomeVsExpenses: 'Income vs Expenses',
   expenseByCategory: 'Expense by Category',
+  incomeByCategory: 'Income by Category',
+  noReportData: 'No data for this period',
   staffAttendanceReport: 'Staff Attendance',
   salaryReport: 'Salary Report',
   receivables: 'Receivables',
@@ -220,6 +227,7 @@ const si = {
   goodEvening: 'සුභ සන්ධ්‍යාවක්',
   signInToContinue: 'ඔබේ ව්‍යාපාරය කළමනාකරණය කිරීමට පිවිසෙන්න',
   markAllRead: 'සියල්ල කියවූ ලෙස සලකන්න',
+  privacyPolicy: 'Privacy Policy',
   noNotifications: 'දැනුම්දීම් නැත',
   offlineMode: 'ඔබ offline — සුරකින ලද දත්ත පෙන්වයි',
 

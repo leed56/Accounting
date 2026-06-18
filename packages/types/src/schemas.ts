@@ -27,6 +27,7 @@ export const companySetupSchema = z.object({
 });
 
 export const incomeSchema = z.object({
+  category: z.string().min(1, 'Category is required'),
   customerId: z.string().optional().nullable(),
   amount: z.coerce.number().positive('Amount must be positive'),
   paymentMethod: z.enum(PAYMENT_METHODS),

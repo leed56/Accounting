@@ -12,8 +12,8 @@ type ColorPalette = {
     inverse: string;
   };
   primary: { DEFAULT: string; light: string; dark: string };
-  danger: typeof lightColors.danger;
-  warning: typeof lightColors.warning;
+  danger: { DEFAULT: string; light: string; dark: string };
+  warning: { DEFAULT: string; light: string; dark: string };
   info: typeof lightColors.info;
   ai: { DEFAULT: string; light: string; dark: string };
   income: string;
@@ -37,6 +37,14 @@ const darkColors: ColorPalette = {
   primary: {
     ...lightColors.primary,
     light: '#14532D',
+  },
+  danger: {
+    ...lightColors.danger,
+    light: '#450A0A',
+  },
+  warning: {
+    ...lightColors.warning,
+    light: '#451A03',
   },
   ai: {
     ...lightColors.ai,

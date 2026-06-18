@@ -16,6 +16,8 @@ import {
   YAxis,
 } from 'recharts';
 import { useAppStore } from '@/stores/app-store';
+import type { AttendanceChartItem, CategoryChartItem, TrendChartItem } from '@bizmanager/utils';
+import { formatCurrency } from '@bizmanager/utils';
 
 function useChartTheme() {
   const darkMode = useAppStore((s) => s.darkMode);
@@ -27,17 +29,27 @@ function useChartTheme() {
   };
 }
 
-export function IncomeExpenseChart() {
+function ChartEmpty({ message }: { message: string }) {
+  return (
+    <div className="flex h-[200px] items-center justify-center text-sm text-gray-500 dark:text-gray-400">
+      {message}
+    </div>
+  );
+}
+
+export function IncomeExpenseChart({
+  data,
+  incomeLabel = 'Income',
+  expenseLabel = 'Expenses',
+  emptyMessage = 'No data for this period',
+}: {
+  data?: TrendChartItem[];
+  incomeLabel?: string;
+  expenseLabel?: string;
+  emptyMessage?: string;
+}) {
   const theme = useChartTheme();
-  const data = [
-    { name: 'Mon', income: 95000, expense: 42000 },
-    { name: 'Tue', income: 110000, expense: 55000 },
-    { name: 'Wed', income: 85000, expense: 48000 },
-    { name: 'Thu', income: 125750, expense: 68540 },
-    { name: 'Fri', income: 98000, expense: 51000 },
-    { name: 'Sat', income: 72000, expense: 38000 },
-    { name: 'Sun', income: 45000, expense: 22000 },
-  ];
+  if (!data?.length) return <ChartEmpty message={emptyMessage} />;
 
   return (
     <ResponsiveContainer width="100%" height={280}>
@@ -46,36 +58,37 @@ export function IncomeExpenseChart() {
         <XAxis dataKey="name" tick={{ fontSize: 12, fill: theme.tick }} />
         <YAxis tick={{ fontSize: 12, fill: theme.tick }} tickFormatter={(v) => `${v / 1000}k`} />
         <Tooltip
-          formatter={(v: number) => [`Rs. ${v.toLocaleString()}`, '']}
+          formatter={(v: number) => [formatCurrency(v), '']}
           contentStyle={{ backgroundColor: theme.tooltipBg, borderColor: theme.tooltipBorder }}
         />
         <Legend />
-        <Line type="monotone" dataKey="income" stroke="#16A34A" strokeWidth={2} name="Income" />
-        <Line type="monotone" dataKey="expense" stroke="#EF4444" strokeWidth={2} name="Expenses" />
+        <Line type="monotone" dataKey="income" stroke="#16A34A" strokeWidth={2} name={incomeLabel} />
+        <Line type="monotone" dataKey="expense" stroke="#EF4444" strokeWidth={2} name={expenseLabel} />
       </LineChart>
     </ResponsiveContainer>
   );
 }
 
-export function ExpenseCategoryChart() {
+export function CategoryPieChart({
+  data,
+  emptyMessage = 'No data for this period',
+}: {
+  data?: CategoryChartItem[];
+  emptyMessage?: string;
+}) {
   const theme = useChartTheme();
-  const data = [
-    { name: 'Rent', value: 75000, color: '#3B82F6' },
-    { name: 'Fuel', value: 12750, color: '#F59E0B' },
-    { name: 'Internet', value: 8500, color: '#06B6D4' },
-    { name: 'Other', value: 15290, color: '#9CA3AF' },
-  ];
+  if (!data?.length) return <ChartEmpty message={emptyMessage} />;
 
   return (
     <ResponsiveContainer width="100%" height={240}>
       <PieChart>
-        <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={80}>
+        <Pie data={data} dataKey="value" nameKey="label" cx="50%" cy="50%" innerRadius={50} outerRadius={80}>
           {data.map((entry, i) => (
-            <Cell key={i} fill={entry.color} />
+            <Cell key={entry.name_en + i} fill={entry.color} />
           ))}
         </Pie>
         <Tooltip
-          formatter={(v: number) => `Rs. ${v.toLocaleString()}`}
+          formatter={(v: number) => formatCurrency(v)}
           contentStyle={{ backgroundColor: theme.tooltipBg, borderColor: theme.tooltipBorder }}
         />
         <Legend />
@@ -84,24 +97,42 @@ export function ExpenseCategoryChart() {
   );
 }
 
-export function AttendanceBarChart() {
+export function ExpenseCategoryChart(props: {
+  data?: CategoryChartItem[];
+  emptyMessage?: string;
+}) {
+  return <CategoryPieChart {...props} />;
+}
+
+export function IncomeCategoryChart(props: {
+  data?: CategoryChartItem[];
+  emptyMessage?: string;
+}) {
+  return <CategoryPieChart {...props} />;
+}
+
+export function AttendanceBarChart({
+  data,
+  presentLabel = 'Present',
+  emptyMessage = 'No attendance data',
+}: {
+  data?: AttendanceChartItem[];
+  presentLabel?: string;
+  emptyMessage?: string;
+}) {
   const theme = useChartTheme();
-  const data = [
-    { day: 'Mon', present: 4 },
-    { day: 'Tue', present: 3 },
-    { day: 'Wed', present: 4 },
-    { day: 'Thu', present: 3 },
-    { day: 'Fri', present: 4 },
-  ];
+  if (!data?.length) return <ChartEmpty message={emptyMessage} />;
+
+  const maxPresent = Math.max(...data.map((d) => d.present), 1);
 
   return (
     <ResponsiveContainer width="100%" height={200}>
       <BarChart data={data}>
         <CartesianGrid strokeDasharray="3 3" stroke={theme.grid} />
         <XAxis dataKey="day" tick={{ fontSize: 12, fill: theme.tick }} />
-        <YAxis tick={{ fontSize: 12, fill: theme.tick }} domain={[0, 4]} />
+        <YAxis tick={{ fontSize: 12, fill: theme.tick }} domain={[0, maxPresent]} allowDecimals={false} />
         <Tooltip contentStyle={{ backgroundColor: theme.tooltipBg, borderColor: theme.tooltipBorder }} />
-        <Bar dataKey="present" fill="#16A34A" radius={[4, 4, 0, 0]} name="Present" />
+        <Bar dataKey="present" fill="#16A34A" radius={[4, 4, 0, 0]} name={presentLabel} />
       </BarChart>
     </ResponsiveContainer>
   );
@@ -118,6 +149,39 @@ export function ChartCard({
     <div className="card">
       <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-4">{title}</h3>
       {children}
+    </div>
+  );
+}
+
+export function CategoryBreakdownList({
+  items,
+  emptyMessage = 'No data for this period',
+}: {
+  items?: CategoryChartItem[];
+  emptyMessage?: string;
+}) {
+  if (!items?.length) {
+    return <p className="text-sm text-gray-500 dark:text-gray-400">{emptyMessage}</p>;
+  }
+
+  const total = items.reduce((sum, item) => sum + item.value, 0);
+
+  return (
+    <div className="space-y-2">
+      {items.map((item) => (
+        <div key={item.name_en} className="flex items-center justify-between gap-3 text-sm">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: item.color }} />
+            <span className="truncate">{item.label}</span>
+          </div>
+          <div className="shrink-0 text-right">
+            <span className="font-medium">{formatCurrency(item.value)}</span>
+            {total > 0 && (
+              <span className="ml-2 text-gray-500">{Math.round((item.value / total) * 100)}%</span>
+            )}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

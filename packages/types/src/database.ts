@@ -114,6 +114,18 @@ export interface Transaction {
   created_at: string;
 }
 
+export interface IncomeCategory {
+  id: string;
+  company_id: string;
+  name_en: string;
+  name_si: string | null;
+  name_ta: string | null;
+  icon: string | null;
+  color: string | null;
+  is_default: boolean;
+  is_hidden: boolean;
+}
+
 export interface ExpenseCategory {
   id: string;
   company_id: string;

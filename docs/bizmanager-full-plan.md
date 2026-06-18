@@ -376,13 +376,22 @@ OPENAI_API_KEY               # optional
 | v1.5 Search, prefs, dark mode, accountant | ✅ Done |
 | v1.6 Mobile search, notification filter, dark polish | ✅ Done |
 | v1.7 Mobile settings + persisted dark/prefs | ✅ Done |
+| v1.8 Income categories, reports, mobile polish | ✅ Done |
 
-### Next — v1.8
+### v1.8 — completed
 - Income categories (Step 4)
+- Reports polish (Step 5)
 - Dark theme on all mobile tabs
 - Mobile notifications list
-- Phone OTP auth (optional)
-- App Store submit (`eas init` → `pnpm mobile:build`)
+- App Store submit runbook → [mobile-store-submit.md](./mobile-store-submit.md)
+
+### Next — v1.9 / launch
+- ~~Privacy policy URL~~ ✅ `/privacy` + mobile links
+- ~~Launch checklist~~ ✅ [launch-checklist.md](./launch-checklist.md)
+- ~~Fix `pnpm db:seed`~~ ✅ runs via `tsx`
+- **Commit + deploy** all v1.8/v1.9 changes
+- Run `eas init` + `pnpm mobile:build:prod` (see [mobile-store-submit.md](./mobile-store-submit.md))
+- Phone OTP auth (optional, deferred from v1.3)
 
 ### Manual checklist (still open)
 - [ ] Connect GitHub to Vercel for auto-deploy
@@ -399,5 +408,7 @@ OPENAI_API_KEY               # optional
 - [Architecture](./architecture.md)
 - [RLS Policies](./rls-policies.md)
 - [Vercel Deploy](./vercel-deploy.md)
-- [Sprint 9](./sprint-9.md) · [Sprint 10](./sprint-10.md) · [Sprint 11](./sprint-11.md) · [Sprint 12](./sprint-12.md) · [Sprint 13](./sprint-13.md) · [Sprint 14](./sprint-14.md) · [Sprint 15](./sprint-15.md) · [Sprint 16](./sprint-16.md)
+- [Sprint 16](./sprint-16.md) · [Sprint 17](./sprint-17.md)
+- [Mobile Store Submit](./mobile-store-submit.md)
+- [Launch Checklist](./launch-checklist.md)
 - [App Store Listing](./app-store-listing.md)

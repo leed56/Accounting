@@ -6,15 +6,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useMobileTheme } from '@/hooks/useMobileTheme';
 import { useMobileStore } from '@/stores/app-store';
+import { useMobileProfileId } from '@/hooks/useMobileProfile';
 import {
   getDashboardSummary,
   getTransactions,
   getCompany,
+  getNotifications,
   queryKeys,
   SAMPLE_COMPANY_ID,
 } from '@bizmanager/supabase-client';
 import { getDailyInsight } from '@bizmanager/ai';
-import { formatCurrency, getTimeGreeting } from '@bizmanager/utils';
+import { formatCurrency, getTimeGreeting, filterNotificationsByPrefs } from '@bizmanager/utils';
 import { spacing, radius } from '@bizmanager/design-tokens';
 
 function MetricCard({
@@ -55,6 +57,8 @@ export default function HomeScreen() {
   const { t, language } = useTranslation();
   const { colors, screen } = useMobileTheme();
   const companyId = useMobileStore((s) => s.companyId) ?? SAMPLE_COMPANY_ID;
+  const notificationPrefs = useMobileStore((s) => s.notificationPrefs);
+  const { data: profileId } = useMobileProfileId();
   const greetingKey = getTimeGreeting();
   const greeting =
     greetingKey === 'morning' ? t('goodMorning') : greetingKey === 'afternoon' ? t('goodAfternoon') : t('goodEvening');
@@ -79,6 +83,17 @@ export default function HomeScreen() {
     queryFn: () => getTransactions(companyId, { limit: 3 }),
   });
 
+  const { data: notifications } = useQuery({
+    queryKey: queryKeys.notifications(profileId ?? ''),
+    queryFn: () => getNotifications(profileId!),
+    enabled: !!profileId,
+    refetchInterval: 60_000,
+  });
+
+  const unreadCount = filterNotificationsByPrefs(notifications ?? [], notificationPrefs).filter(
+    (n) => !n.is_read
+  ).length;
+
   return (
     <SafeAreaView style={screen} edges={['top']}>
       <ScrollView contentContainerStyle={styles.scroll}>
@@ -92,6 +107,14 @@ export default function HomeScreen() {
             <View style={styles.heroActions}>
               <TouchableOpacity style={styles.iconBtn} onPress={() => router.push('/search')}>
                 <Ionicons name="search" size={20} color="#fff" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.iconBtn} onPress={() => router.push('/notifications')}>
+                <Ionicons name="notifications-outline" size={20} color="#fff" />
+                {unreadCount > 0 && (
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : unreadCount}</Text>
+                  </View>
+                )}
               </TouchableOpacity>
               <TouchableOpacity style={styles.iconBtn} onPress={() => router.push('/settings')}>
                 <Ionicons name="settings-outline" size={20} color="#fff" />
@@ -149,6 +172,7 @@ const styles = StyleSheet.create({
   heroTop: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing[2] },
   heroActions: { flexDirection: 'row', gap: spacing[2] },
   iconBtn: {
+    position: 'relative',
     width: 44,
     height: 44,
     borderRadius: radius.md,
@@ -158,6 +182,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.3)',
   },
+  badge: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#EF4444',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 3,
+  },
+  badgeText: { color: '#fff', fontSize: 9, fontWeight: '700' },
   companyName: { fontSize: 13, color: 'rgba(255,255,255,0.8)' },
   greeting: { fontSize: 22, fontWeight: '700', color: '#fff', marginTop: spacing[1] },
   headerTitle: { fontSize: 14, color: 'rgba(255,255,255,0.7)', marginTop: spacing[1] },

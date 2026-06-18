@@ -6,11 +6,13 @@
     "dev:web": "turbo dev --filter=@bizmanager/web",
     "dev:mobile": "turbo dev --filter=@bizmanager/mobile",
     "mobile:build": "pnpm --filter @bizmanager/mobile build:preview",
+    "mobile:build:prod": "pnpm --filter @bizmanager/mobile build:prod",
+    "mobile:submit": "pnpm --filter @bizmanager/mobile submit:prod",
     "build": "turbo build",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "db:migrate": "node scripts/apply-migration.mjs",
-    "db:seed": "node scripts/seed-demo.mjs",
+    "db:seed": "tsx scripts/seed-demo.mjs",
     "db:link-owner": "node scripts/link-owner.mjs",
     "db:storage": "node scripts/setup-storage.mjs",
     "db:invite": "node scripts/invite-manager.mjs"
@@ -18,6 +20,7 @@
   "devDependencies": {
     "@supabase/supabase-js": "^2.47.10",
     "pg": "^8.13.1",
+    "tsx": "^4.19.2",
     "turbo": "^2.3.3",
     "typescript": "^5.7.2"
   },

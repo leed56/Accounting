@@ -12,26 +12,35 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useMobileTheme } from '@/hooks/useMobileTheme';
 import { useMobileStore } from '@/stores/app-store';
 import {
   createIncome,
   getCustomers,
   getAccounts,
+  getIncomeCategories,
   queryKeys,
   SAMPLE_COMPANY_ID,
 } from '@bizmanager/supabase-client';
 import { toISODate } from '@bizmanager/utils';
-import { colors, spacing, radius } from '@bizmanager/design-tokens';
+import { spacing, radius } from '@bizmanager/design-tokens';
 
 export default function AddIncomeScreen() {
   const router = useRouter();
   const { t } = useTranslation();
+  const { colors, screen } = useMobileTheme();
   const queryClient = useQueryClient();
   const companyId = useMobileStore((s) => s.companyId) ?? SAMPLE_COMPANY_ID;
 
   const [amount, setAmount] = useState('');
   const [notes, setNotes] = useState('');
+  const [category, setCategory] = useState('General Income');
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'bank_transfer'>('cash');
+
+  const { data: categories } = useQuery({
+    queryKey: queryKeys.incomeCategories(companyId),
+    queryFn: () => getIncomeCategories(companyId),
+  });
 
   const { data: accounts } = useQuery({
     queryKey: queryKeys.accounts(companyId),
@@ -46,6 +55,7 @@ export default function AddIncomeScreen() {
   const mutation = useMutation({
     mutationFn: () =>
       createIncome({
+        category,
         amount: Number(amount),
         paymentMethod,
         transactionDate: toISODate(),
@@ -62,51 +72,86 @@ export default function AddIncomeScreen() {
   });
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={screen} edges={['top']}>
       <ScrollView contentContainerStyle={styles.scroll}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.back}>{t('back')}</Text>
+          <Text style={[styles.back, { color: colors.primary.DEFAULT }]}>{t('back')}</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>{t('addIncome')}</Text>
+        <Text style={[styles.title, { color: colors.text.primary }]}>{t('addIncome')}</Text>
 
-        <Text style={styles.label}>{t('amount')}</Text>
+        <Text style={[styles.label, { color: colors.text.secondary }]}>{t('category')}</Text>
+        <View style={styles.row}>
+          {categories?.slice(0, 4).map((c) => (
+            <TouchableOpacity
+              key={c.id}
+              style={[
+                styles.chip,
+                { borderColor: colors.border, backgroundColor: colors.surface },
+                category === c.name_en && { backgroundColor: colors.primary.DEFAULT, borderColor: colors.primary.DEFAULT },
+              ]}
+              onPress={() => setCategory(c.name_en)}
+            >
+              <Text style={{ color: category === c.name_en ? '#fff' : colors.text.primary }}>{c.name_en}</Text>
+            </TouchableOpacity>
+          )) ?? ['General Income', 'Other'].map((c) => (
+            <TouchableOpacity
+              key={c}
+              style={[
+                styles.chip,
+                { borderColor: colors.border, backgroundColor: colors.surface },
+                category === c && { backgroundColor: colors.primary.DEFAULT, borderColor: colors.primary.DEFAULT },
+              ]}
+              onPress={() => setCategory(c)}
+            >
+              <Text style={{ color: category === c ? '#fff' : colors.text.primary }}>{c}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <Text style={[styles.label, { color: colors.text.secondary }]}>{t('amount')}</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { borderColor: colors.border, backgroundColor: colors.surface, color: colors.text.primary }]}
           value={amount}
           onChangeText={setAmount}
           keyboardType="decimal-pad"
           placeholder="0.00"
+          placeholderTextColor={colors.text.muted}
         />
 
-        <Text style={styles.label}>{t('paymentMethod')}</Text>
+        <Text style={[styles.label, { color: colors.text.secondary }]}>{t('paymentMethod')}</Text>
         <View style={styles.row}>
           {(['cash', 'bank_transfer'] as const).map((m) => (
             <TouchableOpacity
               key={m}
-              style={[styles.chip, paymentMethod === m && styles.chipActive]}
+              style={[
+                styles.chip,
+                { borderColor: colors.border, backgroundColor: colors.surface },
+                paymentMethod === m && { backgroundColor: colors.primary.DEFAULT, borderColor: colors.primary.DEFAULT },
+              ]}
               onPress={() => setPaymentMethod(m)}
             >
-              <Text style={paymentMethod === m ? styles.chipTextActive : styles.chipText}>
+              <Text style={{ color: paymentMethod === m ? '#fff' : colors.text.primary, textTransform: 'capitalize' }}>
                 {m.replace(/_/g, ' ')}
               </Text>
             </TouchableOpacity>
           ))}
         </View>
 
-        <Text style={styles.label}>{t('notes')}</Text>
+        <Text style={[styles.label, { color: colors.text.secondary }]}>{t('notes')}</Text>
         <TextInput
-          style={[styles.input, styles.textArea]}
+          style={[styles.input, styles.textArea, { borderColor: colors.border, backgroundColor: colors.surface, color: colors.text.primary }]}
           value={notes}
           onChangeText={setNotes}
           multiline
+          placeholderTextColor={colors.text.muted}
         />
 
         {mutation.isError && (
-          <Text style={styles.error}>{(mutation.error as Error).message}</Text>
+          <Text style={[styles.error, { color: colors.danger.DEFAULT }]}>{(mutation.error as Error).message}</Text>
         )}
 
         <TouchableOpacity
-          style={styles.btn}
+          style={[styles.btn, { backgroundColor: colors.primary.DEFAULT }]}
           disabled={!amount || mutation.isPending}
           onPress={() => mutation.mutate()}
         >
@@ -122,19 +167,15 @@ export default function AddIncomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
   scroll: { padding: spacing[4], paddingBottom: spacing[8] },
-  back: { color: colors.primary.DEFAULT, fontWeight: '600', marginBottom: spacing[3] },
+  back: { fontWeight: '600', marginBottom: spacing[3] },
   title: { fontSize: 24, fontWeight: '700', marginBottom: spacing[4] },
-  label: { fontSize: 14, fontWeight: '500', color: colors.text.secondary, marginBottom: spacing[1], marginTop: spacing[3] },
-  input: { borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: spacing[3], fontSize: 16, backgroundColor: colors.surface },
+  label: { fontSize: 14, fontWeight: '500', marginBottom: spacing[1], marginTop: spacing[3] },
+  input: { borderWidth: 1, borderRadius: radius.md, padding: spacing[3], fontSize: 16 },
   textArea: { minHeight: 88, textAlignVertical: 'top' },
   row: { flexDirection: 'row', gap: spacing[2], flexWrap: 'wrap' },
-  chip: { paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
-  chipActive: { backgroundColor: colors.primary.DEFAULT, borderColor: colors.primary.DEFAULT },
-  chipText: { textTransform: 'capitalize', color: colors.text.primary },
-  chipTextActive: { color: '#fff', textTransform: 'capitalize' },
-  btn: { backgroundColor: colors.primary.DEFAULT, borderRadius: radius.md, padding: spacing[4], marginTop: spacing[6], alignItems: 'center', minHeight: 52, justifyContent: 'center' },
+  chip: { paddingHorizontal: spacing[3], paddingVertical: spacing[2], borderRadius: radius.md, borderWidth: 1 },
+  btn: { borderRadius: radius.md, padding: spacing[4], marginTop: spacing[6], alignItems: 'center', minHeight: 52, justifyContent: 'center' },
   btnText: { color: '#fff', fontWeight: '600', fontSize: 16 },
-  error: { color: colors.danger.DEFAULT, marginTop: spacing[3] },
+  error: { marginTop: spacing[3] },
 });

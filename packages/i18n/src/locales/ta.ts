@@ -175,6 +175,11 @@ const ta = {
   taxDisclaimer: 'Confirm tax rates with your accountant',
   expenseCategories: 'Expense Categories',
   expenseCategoriesDesc: 'Add, rename, or hide categories used when recording expenses.',
+  incomeCategories: 'Income Categories',
+  incomeCategoriesDesc: 'Add, rename, or hide categories used when recording income.',
+  incomeCategoryNamePlaceholder: 'e.g. Tour Booking',
+  syncTemplateIncomeCategories: 'Add missing income template categories',
+  templateIncomeCategoriesSynced: 'Income template categories added',
   addCategory: 'Add Category',
   newCategory: 'New category',
   categoryNamePlaceholder: 'e.g. Office Supplies',
@@ -189,6 +194,8 @@ const ta = {
 
   incomeVsExpenses: 'Income vs Expenses',
   expenseByCategory: 'Expense by Category',
+  incomeByCategory: 'Income by Category',
+  noReportData: 'No data for this period',
   staffAttendanceReport: 'Staff Attendance',
   salaryReport: 'Salary Report',
   receivables: 'Receivables',
@@ -220,6 +227,7 @@ const ta = {
   goodEvening: 'மாலை வணக்கம்',
   signInToContinue: 'உங்கள் வணிகத்தை நிர்வகிக்க உள்நுழையுங்கள்',
   markAllRead: 'அனைத்தையும் படித்ததாகக் குறி',
+  privacyPolicy: 'Privacy Policy',
   noNotifications: 'அறிவிப்புகள் இல்லை',
   offlineMode: 'நீங்கள் offline — சேமித்த தரவு காட்டப்படுகிறது',
 

@@ -5,11 +5,12 @@ import { AppShell } from '@/components/app-shell';
 import { MetricCard, SummaryCard } from '@/components/metric-card';
 import { TransactionCard } from '@/components/transaction-card';
 import { InsightCard } from '@/components/insight-card';
-import { ExpenseCategoryChart, ChartCard } from '@/components/charts';
+import { ExpenseCategoryChart, ChartCard, CategoryBreakdownList } from '@/components/charts';
 import { EmptyState } from '@/components/empty-state';
 import { PremiumButton } from '@/components/premium-button';
 import { useTranslation } from '@/components/language-switcher';
 import { useAppStore } from '@/stores/app-store';
+import { useReportChartData } from '@/hooks/use-report-data';
 import {
   getDashboardSummary,
   getTransactions,
@@ -23,6 +24,8 @@ import { Plus, Receipt } from 'lucide-react';
 export default function FinancePage() {
   const { t } = useTranslation();
   const companyId = useAppStore((s) => s.companyId) ?? SAMPLE_COMPANY_ID;
+
+  const { expenseBreakdown, emptyMessage } = useReportChartData(companyId, 'monthly');
 
   const { data: summary } = useQuery({
     queryKey: queryKeys.dashboard(companyId, 'monthly'),
@@ -67,8 +70,11 @@ export default function FinancePage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ChartCard title={t('expenseByCategory')}>
-            <ExpenseCategoryChart />
+            <ExpenseCategoryChart data={expenseBreakdown} emptyMessage={emptyMessage} />
           </ChartCard>
+          <SummaryCard title={t('expenseByCategory')}>
+            <CategoryBreakdownList items={expenseBreakdown} emptyMessage={emptyMessage} />
+          </SummaryCard>
           <SummaryCard title="Recent Transactions">
             {transactions?.length ? (
               transactions.map((tx) => <TransactionCard key={tx.id} transaction={tx} />)

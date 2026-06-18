@@ -32,6 +32,13 @@ BizManager helps Sri Lankan small business owners manage daily operations from p
 - LKR currency formatting
 - Local payment methods (cash, bank, LankaQR, cheque)
 - Configurable VAT and SSCL settings
+- English, Sinhala, and Tamil UI
+
+**v1.8 highlights**
+- Income & expense category templates by business type
+- Dark mode on all screens
+- In-app notifications with approval/payroll/leave filters
+- Reports with category breakdown (web)
 
 Free trial · Small Office plan (up to 3 users)
 
@@ -43,7 +50,7 @@ business, accounting, payroll, expenses, Sri Lanka, SME, attendance, LKR
 - Android: Business
 
 ## Privacy policy URL
-(Add your URL before submit)
+https://accounting-one-fawn.vercel.app/privacy
 
 ## Support URL
 https://accounting-one-fawn.vercel.app
@@ -55,6 +62,7 @@ https://accounting-one-fawn.vercel.app
 4. Approvals screen
 5. AI assistant
 6. Mobile home screen
+7. Mobile notifications list (dark mode)
 
 ## Age rating
 4+

@@ -1,14 +1,18 @@
-import type { Customer, DashboardSummary, Supplier, Transaction } from '@bizmanager/types';
+import type { Customer, DashboardSummary, Supplier } from '@bizmanager/types';
+import type { CategoryChartItem } from '@bizmanager/utils';
 import { formatCurrency } from '@bizmanager/utils';
+import type { Language } from '@bizmanager/i18n';
 import { downloadBlob } from './download';
 
 export interface ReportExportData {
   companyName: string;
   periodLabel: string;
+  language?: Language;
   summary: DashboardSummary;
   customers: Customer[];
   suppliers: Supplier[];
-  transactions: Transaction[];
+  expenseBreakdown?: CategoryChartItem[];
+  incomeBreakdown?: CategoryChartItem[];
 }
 
 function escapeCsv(value: string | number) {
@@ -17,8 +21,18 @@ function escapeCsv(value: string | number) {
   return str;
 }
 
+function writeBreakdownSection(lines: string[], title: string, items?: CategoryChartItem[]) {
+  if (!items?.length) return;
+  lines.push('');
+  lines.push(title);
+  lines.push('Category,Amount (LKR)');
+  for (const item of items) {
+    lines.push(`${escapeCsv(item.label)},${item.value}`);
+  }
+}
+
 export function downloadReportCsv(data: ReportExportData) {
-  const { companyName, periodLabel, summary, customers, suppliers, transactions } = data;
+  const { companyName, periodLabel, summary, customers, suppliers, expenseBreakdown, incomeBreakdown } = data;
   const lines: string[] = [];
 
   lines.push('BizManager Business Report');
@@ -28,23 +42,12 @@ export function downloadReportCsv(data: ReportExportData) {
   lines.push(`Income,${summary.todayIncome}`);
   lines.push(`Expenses,${summary.todayExpenses}`);
   lines.push(`Net Profit,${summary.netProfit}`);
-  lines.push(`Cash Balance,${summary.cashBalance}`);
   lines.push(`Receivables,${summary.receivables}`);
   lines.push(`Payables,${summary.payables}`);
-  lines.push('');
-  lines.push('Date,Type,Category,Description,Amount,Status');
-  for (const tx of transactions) {
-    lines.push(
-      [
-        tx.transaction_date,
-        tx.type,
-        tx.category ?? '',
-        tx.description ?? '',
-        tx.amount,
-        tx.status,
-      ].map(escapeCsv).join(',')
-    );
-  }
+
+  writeBreakdownSection(lines, 'Expenses by Category', expenseBreakdown);
+  writeBreakdownSection(lines, 'Income by Category', incomeBreakdown);
+
   lines.push('');
   lines.push('Customer,Balance');
   for (const c of customers) {
@@ -62,16 +65,21 @@ export function downloadReportCsv(data: ReportExportData) {
 }
 
 export function buildReportWhatsAppSummary(data: ReportExportData): string {
-  const { companyName, periodLabel, summary } = data;
+  const { companyName, periodLabel, summary, expenseBreakdown, incomeBreakdown } = data;
+  const topExpense = expenseBreakdown?.[0];
+  const topIncome = incomeBreakdown?.[0];
   return [
     `${companyName} — ${periodLabel} Summary`,
     `Income: ${formatCurrency(summary.todayIncome)}`,
     `Expenses: ${formatCurrency(summary.todayExpenses)}`,
     `Net Profit: ${formatCurrency(summary.netProfit)}`,
-    `Cash: ${formatCurrency(summary.cashBalance)}`,
+    topExpense ? `Top expense: ${topExpense.label} (${formatCurrency(topExpense.value)})` : null,
+    topIncome ? `Top income: ${topIncome.label} (${formatCurrency(topIncome.value)})` : null,
     `Receivables: ${formatCurrency(summary.receivables)}`,
     `Payables: ${formatCurrency(summary.payables)}`,
     '',
     'BizManager',
-  ].join('\n');
+  ]
+    .filter(Boolean)
+    .join('\n');
 }

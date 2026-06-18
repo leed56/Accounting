@@ -1,4 +1,4 @@
-import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Switch } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Switch, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,6 +7,7 @@ import { useMobileTheme } from '@/hooks/useMobileTheme';
 import { useMobileStore } from '@/stores/app-store';
 import { spacing, radius } from '@bizmanager/design-tokens';
 import { languages } from '@bizmanager/i18n';
+import { PRIVACY_POLICY_URL } from '@/constants/urls';
 
 function SettingRow({
   label,
@@ -103,7 +104,18 @@ export default function SettingsScreen() {
           </SettingRow>
         </View>
 
-        <Text style={[styles.footer, { color: colors.text.muted }]}>BizManager v1.7</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text.muted }]}>Legal</Text>
+        <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+          <TouchableOpacity
+            style={[styles.linkRow, { borderBottomColor: colors.border }]}
+            onPress={() => Linking.openURL(PRIVACY_POLICY_URL)}
+          >
+            <Text style={[styles.rowLabel, { color: colors.text.primary }]}>{t('privacyPolicy')}</Text>
+            <Ionicons name="open-outline" size={18} color={colors.text.muted} />
+          </TouchableOpacity>
+        </View>
+
+        <Text style={[styles.footer, { color: colors.text.muted }]}>BizManager v1.8</Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -147,5 +159,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   langText: { fontSize: 14, fontWeight: '500' },
+  linkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[4],
+  },
   footer: { textAlign: 'center', fontSize: 12, marginTop: spacing[4] },
 });

@@ -6,6 +6,10 @@ import { createClient } from '@supabase/supabase-js';
 import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import {
+  getExpenseCategoriesForBusinessType,
+  getIncomeCategoriesForBusinessType,
+} from '@bizmanager/utils';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -79,7 +83,7 @@ async function seed() {
   const { error: staffErr } = await supabase.from('staff').insert(staff);
   if (staffErr && !staffErr.message.includes('duplicate')) console.warn('Staff:', staffErr.message);
 
-  const categories = (await import('@bizmanager/utils')).getExpenseCategoriesForBusinessType('travel_agency').map(
+  const categories = getExpenseCategoriesForBusinessType('travel_agency').map(
     (c) => ({ company_id: COMPANY_ID, ...c, is_default: true })
   );
   for (const cat of categories) {
@@ -92,6 +96,21 @@ async function seed() {
     if (existing) continue;
     const { error } = await supabase.from('expense_categories').insert(cat);
     if (error) console.warn('Category', cat.name_en, error.message);
+  }
+
+  const incomeCategories = getIncomeCategoriesForBusinessType('travel_agency').map(
+    (c) => ({ company_id: COMPANY_ID, ...c, is_default: true, is_hidden: false })
+  );
+  for (const cat of incomeCategories) {
+    const { data: existing } = await supabase
+      .from('income_categories')
+      .select('id')
+      .eq('company_id', COMPANY_ID)
+      .eq('name_en', cat.name_en)
+      .maybeSingle();
+    if (existing) continue;
+    const { error } = await supabase.from('income_categories').insert(cat);
+    if (error) console.warn('Income category', cat.name_en, error.message);
   }
 
   const customers = [

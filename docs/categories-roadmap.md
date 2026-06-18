@@ -41,15 +41,20 @@ Added 5 types for high-volume SL micro businesses not covered by generic `servic
 - Friendly setup labels + descriptions (not gov sector codes)
 - See [business-types-strategy.md](./business-types-strategy.md)
 
-## Step 4 — Income categories (next)
+## Step 4 — Income categories ✅
 
-- Separate list for income (Tour Booking, Transfer, etc.)
-- Mirror expense pattern on income add form
+- Separate list per business type (Tour Booking, Transfer, etc.)
+- Settings → **Manage income categories** (add / rename / hide)
+- Add Income form category picker (web + mobile)
+- Seeded on company setup and `pnpm db:seed`
+- Migration: `income_categories` table + RLS
 
-## Step 5 — Reports polish (later)
+## Step 5 — Reports polish ✅
 
-- Category breakdown chart uses full list
-- SI/TA labels on reports
+- Category breakdown charts use live transaction data for the selected period
+- Full company category list with SI/TA labels via `getCategoryName`
+- Income + expense breakdown on Reports page, Finance page, and exports (PDF/CSV/WhatsApp)
+- Income vs expenses trend chart wired to real data (dashboard + reports)
 
 ---
 

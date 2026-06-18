@@ -11,7 +11,7 @@ import type {
 import { calculateRiskLevel, requiresOwnerApproval, formatCurrency } from '@bizmanager/utils';
 import { getSupabase } from './client';
 import { getCurrentProfile } from './auth';
-import { getCompany, getAccounts } from './queries';
+import { getCompany, getAccounts, isDemoMode } from './queries';
 
 async function getContext() {
   const profile = await getCurrentProfile();
@@ -82,7 +82,7 @@ export async function createIncome(input: IncomeInput) {
     .insert({
       company_id: profile.company_id,
       type: 'income',
-      category: 'Income',
+      category: input.category,
       amount: input.amount,
       payment_method: input.paymentMethod,
       account_id: input.accountId || null,
@@ -681,6 +681,7 @@ export async function markPayrollPaid(runId: string) {
 }
 
 export async function markNotificationRead(notificationId: string) {
+  if (isDemoMode()) return;
   const { profile } = await getContext();
   const supabase = getSupabase();
   await supabase
@@ -691,6 +692,7 @@ export async function markNotificationRead(notificationId: string) {
 }
 
 export async function markAllNotificationsRead() {
+  if (isDemoMode()) return;
   const { profile } = await getContext();
   const supabase = getSupabase();
   await supabase
@@ -800,6 +802,114 @@ export async function setExpenseCategoryHidden(id: string, hidden: boolean) {
     profile.id,
     hidden ? 'hide' : 'show',
     'expense_category',
+    id,
+    existing,
+    data
+  );
+  return data;
+}
+
+export async function createIncomeCategory(input: ExpenseCategoryInput) {
+  const { profile } = await getContext();
+  if (profile.role !== 'owner') throw new Error('Only owner can manage income categories');
+  const supabase = getSupabase();
+  const name = input.name_en.trim();
+
+  const { data: duplicate } = await supabase
+    .from('income_categories')
+    .select('id')
+    .eq('company_id', profile.company_id)
+    .eq('name_en', name)
+    .maybeSingle();
+  if (duplicate) throw new Error('A category with this name already exists');
+
+  const { data, error } = await supabase
+    .from('income_categories')
+    .insert({
+      company_id: profile.company_id,
+      name_en: name,
+      icon: 'tag',
+      color: '#16A34A',
+      is_default: false,
+      is_hidden: false,
+    })
+    .select()
+    .single();
+  if (error) throw error;
+  await createAuditLog(profile.company_id, profile.id, 'create', 'income_category', data.id, undefined, data);
+  return data;
+}
+
+export async function updateIncomeCategory(id: string, input: ExpenseCategoryInput) {
+  const { profile } = await getContext();
+  if (profile.role !== 'owner') throw new Error('Only owner can manage income categories');
+  const supabase = getSupabase();
+  const name = input.name_en.trim();
+
+  const { data: existing, error: fetchErr } = await supabase
+    .from('income_categories')
+    .select('*')
+    .eq('id', id)
+    .eq('company_id', profile.company_id)
+    .single();
+  if (fetchErr || !existing) throw new Error('Category not found');
+
+  if (name !== existing.name_en) {
+    const { data: duplicate } = await supabase
+      .from('income_categories')
+      .select('id')
+      .eq('company_id', profile.company_id)
+      .eq('name_en', name)
+      .neq('id', id)
+      .maybeSingle();
+    if (duplicate) throw new Error('A category with this name already exists');
+
+    await supabase
+      .from('transactions')
+      .update({ category: name })
+      .eq('company_id', profile.company_id)
+      .eq('type', 'income')
+      .eq('category', existing.name_en);
+  }
+
+  const { data, error } = await supabase
+    .from('income_categories')
+    .update({ name_en: name })
+    .eq('id', id)
+    .eq('company_id', profile.company_id)
+    .select()
+    .single();
+  if (error) throw error;
+  await createAuditLog(profile.company_id, profile.id, 'update', 'income_category', id, existing, data);
+  return data;
+}
+
+export async function setIncomeCategoryHidden(id: string, hidden: boolean) {
+  const { profile } = await getContext();
+  if (profile.role !== 'owner') throw new Error('Only owner can manage income categories');
+  const supabase = getSupabase();
+
+  const { data: existing, error: fetchErr } = await supabase
+    .from('income_categories')
+    .select('*')
+    .eq('id', id)
+    .eq('company_id', profile.company_id)
+    .single();
+  if (fetchErr || !existing) throw new Error('Category not found');
+
+  const { data, error } = await supabase
+    .from('income_categories')
+    .update({ is_hidden: hidden })
+    .eq('id', id)
+    .eq('company_id', profile.company_id)
+    .select()
+    .single();
+  if (error) throw error;
+  await createAuditLog(
+    profile.company_id,
+    profile.id,
+    hidden ? 'hide' : 'show',
+    'income_category',
     id,
     existing,
     data

@@ -1,13 +1,14 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import { companySetupSchema, type BusinessType } from '@bizmanager/types';
-import { getExpenseCategoriesForBusinessType } from '@bizmanager/utils';
+import { getExpenseCategoriesForBusinessType, getIncomeCategoriesForBusinessType } from '@bizmanager/utils';
 
 async function seedExpenseCategories(
   admin: SupabaseClient,
   companyId: string,
   businessType: BusinessType
-) {  const templates = getExpenseCategoriesForBusinessType(businessType);
+) {
+  const templates = getExpenseCategoriesForBusinessType(businessType);
   const { data: existing } = await admin
     .from('expense_categories')
     .select('name_en')
@@ -27,6 +28,34 @@ async function seedExpenseCategories(
     }));
   if (toInsert.length === 0) return;
   const { error } = await admin.from('expense_categories').insert(toInsert);
+  if (error) throw error;
+}
+
+async function seedIncomeCategories(
+  admin: SupabaseClient,
+  companyId: string,
+  businessType: BusinessType
+) {
+  const templates = getIncomeCategoriesForBusinessType(businessType);
+  const { data: existing } = await admin
+    .from('income_categories')
+    .select('name_en')
+    .eq('company_id', companyId);
+  const existingNames = new Set((existing ?? []).map((r: { name_en: string }) => r.name_en));
+  const toInsert = templates
+    .filter((c) => !existingNames.has(c.name_en))
+    .map((c) => ({
+      company_id: companyId,
+      name_en: c.name_en,
+      name_si: c.name_si,
+      name_ta: c.name_ta,
+      icon: c.icon,
+      color: c.color,
+      is_default: true,
+      is_hidden: false,
+    }));
+  if (toInsert.length === 0) return;
+  const { error } = await admin.from('income_categories').insert(toInsert);
   if (error) throw error;
 }
 
@@ -124,6 +153,7 @@ export async function POST(req: NextRequest) {
 
   try {
     await seedExpenseCategories(admin, company.id, setup.businessType);
+    await seedIncomeCategories(admin, company.id, setup.businessType);
   } catch (e) {
     return NextResponse.json(
       { error: e instanceof Error ? e.message : 'Could not seed categories' },

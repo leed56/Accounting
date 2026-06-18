@@ -1,20 +1,24 @@
 import { jsPDF } from 'jspdf';
-import type { Customer, DashboardSummary, Supplier, Transaction } from '@bizmanager/types';
+import type { Customer, DashboardSummary, Supplier } from '@bizmanager/types';
+import type { CategoryChartItem } from '@bizmanager/utils';
 import { formatCurrency } from '@bizmanager/utils';
+import type { Language } from '@bizmanager/i18n';
 import { downloadBlob } from './download';
 
 export interface ReportExportData {
   companyName: string;
   periodLabel: string;
+  language?: Language;
   summary: DashboardSummary;
   customers: Customer[];
   suppliers: Supplier[];
-  transactions: Transaction[];
+  expenseBreakdown?: CategoryChartItem[];
+  incomeBreakdown?: CategoryChartItem[];
 }
 
 export function downloadReportPdf(data: ReportExportData) {
   const doc = new jsPDF();
-  const { companyName, periodLabel, summary, customers, suppliers, transactions } = data;
+  const { companyName, periodLabel, summary, customers, suppliers, expenseBreakdown, incomeBreakdown } = data;
 
   doc.setFontSize(18);
   doc.text(companyName, 20, 24);
@@ -35,24 +39,28 @@ export function downloadReportPdf(data: ReportExportData) {
   metric('Income', formatCurrency(summary.todayIncome));
   metric('Expenses', formatCurrency(summary.todayExpenses));
   metric('Net Profit', formatCurrency(summary.netProfit));
-  metric('Cash Balance', formatCurrency(summary.cashBalance));
   metric('Receivables', formatCurrency(summary.receivables));
   metric('Payables', formatCurrency(summary.payables));
 
-  y += 6;
-  doc.setFont('helvetica', 'bold');
-  doc.text('Recent Transactions', 20, y);
-  y += 8;
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(10);
-
-  for (const tx of transactions.slice(0, 12)) {
-    if (y > 270) break;
-    const label = `${tx.transaction_date} · ${tx.type} · ${tx.description ?? tx.category ?? '—'}`;
-    doc.text(label.slice(0, 55), 20, y);
-    doc.text(formatCurrency(tx.amount), 190, y, { align: 'right' });
+  const writeBreakdown = (title: string, items?: CategoryChartItem[]) => {
+    if (!items?.length || y > 250) return;
+    y += 6;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.text(title, 20, y);
     y += 8;
-  }
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    for (const item of items.slice(0, 8)) {
+      if (y > 280) break;
+      doc.text(item.label.slice(0, 40), 20, y);
+      doc.text(formatCurrency(item.value), 190, y, { align: 'right' });
+      y += 8;
+    }
+  };
+
+  writeBreakdown('Expenses by Category', expenseBreakdown);
+  writeBreakdown('Income by Category', incomeBreakdown);
 
   y += 6;
   if (y < 240) {

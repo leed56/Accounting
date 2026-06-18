@@ -12,17 +12,20 @@ import { IncomeExpenseChart, ChartCard } from '@/components/charts';
 import { useTranslation } from '@/components/language-switcher';
 import { useAppStore } from '@/stores/app-store';
 import { usePermissions } from '@/hooks/use-permissions';
+import { useReportChartData } from '@/hooks/use-report-data';
 import { WelcomeHero } from '@/components/welcome-hero';
 import {
   getDashboardSummary,
   getTransactions,
   getPaymentRequests,
   getCompany,
+  getExpenseCategories,
+  getIncomeCategories,
   queryKeys,
   SAMPLE_COMPANY_ID,
 } from '@bizmanager/supabase-client';
 import { getDailyInsight } from '@bizmanager/ai';
-import { formatCurrency } from '@bizmanager/utils';
+import { formatCurrency, resolveTransactionCategoryLabel } from '@bizmanager/utils';
 import Link from 'next/link';
 import {
   TrendingUp,
@@ -37,6 +40,8 @@ export default function DashboardPage() {
   const { t, language } = useTranslation();
   const companyId = useAppStore((s) => s.companyId) ?? SAMPLE_COMPANY_ID;
   const { isReadOnly } = usePermissions();
+  const period = useAppStore((s) => s.period);
+  const { incomeTrend, emptyMessage, incomeLabel, expenseLabel } = useReportChartData(companyId, period);
 
   const { data: summary, isLoading } = useQuery({
     queryKey: queryKeys.dashboard(companyId, 'daily'),
@@ -51,6 +56,16 @@ export default function DashboardPage() {
   const { data: transactions } = useQuery({
     queryKey: queryKeys.transactions(companyId, { limit: '5' }),
     queryFn: () => getTransactions(companyId, { limit: 5 }),
+  });
+
+  const { data: expenseCategories } = useQuery({
+    queryKey: queryKeys.categories(companyId),
+    queryFn: () => getExpenseCategories(companyId),
+  });
+
+  const { data: incomeCategories } = useQuery({
+    queryKey: queryKeys.incomeCategories(companyId),
+    queryFn: () => getIncomeCategories(companyId),
   });
 
   const { data: approvals } = useQuery({
@@ -145,7 +160,12 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
             <ChartCard title={t('incomeVsExpenses')}>
-              <IncomeExpenseChart />
+              <IncomeExpenseChart
+                data={incomeTrend}
+                incomeLabel={incomeLabel}
+                expenseLabel={expenseLabel}
+                emptyMessage={emptyMessage}
+              />
             </ChartCard>
           </div>
           <SummaryCard title={t('pendingApprovals')}>
@@ -162,7 +182,16 @@ export default function DashboardPage() {
 
         <SummaryCard title={t('recentActivity')}>
           {transactions?.map((tx) => (
-            <TransactionCard key={tx.id} transaction={tx} />
+            <TransactionCard
+              key={tx.id}
+              transaction={tx}
+              categoryLabel={resolveTransactionCategoryLabel(
+                tx,
+                expenseCategories ?? [],
+                incomeCategories ?? [],
+                language
+              )}
+            />
           ))}
         </SummaryCard>
       </div>
