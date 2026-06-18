@@ -360,6 +360,12 @@ OPENAI_API_KEY               # optional
 - Full dark mode polish (sidebar, charts, notifications)
 - Docs: `docs/sprint-15.md`
 
+### Sprint 16 — v1.7 Mobile Settings
+- Mobile settings screen (language, dark mode, notification prefs)
+- Persisted prefs via AsyncStorage
+- Dark theme on home, search, tab bar
+- Docs: `docs/sprint-16.md`
+
 ### Post-MVP roadmap — status
 | Version | Status |
 |---------|--------|
@@ -369,10 +375,11 @@ OPENAI_API_KEY               # optional
 | v1.4 Premium polish | ✅ Done |
 | v1.5 Search, prefs, dark mode, accountant | ✅ Done |
 | v1.6 Mobile search, notification filter, dark polish | ✅ Done |
+| v1.7 Mobile settings + persisted dark/prefs | ✅ Done |
 
-### Next — v1.7
-- Mobile dark mode + notification prefs (persisted)
-- Mobile settings screen
+### Next — v1.8
+- Dark theme on all mobile tabs
+- Mobile notifications list
 - Phone OTP auth (optional)
 - App Store submit (`eas init` → `pnpm mobile:build`)
 
@@ -391,5 +398,5 @@ OPENAI_API_KEY               # optional
 - [Architecture](./architecture.md)
 - [RLS Policies](./rls-policies.md)
 - [Vercel Deploy](./vercel-deploy.md)
-- [Sprint 9](./sprint-9.md) · [Sprint 10](./sprint-10.md) · [Sprint 11](./sprint-11.md) · [Sprint 12](./sprint-12.md) · [Sprint 13](./sprint-13.md) · [Sprint 14](./sprint-14.md) · [Sprint 15](./sprint-15.md)
+- [Sprint 9](./sprint-9.md) · [Sprint 10](./sprint-10.md) · [Sprint 11](./sprint-11.md) · [Sprint 12](./sprint-12.md) · [Sprint 13](./sprint-13.md) · [Sprint 14](./sprint-14.md) · [Sprint 15](./sprint-15.md) · [Sprint 16](./sprint-16.md)
 - [App Store Listing](./app-store-listing.md)

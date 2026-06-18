@@ -13,9 +13,9 @@
 2. **Web Settings** — turn off "Payment approval alerts" → bell shows fewer items (payroll/leave still visible if enabled)
 3. **Dark mode** — toggle on → sidebar, charts, and notification panel use dark styling
 
-## Next (v1.7)
+## Next (v1.8)
 
-- Mobile dark mode + notification prefs (persisted)
-- Mobile settings screen
+- Apply dark theme to all mobile tabs
+- Mobile notifications list (filtered by prefs)
 - Phone OTP auth (v1.3 backlog)
 - App Store submit (`eas init` → `pnpm mobile:build`)

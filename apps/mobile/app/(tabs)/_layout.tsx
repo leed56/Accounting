@@ -1,15 +1,22 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '@bizmanager/design-tokens';
+import { useMobileTheme } from '@/hooks/useMobileTheme';
 
 export default function TabLayout() {
+  const { colors } = useMobileTheme();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.primary.DEFAULT,
         tabBarInactiveTintColor: colors.text.muted,
-        tabBarStyle: { paddingBottom: 4, height: 60 },
+        tabBarStyle: {
+          paddingBottom: 4,
+          height: 60,
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
+        },
         tabBarLabelStyle: { fontSize: 11, fontWeight: '500' },
       }}
     >
