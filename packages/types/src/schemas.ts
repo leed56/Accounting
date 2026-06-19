@@ -230,6 +230,19 @@ export const expenseCategorySchema = z.object({
   name_en: z.string().min(1, 'Name is required').max(80),
 });
 
+const rolePermissionFlagsSchema = z.object({
+  can_write: z.boolean(),
+  can_approve: z.boolean(),
+  can_invite: z.boolean(),
+  can_manage_settings: z.boolean(),
+});
+
+export const rolePermissionsSchema = z.object({
+  manager: rolePermissionFlagsSchema,
+  accountant: rolePermissionFlagsSchema,
+  staff: rolePermissionFlagsSchema,
+});
+
 export const settingsSchema = z.object({
   name: z.string().min(2),
   ownerName: z.string().optional().nullable(),
@@ -242,6 +255,7 @@ export const settingsSchema = z.object({
   serviceChargeRate: z.coerce.number().min(0).max(100),
   approvalAutoLimit: z.coerce.number().min(0),
   staffModuleEnabled: z.boolean(),
+  rolePermissions: rolePermissionsSchema.optional(),
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;

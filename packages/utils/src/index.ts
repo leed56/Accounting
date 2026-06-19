@@ -10,3 +10,4 @@ export * from './payment-meta';
 export * from './whatsapp';
 export * from './pdf-labels';
 export * from './business-labels';
+export * from './role-permissions';

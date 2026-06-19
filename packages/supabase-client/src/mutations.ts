@@ -8,7 +8,7 @@ import type {
   SupplierInput,
   SupplierUpdateInput,
 } from '@bizmanager/types';
-import { calculateRiskLevel, requiresOwnerApproval, formatCurrency, buildPaymentMetaFields, MULTI_VENDOR_SETTLEMENT_CATEGORY } from '@bizmanager/utils';
+import { calculateRiskLevel, requiresOwnerApproval, formatCurrency, buildPaymentMetaFields, MULTI_VENDOR_SETTLEMENT_CATEGORY, parseCompanyRolePermissions, hasPermission } from '@bizmanager/utils';
 import { getSupabase } from './client';
 import { getCurrentProfile } from './auth';
 import { getCompany, getAccounts, isDemoMode } from './queries';
@@ -244,8 +244,11 @@ export async function processApproval(
   action: 'approve' | 'reject',
   comment?: string
 ) {
-  const { profile } = await getContext();
-  if (profile.role !== 'owner') throw new Error('Only owner can approve payments');
+  const { profile, company } = await getContext();
+  const perms = parseCompanyRolePermissions(company?.role_permissions);
+  if (!hasPermission(profile.role, perms, 'can_approve')) {
+    throw new Error('You do not have permission to approve payments');
+  }
 
   const supabase = getSupabase();
   const { data: request, error: fetchErr } = await supabase
@@ -479,8 +482,11 @@ export async function updateSupplier(id: string, input: SupplierUpdateInput) {
 }
 
 export async function updateCompany(input: SettingsInput) {
-  const { profile } = await getContext();
-  if (profile.role !== 'owner') throw new Error('Only owner can update company settings');
+  const { profile, company } = await getContext();
+  const perms = parseCompanyRolePermissions(company?.role_permissions);
+  if (!hasPermission(profile.role, perms, 'can_manage_settings')) {
+    throw new Error('You do not have permission to update company settings');
+  }
   const supabase = getSupabase();
 
   const { data: existing } = await supabase
@@ -504,6 +510,7 @@ export async function updateCompany(input: SettingsInput) {
       service_charge_rate: input.serviceChargeRate,
       approval_auto_limit: input.approvalAutoLimit,
       staff_module_enabled: input.staffModuleEnabled,
+      ...(input.rolePermissions ? { role_permissions: input.rolePermissions } : {}),
     })
     .eq('id', profile.company_id)
     .select()

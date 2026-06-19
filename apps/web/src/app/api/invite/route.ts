@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
 import { inviteSchema } from '@bizmanager/types';
+import { parseCompanyRolePermissions, hasPermission } from '@bizmanager/utils';
 
 function getAppLoginUrl(req: NextRequest) {
   const configured = process.env.NEXT_PUBLIC_APP_URL;
@@ -47,8 +48,19 @@ export async function POST(req: NextRequest) {
     .eq('auth_user_id', user.id)
     .single();
 
-  if (!profile || profile.role !== 'owner') {
-    return NextResponse.json({ error: 'Only owner can invite team members' }, { status: 403 });
+  const { data: companyRow } = await admin
+    .from('companies')
+    .select('max_users, role_permissions')
+    .eq('id', profile?.company_id ?? '')
+    .maybeSingle();
+
+  if (!profile) {
+    return NextResponse.json({ error: 'Profile not found' }, { status: 403 });
+  }
+
+  const perms = parseCompanyRolePermissions(companyRow?.role_permissions);
+  if (!hasPermission(profile.role, perms, 'can_invite')) {
+    return NextResponse.json({ error: 'You do not have permission to invite team members' }, { status: 403 });
   }
 
   const { email, fullName, role } = parsed.data;
@@ -58,12 +70,6 @@ export async function POST(req: NextRequest) {
     .select('id')
     .eq('company_id', profile.company_id)
     .eq('is_active', true);
-
-  const { data: companyRow } = await admin
-    .from('companies')
-    .select('max_users')
-    .eq('id', profile.company_id)
-    .single();
 
   const maxUsers = companyRow?.max_users ?? 3;
 

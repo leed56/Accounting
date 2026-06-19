@@ -14,6 +14,19 @@ import type {
   UserRole,
 } from './enums';
 
+export interface RolePermissionFlagsJson {
+  can_write: boolean;
+  can_approve: boolean;
+  can_invite: boolean;
+  can_manage_settings: boolean;
+}
+
+export interface CompanyRolePermissionsJson {
+  manager: RolePermissionFlagsJson;
+  accountant: RolePermissionFlagsJson;
+  staff: RolePermissionFlagsJson;
+}
+
 export interface Company {
   id: string;
   name: string;
@@ -32,6 +45,7 @@ export interface Company {
   trial_ends_at: string | null;
   max_users: number;
   timezone: string;
+  role_permissions: CompanyRolePermissionsJson | null;
   created_at: string;
 }
 

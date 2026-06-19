@@ -186,6 +186,7 @@ export async function getCompany(companyId: string): Promise<Company | null> {
       trial_ends_at: new Date(Date.now() + 30 * 86400000).toISOString(),
       max_users: 3,
       timezone: 'Asia/Colombo',
+      role_permissions: null,
       created_at: new Date().toISOString(),
     };
   }

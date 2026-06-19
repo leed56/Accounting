@@ -14,6 +14,8 @@ import { ExpenseCategoriesManager } from '@/components/expense-categories-manage
 import { IncomeCategoriesManager } from '@/components/income-categories-manager';
 import { useToast } from '@/components/toast';
 import { usePermissions } from '@/hooks/use-permissions';
+import { RolePermissionsEditor, jsonToRolePermissions, rolePermissionsToJson } from '@/components/role-permissions-editor';
+import { DEFAULT_ROLE_PERMISSIONS, type CompanyRolePermissions } from '@bizmanager/utils';
 import { useAppStore } from '@/stores/app-store';
 import { ChangePasswordForm } from '@/components/change-password-form';
 import { useAuth } from '@/components/auth-provider';
@@ -40,9 +42,11 @@ export default function SettingsPage() {
   const setNotificationPrefs = useAppStore((s) => s.setNotificationPrefs);
   const { canManageSettings, canInvite } = usePermissions();
   const { profile } = useAuth();
-  const isOwner = canManageSettings;
   const [inviteLoading, setInviteLoading] = useState(false);
   const [lastTempPassword, setLastTempPassword] = useState<string | null>(null);
+  const [rolePermissions, setRolePermissions] = useState<CompanyRolePermissions>(
+    structuredClone(DEFAULT_ROLE_PERMISSIONS)
+  );
 
   const { data: company } = useQuery({
     queryKey: queryKeys.company(companyId),
@@ -86,6 +90,7 @@ export default function SettingsPage() {
         approvalAutoLimit: company.approval_auto_limit,
         staffModuleEnabled: company.staff_module_enabled,
       });
+      setRolePermissions(jsonToRolePermissions(company.role_permissions));
     }
   }, [company, reset]);
 
@@ -134,7 +139,10 @@ export default function SettingsPage() {
 
   return (
     <AppShell title={t('settings')}>
-      <form onSubmit={handleSubmit((d) => saveMutation.mutate(d))} className="max-w-2xl space-y-6">
+      <form onSubmit={handleSubmit((d) => saveMutation.mutate({
+        ...d,
+        rolePermissions: rolePermissionsToJson(rolePermissions),
+      }))} className="max-w-2xl space-y-6">
         <SummaryCard title={t('businessProfile')}>
           <div className="space-y-4">
             <FormInput label={t('businessName')} {...register('name')} />
@@ -153,11 +161,19 @@ export default function SettingsPage() {
         </SummaryCard>
 
         <SummaryCard title={t('expenseCategories')}>
-          <ExpenseCategoriesManager companyId={companyId} canEdit={isOwner} />
+          <ExpenseCategoriesManager companyId={companyId} canEdit={canManageSettings} />
         </SummaryCard>
 
         <SummaryCard title={t('incomeCategories')}>
-          <IncomeCategoriesManager companyId={companyId} canEdit={isOwner} />
+          <IncomeCategoriesManager companyId={companyId} canEdit={canManageSettings} />
+        </SummaryCard>
+
+        <SummaryCard title={t('rolePermissions')}>
+          <RolePermissionsEditor
+            value={rolePermissions}
+            onChange={setRolePermissions}
+            disabled={!canManageSettings}
+          />
         </SummaryCard>
 
         <SummaryCard title={t('userRoles')}>
@@ -197,7 +213,7 @@ export default function SettingsPage() {
               )}
             </div>
           ) : (
-            <p className="text-sm text-gray-500">Only the owner can invite team members.</p>
+            <p className="text-sm text-gray-500">{t('noInvitePermission')}</p>
           )}
         </SummaryCard>
 
@@ -289,11 +305,11 @@ export default function SettingsPage() {
           </SummaryCard>
         )}
 
-        <PremiumButton type="submit" loading={saveMutation.isPending} disabled={!isOwner}>
+        <PremiumButton type="submit" loading={saveMutation.isPending} disabled={!canManageSettings}>
           {t('save')}
         </PremiumButton>
-        {!isOwner && (
-          <p className="text-sm text-gray-500">Only the owner can change company settings.</p>
+        {!canManageSettings && (
+          <p className="text-sm text-gray-500">{t('noSettingsPermission')}</p>
         )}
       </form>
     </AppShell>

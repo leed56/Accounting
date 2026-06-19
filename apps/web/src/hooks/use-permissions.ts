@@ -1,25 +1,31 @@
 'use client';
 
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/components/auth-provider';
+import { useAppStore } from '@/stores/app-store';
+import { getCompany, queryKeys, SAMPLE_COMPANY_ID } from '@bizmanager/supabase-client';
+import { parseCompanyRolePermissions, resolvePermissions } from '@bizmanager/utils';
 import type { UserRole } from '@bizmanager/types';
 
 export function usePermissions() {
   const { profile } = useAuth();
+  const companyId = useAppStore((s) => s.companyId) ?? SAMPLE_COMPANY_ID;
   const role = (profile?.role ?? 'staff') as UserRole;
 
-  const canWrite = role === 'owner' || role === 'manager';
-  const canApprove = role === 'owner';
-  const canManageSettings = role === 'owner';
-  const canInvite = role === 'owner';
-  const isReadOnly = role === 'accountant';
+  const { data: company } = useQuery({
+    queryKey: queryKeys.company(companyId),
+    queryFn: () => getCompany(companyId),
+    enabled: !!companyId,
+  });
+
+  const permissions = parseCompanyRolePermissions(company?.role_permissions);
+  const resolved = resolvePermissions(role, permissions);
 
   return {
     role,
-    canWrite,
-    canApprove,
-    canManageSettings,
-    canInvite,
-    isReadOnly,
+    permissions,
+    ...resolved,
     isAccountant: role === 'accountant',
+    isOwner: role === 'owner',
   };
 }

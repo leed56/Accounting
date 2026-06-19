@@ -247,6 +247,18 @@ const si = {
   vendorCommissionReport: 'Commission by Vendor',
   grossSales: 'Gross Sales',
   calculateCommission: 'Calculate Commission',
+
+  rolePermissions: 'Team Permissions',
+  rolePermissionsDesc: 'Manager සහ Accountant roles customize කරන්න. Sri Lanka: chief accountantට admin access අවශ්‍ය විය හැක.',
+  rolePermissionsOwnerNote: 'Ownerට සැමවිට full access. Changes team එකට immediately apply වේ.',
+  presetChiefAccountant: 'Chief Accountant (Admin)',
+  presetStandardRoles: 'Reset to Standard',
+  permCanWrite: 'Record income & expenses',
+  permCanApprove: 'Approve payments & payroll',
+  permCanInvite: 'Invite team members',
+  permCanManageSettings: 'Manage settings & categories',
+  noInvitePermission: 'Your role cannot invite team members.',
+  noSettingsPermission: 'Your role cannot change company settings.',
   noReports: 'වාර්තා දත්ත නැත',
   noAiInsights: 'තීක්ෂ්ණ බuddhi නැත',
 

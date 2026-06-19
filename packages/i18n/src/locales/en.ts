@@ -257,6 +257,18 @@ const en = {
   vendorCommissionReport: 'Commission by Vendor',
   grossSales: 'Gross Sales',
   calculateCommission: 'Calculate Commission',
+
+  rolePermissions: 'Team Permissions',
+  rolePermissionsDesc: 'Customize what Manager and Accountant roles can do. Common in Sri Lanka: chief accountant may need full admin access.',
+  rolePermissionsOwnerNote: 'Owner always has full access. Changes apply to your whole team immediately.',
+  presetChiefAccountant: 'Chief Accountant (Admin)',
+  presetStandardRoles: 'Reset to Standard',
+  permCanWrite: 'Record income & expenses',
+  permCanApprove: 'Approve payments & payroll',
+  permCanInvite: 'Invite team members',
+  permCanManageSettings: 'Manage settings & categories',
+  noInvitePermission: 'Your role cannot invite team members. Ask the owner to enable this in Team Permissions.',
+  noSettingsPermission: 'Your role cannot change company settings.',
   noReports: 'No report data',
   noAiInsights: 'No insights yet',
 

@@ -247,6 +247,18 @@ const ta = {
   vendorCommissionReport: 'Commission by Vendor',
   grossSales: 'Gross Sales',
   calculateCommission: 'Calculate Commission',
+
+  rolePermissions: 'Team Permissions',
+  rolePermissionsDesc: 'Manager மற்றும் Accountant roles customize செய்யுங்கள்.',
+  rolePermissionsOwnerNote: 'Owner-க்கு எப்போதும் full access.',
+  presetChiefAccountant: 'Chief Accountant (Admin)',
+  presetStandardRoles: 'Reset to Standard',
+  permCanWrite: 'Record income & expenses',
+  permCanApprove: 'Approve payments & payroll',
+  permCanInvite: 'Invite team members',
+  permCanManageSettings: 'Manage settings & categories',
+  noInvitePermission: 'Your role cannot invite team members.',
+  noSettingsPermission: 'Your role cannot change company settings.',
   noReports: 'அறிக்கை தரவு இல்லை',
   noAiInsights: 'நுண்ணறிவு இல்லை',
 
