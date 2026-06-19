@@ -52,35 +52,48 @@ export default function SuppliersPage() {
             variant="expense"
             className="max-w-xs"
           />
-          <Link href="/suppliers/add">
-            <PremiumButton>
-              <Plus className="h-4 w-4" />
-              {addSupplierTitle}
-            </PremiumButton>
-          </Link>
+          <div className="flex gap-2 flex-wrap">
+            {isMultiVendor && (
+              <Link href="/suppliers/settle">
+                <PremiumButton variant="secondary">{t('batchSettlement')}</PremiumButton>
+              </Link>
+            )}
+            <Link href="/suppliers/add">
+              <PremiumButton>
+                <Plus className="h-4 w-4" />
+                {addSupplierTitle}
+              </PremiumButton>
+            </Link>
+          </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {suppliers?.map((s) => (
-            <div key={s.id} className="card">
-              <div className="flex justify-between items-start gap-2">
-                <h3 className="font-semibold text-gray-900">{s.name}</h3>
-                <Link href={`/suppliers/${s.id}/edit`} className="text-primary hover:text-primary-dark">
-                  <Pencil className="h-4 w-4" />
+            <div key={s.id} className="card hover:shadow-md transition-shadow">
+              <Link href={`/suppliers/${s.id}`} className="block">
+                <div className="flex justify-between items-start gap-2">
+                  <h3 className="font-semibold text-gray-900">{s.name}</h3>
+                </div>
+                <p className="text-2xl font-bold text-expense mt-2">{formatCurrency(s.current_balance)}</p>
+                {s.phone && <p className="text-sm text-gray-500 mt-2">{s.phone}</p>}
+              </Link>
+              <div className="flex gap-2 mt-3">
+                <Link href={`/suppliers/${s.id}/edit`} className="flex-1">
+                  <PremiumButton variant="secondary" className="w-full">
+                    <Pencil className="h-4 w-4" /> {t('edit')}
+                  </PremiumButton>
                 </Link>
+                {s.current_balance > 0 && (
+                  <PremiumButton
+                    type="button"
+                    variant="secondary"
+                    className="flex-1"
+                    onClick={() => sendReminder(s)}
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    WhatsApp
+                  </PremiumButton>
+                )}
               </div>
-              <p className="text-2xl font-bold text-expense mt-2">{formatCurrency(s.current_balance)}</p>
-              {s.phone && <p className="text-sm text-gray-500 mt-2">{s.phone}</p>}
-              {s.current_balance > 0 && (
-                <PremiumButton
-                  type="button"
-                  variant="secondary"
-                  className="mt-3 w-full"
-                  onClick={() => sendReminder(s)}
-                >
-                  <MessageCircle className="h-4 w-4" />
-                  {t('sendWhatsAppReminder')}
-                </PremiumButton>
-              )}
             </div>
           ))}
         </div>

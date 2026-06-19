@@ -23,6 +23,10 @@ import {
   Sparkles,
   X,
   FileText,
+  Package,
+  BookOpen,
+  Landmark,
+  Building,
 } from 'lucide-react';
 
 const mainNav = [
@@ -32,6 +36,13 @@ const mainNav = [
   { href: '/cheques', labelKey: 'cheques' as const, icon: FileText },
   { href: '/customers', labelKey: 'customers' as const, icon: Users },
   { href: '/suppliers', labelKey: 'suppliers' as const, icon: Truck },
+];
+
+const accountingNav = [
+  { href: '/inventory', labelKey: 'inventory' as const, icon: Package },
+  { href: '/ledger', labelKey: 'ledger' as const, icon: BookOpen },
+  { href: '/bank-reconciliation', labelKey: 'bankReconciliation' as const, icon: Landmark },
+  { href: '/branches', labelKey: 'branches' as const, icon: Building },
 ];
 
 const staffNav = [
@@ -137,6 +148,7 @@ export function Sidebar() {
         </div>
         <div className="flex-1 overflow-y-auto p-3">
           <NavSection items={mainNav} pathname={pathname} t={t} labelOverrides={navLabelOverrides} />
+          <NavSection title="Accounting" items={accountingNav} pathname={pathname} t={t} />
           <NavSection title="Staff" items={staffNav} pathname={pathname} t={t} labelOverrides={navLabelOverrides} />
           <NavSection items={otherNav} pathname={pathname} t={t} labelOverrides={navLabelOverrides} />
         </div>

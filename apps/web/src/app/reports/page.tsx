@@ -16,15 +16,17 @@ import { PeriodToggle } from '@/components/period-toggle';
 import { useTranslation } from '@/components/language-switcher';
 import { useToast } from '@/components/toast';
 import { useAppStore } from '@/stores/app-store';
+import { useBusinessLabels } from '@/hooks/use-business-labels';
 import { useReportChartData } from '@/hooks/use-report-data';
 import {
   getCustomers,
   getSuppliers,
   getCompany,
+  getVendorCommissionReport,
   queryKeys,
   SAMPLE_COMPANY_ID,
 } from '@bizmanager/supabase-client';
-import { formatCurrency } from '@bizmanager/utils';
+import { formatCurrency, toISODate } from '@bizmanager/utils';
 import { downloadReportPdf } from '@/lib/export/report-pdf';
 import { downloadReportCsv, buildReportWhatsAppSummary } from '@/lib/export/report-csv';
 import { openWhatsAppShare } from '@/lib/export/download';
@@ -34,6 +36,16 @@ export default function ReportsPage() {
   const toast = useToast((s) => s.show);
   const { period, setPeriod, companyId: storeCompanyId } = useAppStore();
   const companyId = storeCompanyId ?? SAMPLE_COMPANY_ID;
+
+  const { isMultiVendor } = useBusinessLabels();
+  const monthStart = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-01`;
+  const today = toISODate();
+
+  const { data: vendorReport } = useQuery({
+    queryKey: queryKeys.vendorCommissionReport(companyId, monthStart, today),
+    queryFn: () => getVendorCommissionReport(companyId, monthStart, today),
+    enabled: isMultiVendor,
+  });
 
   const {
     periodSummary,
@@ -173,6 +185,34 @@ export default function ReportsPage() {
               </div>
             ))}
           </SummaryCard>
+          {isMultiVendor && vendorReport && vendorReport.length > 0 && (
+            <SummaryCard title={t('vendorCommissionReport')} className="lg:col-span-2">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b text-left">
+                      <th className="py-2">{t('vendor')}</th>
+                      <th className="py-2">{t('commissionRate')}</th>
+                      <th className="py-2 text-right">{t('commissionThisMonth')}</th>
+                      <th className="py-2 text-right">{t('vendorSettlementsThisMonth')}</th>
+                      <th className="py-2 text-right">{t('moneyToPay')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {vendorReport.map((row) => (
+                      <tr key={row.supplier_id} className="border-b border-gray-100 dark:border-gray-800">
+                        <td className="py-2">{row.supplier_name}</td>
+                        <td className="py-2">{row.commission_rate}%</td>
+                        <td className="py-2 text-right text-income">{formatCurrency(row.commission_total)}</td>
+                        <td className="py-2 text-right text-expense">{formatCurrency(row.settlements_total)}</td>
+                        <td className="py-2 text-right">{formatCurrency(row.balance)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </SummaryCard>
+          )}
         </div>
       </div>
     </AppShell>

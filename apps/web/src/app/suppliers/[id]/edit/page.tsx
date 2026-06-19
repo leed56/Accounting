@@ -43,6 +43,7 @@ export default function EditSupplierPage() {
         phone: supplier.phone ?? '',
         email: supplier.email ?? '',
         address: supplier.address ?? '',
+        commissionRate: Number(supplier.commission_rate ?? 0),
       });
     }
   }, [supplier, reset]);
@@ -76,6 +77,7 @@ export default function EditSupplierPage() {
             Balance: <span className="font-semibold text-expense">{formatCurrency(supplier.current_balance)}</span>
           </p>
           <FormInput label={vendorLabel} required error={errors.name?.message} {...register('name')} />
+          <FormInput label={t('commissionRate')} type="number" {...register('commissionRate')} />
           <FormInput label="Phone" {...register('phone')} />
           <FormInput label={t('email')} type="email" {...register('email')} />
           <TextAreaField label="Address" {...register('address')} />

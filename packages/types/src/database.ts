@@ -95,6 +95,8 @@ export interface Supplier {
   address: string | null;
   opening_balance: number;
   current_balance: number;
+  commission_rate: number;
+  branch_id: string | null;
   created_at: string;
 }
 
@@ -306,4 +308,123 @@ export interface DashboardSummary {
   pendingLeave: number;
   receivables: number;
   payables: number;
+}
+
+export interface Branch {
+  id: string;
+  company_id: string;
+  name: string;
+  address: string | null;
+  phone: string | null;
+  is_default: boolean;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface Product {
+  id: string;
+  company_id: string;
+  branch_id: string | null;
+  sku: string | null;
+  name: string;
+  unit: string;
+  cost_price: number;
+  sale_price: number;
+  quantity_on_hand: number;
+  reorder_level: number;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface StockMovement {
+  id: string;
+  company_id: string;
+  product_id: string;
+  movement_type: 'in' | 'out' | 'adjustment';
+  quantity: number;
+  unit_cost: number | null;
+  reference_type: string | null;
+  reference_id: string | null;
+  notes: string | null;
+  created_by: string | null;
+  created_at: string;
+}
+
+export interface JournalEntry {
+  id: string;
+  company_id: string;
+  branch_id: string | null;
+  entry_date: string;
+  reference: string | null;
+  description: string;
+  status: 'posted' | 'void';
+  transaction_id: string | null;
+  created_by: string | null;
+  created_at: string;
+}
+
+export interface JournalLine {
+  id: string;
+  journal_entry_id: string;
+  account_code: string;
+  account_id: string | null;
+  debit: number;
+  credit: number;
+  description: string | null;
+}
+
+export interface SettlementRun {
+  id: string;
+  company_id: string;
+  branch_id: string | null;
+  run_date: string;
+  status: 'draft' | 'submitted' | 'approved' | 'paid' | 'cancelled';
+  total_amount: number;
+  notes: string | null;
+  account_id: string | null;
+  created_by: string | null;
+  approved_by: string | null;
+  created_at: string;
+}
+
+export interface SettlementItem {
+  id: string;
+  settlement_run_id: string;
+  supplier_id: string;
+  amount: number;
+  transaction_id: string | null;
+  notes: string | null;
+}
+
+export interface BankReconciliation {
+  id: string;
+  company_id: string;
+  account_id: string;
+  statement_date: string;
+  opening_balance: number;
+  closing_balance: number;
+  status: 'open' | 'closed';
+  notes: string | null;
+  created_by: string | null;
+  created_at: string;
+}
+
+export interface BankStatementLine {
+  id: string;
+  reconciliation_id: string;
+  line_date: string;
+  description: string | null;
+  amount: number;
+  reference: string | null;
+  transaction_id: string | null;
+  is_matched: boolean;
+}
+
+export interface VendorCommissionRow {
+  supplier_id: string;
+  supplier_name: string;
+  commission_rate: number;
+  commission_total: number;
+  settlements_total: number;
+  balance: number;
 }

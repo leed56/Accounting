@@ -24,7 +24,7 @@ export default function AddSupplierPage() {
 
   const { register, handleSubmit, formState: { errors } } = useForm<SupplierInput>({
     resolver: zodResolver(supplierSchema),
-    defaultValues: { openingBalance: 0 },
+    defaultValues: { openingBalance: 0, commissionRate: 10 },
   });
 
   const mutation = useMutation({
@@ -46,6 +46,7 @@ export default function AddSupplierPage() {
           <FormInput label={t('email')} type="email" {...register('email')} />
           <TextAreaField label="Address" {...register('address')} />
           <FormInput label="Opening balance (Rs.)" type="number" {...register('openingBalance')} />
+          <FormInput label={t('commissionRate')} type="number" {...register('commissionRate')} />
           <PremiumButton type="submit" loading={mutation.isPending} className="w-full">
             {t('save')}
           </PremiumButton>

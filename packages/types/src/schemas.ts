@@ -59,6 +59,7 @@ export const incomeSchema = z
   .object({
     category: z.string().min(1, 'Category is required'),
     customerId: z.string().optional().nullable(),
+    supplierId: z.string().optional().nullable(),
     amount: z.coerce.number().positive('Amount must be positive'),
     paymentMethod: z.enum(PAYMENT_METHODS),
     accountId: z.string().optional().nullable(),
@@ -105,7 +106,9 @@ export const customerSchema = z.object({
   openingBalance: z.coerce.number().default(0),
 });
 
-export const supplierSchema = customerSchema;
+export const supplierSchema = customerSchema.extend({
+  commissionRate: z.coerce.number().min(0).max(100).default(0),
+});
 
 export const customerUpdateSchema = z.object({
   name: z.string().min(2, 'Name is required'),
@@ -114,7 +117,9 @@ export const customerUpdateSchema = z.object({
   address: z.string().optional().nullable(),
 });
 
-export const supplierUpdateSchema = customerUpdateSchema;
+export const supplierUpdateSchema = customerUpdateSchema.extend({
+  commissionRate: z.coerce.number().min(0).max(100).optional(),
+});
 
 export const staffSchema = z.object({
   fullName: z.string().min(2, 'Name is required'),
@@ -149,6 +154,76 @@ export const inviteSchema = z.object({
   email: z.string().email('Invalid email'),
   fullName: z.string().min(2, 'Name is required'),
   role: z.enum(['manager', 'accountant', 'staff']),
+});
+
+export const branchSchema = z.object({
+  name: z.string().min(2, 'Branch name is required'),
+  address: z.string().optional().nullable(),
+  phone: z.string().optional().nullable(),
+  isDefault: z.boolean().default(false),
+});
+
+export const productSchema = z.object({
+  name: z.string().min(2, 'Product name is required'),
+  sku: z.string().optional().nullable(),
+  unit: z.string().default('pcs'),
+  costPrice: z.coerce.number().min(0).default(0),
+  salePrice: z.coerce.number().min(0).default(0),
+  quantityOnHand: z.coerce.number().min(0).default(0),
+  reorderLevel: z.coerce.number().min(0).default(0),
+  branchId: z.string().optional().nullable(),
+});
+
+export const stockAdjustmentSchema = z.object({
+  productId: z.string().min(1),
+  movementType: z.enum(['in', 'out', 'adjustment']),
+  quantity: z.coerce.number().positive('Quantity must be positive'),
+  unitCost: z.coerce.number().min(0).optional().nullable(),
+  notes: z.string().optional().nullable(),
+});
+
+export const journalLineSchema = z.object({
+  accountCode: z.string().min(1),
+  accountId: z.string().optional().nullable(),
+  debit: z.coerce.number().min(0).default(0),
+  credit: z.coerce.number().min(0).default(0),
+  description: z.string().optional().nullable(),
+});
+
+export const journalEntrySchema = z.object({
+  entryDate: z.string(),
+  reference: z.string().optional().nullable(),
+  description: z.string().min(2, 'Description is required'),
+  branchId: z.string().optional().nullable(),
+  lines: z.array(journalLineSchema).min(2, 'At least two lines required'),
+});
+
+export const settlementItemInputSchema = z.object({
+  supplierId: z.string().min(1),
+  amount: z.coerce.number().positive('Amount must be positive'),
+  notes: z.string().optional().nullable(),
+});
+
+export const settlementRunSchema = z.object({
+  runDate: z.string(),
+  accountId: z.string().optional().nullable(),
+  notes: z.string().optional().nullable(),
+  items: z.array(settlementItemInputSchema).min(1, 'Select at least one vendor'),
+});
+
+export const bankReconciliationSchema = z.object({
+  accountId: z.string().min(1, 'Bank account is required'),
+  statementDate: z.string(),
+  openingBalance: z.coerce.number(),
+  closingBalance: z.coerce.number(),
+  notes: z.string().optional().nullable(),
+});
+
+export const bankStatementLineSchema = z.object({
+  lineDate: z.string(),
+  description: z.string().optional().nullable(),
+  amount: z.coerce.number(),
+  reference: z.string().optional().nullable(),
 });
 
 export const expenseCategorySchema = z.object({
@@ -187,3 +262,10 @@ export type LeaveRequestInput = z.infer<typeof leaveRequestSchema>;
 export type SettingsInput = z.infer<typeof settingsSchema>;
 export type ExpenseCategoryInput = z.infer<typeof expenseCategorySchema>;
 export type InviteInput = z.infer<typeof inviteSchema>;
+export type BranchInput = z.infer<typeof branchSchema>;
+export type ProductInput = z.infer<typeof productSchema>;
+export type StockAdjustmentInput = z.infer<typeof stockAdjustmentSchema>;
+export type JournalEntryInput = z.infer<typeof journalEntrySchema>;
+export type SettlementRunInput = z.infer<typeof settlementRunSchema>;
+export type BankReconciliationInput = z.infer<typeof bankReconciliationSchema>;
+export type BankStatementLineInput = z.infer<typeof bankStatementLineSchema>;

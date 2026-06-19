@@ -8,12 +8,12 @@ import type {
   SupplierInput,
   SupplierUpdateInput,
 } from '@bizmanager/types';
-import { calculateRiskLevel, requiresOwnerApproval, formatCurrency, buildPaymentMetaFields } from '@bizmanager/utils';
+import { calculateRiskLevel, requiresOwnerApproval, formatCurrency, buildPaymentMetaFields, MULTI_VENDOR_SETTLEMENT_CATEGORY } from '@bizmanager/utils';
 import { getSupabase } from './client';
 import { getCurrentProfile } from './auth';
 import { getCompany, getAccounts, isDemoMode } from './queries';
 
-async function getContext() {
+export async function getContext() {
   const profile = await getCurrentProfile();
   if (!profile) throw new Error('Not authenticated');
   const company = await getCompany(profile.company_id);
@@ -89,6 +89,7 @@ export async function createIncome(input: IncomeInput) {
       ...paymentMeta,
       account_id: input.accountId || null,
       customer_id: input.customerId || null,
+      supplier_id: input.supplierId || null,
       description: input.notes || null,
       transaction_date: input.transactionDate,
       status,
@@ -209,6 +210,24 @@ export async function createExpense(input: ExpenseInput) {
         .update({ current_balance: Number(account.current_balance) - input.amount })
         .eq('id', input.accountId);
     }
+    if (
+      input.supplierId &&
+      input.category === MULTI_VENDOR_SETTLEMENT_CATEGORY
+    ) {
+      const { data: supplier } = await supabase
+        .from('suppliers')
+        .select('current_balance')
+        .eq('id', input.supplierId)
+        .single();
+      if (supplier) {
+        await supabase
+          .from('suppliers')
+          .update({
+            current_balance: Math.max(0, Number(supplier.current_balance) - input.amount),
+          })
+          .eq('id', input.supplierId);
+      }
+    }
   }
 
   await createAuditLog(profile.company_id, profile.id, 'create', 'transaction', tx.id, undefined, {
@@ -271,6 +290,28 @@ export async function processApproval(
           current_balance: Number(cashAccount.current_balance) - Number(request.amount),
         })
         .eq('id', cashAccount.id);
+    }
+    if (request.transaction_id && request.supplier_id) {
+      const { data: tx } = await supabase
+        .from('transactions')
+        .select('category')
+        .eq('id', request.transaction_id)
+        .single();
+      if (tx?.category === MULTI_VENDOR_SETTLEMENT_CATEGORY) {
+        const { data: supplier } = await supabase
+          .from('suppliers')
+          .select('current_balance')
+          .eq('id', request.supplier_id)
+          .single();
+        if (supplier) {
+          await supabase
+            .from('suppliers')
+            .update({
+              current_balance: Math.max(0, Number(supplier.current_balance) - Number(request.amount)),
+            })
+            .eq('id', request.supplier_id);
+        }
+      }
     }
   }
 
@@ -400,6 +441,7 @@ export async function createSupplier(input: SupplierInput) {
       address: input.address || null,
       opening_balance: input.openingBalance ?? 0,
       current_balance: input.openingBalance ?? 0,
+      commission_rate: input.commissionRate ?? 0,
     })
     .select()
     .single();
@@ -426,6 +468,7 @@ export async function updateSupplier(id: string, input: SupplierUpdateInput) {
       phone: input.phone || null,
       email: input.email || null,
       address: input.address || null,
+      ...(input.commissionRate !== undefined ? { commission_rate: input.commissionRate } : {}),
     })
     .eq('id', id)
     .select()

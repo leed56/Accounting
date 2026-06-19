@@ -18,10 +18,12 @@ import {
   getCustomers,
   getAccounts,
   getIncomeCategories,
+  getSuppliers,
   queryKeys,
   SAMPLE_COMPANY_ID,
 } from '@bizmanager/supabase-client';
 import { useAppStore } from '@/stores/app-store';
+import { useBusinessLabels } from '@/hooks/use-business-labels';
 import { toISODate, getCategoryName } from '@bizmanager/utils';
 import { PaymentMetaFields } from '@/components/payment-meta-fields';
 
@@ -33,6 +35,7 @@ export default function AddIncomePage() {
   const toast = useToast((s) => s.show);
   const queryClient = useQueryClient();
   const companyId = useAppStore((s) => s.companyId) ?? SAMPLE_COMPANY_ID;
+  const { isMultiVendor, vendorLabel } = useBusinessLabels();
   const [receipt, setReceipt] = useState<File | null>(null);
 
   const { data: customers } = useQuery({
@@ -43,6 +46,12 @@ export default function AddIncomePage() {
   const { data: accounts } = useQuery({
     queryKey: queryKeys.accounts(companyId),
     queryFn: () => getAccounts(companyId),
+  });
+
+  const { data: suppliers } = useQuery({
+    queryKey: queryKeys.suppliers(companyId),
+    queryFn: () => getSuppliers(companyId),
+    enabled: isMultiVendor,
   });
 
   const { data: categories } = useQuery({
@@ -79,6 +88,7 @@ export default function AddIncomePage() {
       const result = await createIncome({
         ...data,
         customerId: data.customerId || null,
+        supplierId: data.supplierId || null,
         accountId: data.accountId || accounts?.find((a) => a.type === 'cash')?.id || null,
       });
       if (receipt && result?.id) {
@@ -122,6 +132,16 @@ export default function AddIncomePage() {
             ]}
             {...register('customerId')}
           />
+          {isMultiVendor && (
+            <SelectField
+              label={vendorLabel}
+              options={[
+                { value: '', label: '— Optional —' },
+                ...(suppliers?.map((s) => ({ value: s.id, label: s.name })) ?? []),
+              ]}
+              {...register('supplierId')}
+            />
+          )}
           <FormInput label={t('amount')} required error={errors.amount?.message} {...register('amount')} />
           <SelectField
             label={t('paymentMethod')}

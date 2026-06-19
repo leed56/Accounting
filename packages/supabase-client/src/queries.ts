@@ -114,11 +114,11 @@ export const sampleCustomers: Customer[] = [
 ];
 
 export const sampleSuppliers: Supplier[] = [
-  { id: '1', company_id: SAMPLE_COMPANY_ID, name: 'Dialog', phone: '1777', email: null, address: null, opening_balance: 0, current_balance: 8500, created_at: new Date().toISOString() },
-  { id: '2', company_id: SAMPLE_COMPANY_ID, name: 'Ceypetco/Fuel Vendor', phone: null, email: null, address: 'Colombo', opening_balance: 0, current_balance: 12750, created_at: new Date().toISOString() },
-  { id: '3', company_id: SAMPLE_COMPANY_ID, name: 'Office Rent Owner', phone: '+94771234567', email: null, address: 'Colombo 05', opening_balance: 0, current_balance: 75000, created_at: new Date().toISOString() },
-  { id: '4', company_id: SAMPLE_COMPANY_ID, name: 'Global Traders', phone: null, email: null, address: null, opening_balance: 0, current_balance: 15000, created_at: new Date().toISOString() },
-  { id: '5', company_id: SAMPLE_COMPANY_ID, name: 'Stationery Supplier', phone: null, email: null, address: null, opening_balance: 0, current_balance: 5750, created_at: new Date().toISOString() },
+  { id: '1', company_id: SAMPLE_COMPANY_ID, name: 'Dialog', phone: '1777', email: null, address: null, opening_balance: 0, current_balance: 8500, commission_rate: 0, branch_id: null, created_at: new Date().toISOString() },
+  { id: '2', company_id: SAMPLE_COMPANY_ID, name: 'Ceypetco/Fuel Vendor', phone: null, email: null, address: 'Colombo', opening_balance: 0, current_balance: 12750, commission_rate: 0, branch_id: null, created_at: new Date().toISOString() },
+  { id: '3', company_id: SAMPLE_COMPANY_ID, name: 'Office Rent Owner', phone: '+94771234567', email: null, address: 'Colombo 05', opening_balance: 0, current_balance: 75000, commission_rate: 0, branch_id: null, created_at: new Date().toISOString() },
+  { id: '4', company_id: SAMPLE_COMPANY_ID, name: 'Global Traders', phone: null, email: null, address: null, opening_balance: 0, current_balance: 15000, commission_rate: 0, branch_id: null, created_at: new Date().toISOString() },
+  { id: '5', company_id: SAMPLE_COMPANY_ID, name: 'Stationery Supplier', phone: null, email: null, address: null, opening_balance: 0, current_balance: 5750, commission_rate: 0, branch_id: null, created_at: new Date().toISOString() },
 ];
 
 export const sampleTransactions: Transaction[] = [

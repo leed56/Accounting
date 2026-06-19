@@ -33,4 +33,18 @@ export const queryKeys = {
   pendingCheques: (companyId: string) => ['pendingCheques', companyId] as const,
   businessMetrics: (companyId: string, businessType: string) =>
     ['businessMetrics', companyId, businessType] as const,
+  branches: (companyId: string) => ['branches', companyId] as const,
+  products: (companyId: string) => ['products', companyId] as const,
+  product: (id: string) => ['product', id] as const,
+  stockMovements: (productId: string) => ['stockMovements', productId] as const,
+  journalEntries: (companyId: string) => ['journalEntries', companyId] as const,
+  journalEntry: (id: string) => ['journalEntry', id] as const,
+  settlementRuns: (companyId: string) => ['settlementRuns', companyId] as const,
+  settlementRun: (id: string) => ['settlementRun', id] as const,
+  bankReconciliations: (companyId: string) => ['bankReconciliations', companyId] as const,
+  bankReconciliation: (id: string) => ['bankReconciliation', id] as const,
+  bankStatementLines: (reconId: string) => ['bankStatementLines', reconId] as const,
+  supplierTransactions: (supplierId: string) => ['supplierTransactions', supplierId] as const,
+  vendorCommissionReport: (companyId: string, start: string, end: string) =>
+    ['vendorCommissionReport', companyId, start, end] as const,
 };
